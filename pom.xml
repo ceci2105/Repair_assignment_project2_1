@@ -4,4 +4,11 @@
     <groupId>com.project12</groupId>
     <artifactId>Project_2_1</artifactId>
     <version>1.0-SNAPSHOT</version>
+
+    <build>
+        <plugins>
+
+        </plugins>
+
+    </build>
 </project>
