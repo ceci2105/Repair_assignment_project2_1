@@ -13,12 +13,19 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * This class is used as the controller for the First screen.
+ */
 public class FirstScreenController {
 
     private static final Logger logger = Logger.getLogger(FirstScreenController.class.getName());
     @FXML
     private Button startGameButton;
 
+    /**
+     * This method is used to go from the first to the second screen.
+     * @param event The event of clicking the button to go to the next screen.
+     */
     @FXML
     private void handleStartGame(ActionEvent event) {
         try {

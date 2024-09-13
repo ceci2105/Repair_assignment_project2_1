@@ -1,9 +1,9 @@
 package game.tak;
 
-public class FlatStone implements Piece {
+public class StandingStone implements Piece {
     private final Player owner;
 
-    public FlatStone(Player owner) {
+    public StandingStone(Player owner) {
         this.owner = owner;
     }
 
@@ -19,6 +19,6 @@ public class FlatStone implements Piece {
 
     @Override
     public PieceType getType() {
-        return PieceType.FLAT;
+        return PieceType.STANDING;
     }
 }

@@ -1,9 +1,9 @@
 package game.tak;
 
-public class FlatStone implements Piece {
-    private final Player owner;
+public class CapStone implements Piece {
+    public final Player owner;
 
-    public FlatStone(Player owner) {
+    public CapStone(Player owner) {
         this.owner = owner;
     }
 
@@ -14,11 +14,11 @@ public class FlatStone implements Piece {
 
     @Override
     public boolean isCapStone() {
-        return false;
+        return true;
     }
 
     @Override
     public PieceType getType() {
-        return PieceType.FLAT;
+        return PieceType.CAPSTONE;
     }
 }
