@@ -13,11 +13,13 @@ import java.util.Set;
  * This class represents static helper methods for the Board class.
  */
 public class BoardHelper {
+    private Board board;
 
     /**
      * Checks if the position of the stone is valid.
-     * @param row The row position of the position to be checked.
-     * @param col The column of the position to be checked.
+     *
+     * @param row       The row position of the position to be checked.
+     * @param col       The column of the position to be checked.
      * @param boardSize The size of the board.
      * @return True if the placement is valid, false otherwise.
      */
@@ -27,8 +29,9 @@ public class BoardHelper {
 
     /**
      * Checks if the player has won the game based on the current state of the game.
+     *
      * @param player The player to check.
-     * @param board The game board.
+     * @param board  The game board.
      * @return True if the player wins, false otherwise.
      */
     protected static boolean checkForWin(Player player, Board board) {
@@ -71,9 +74,10 @@ public class BoardHelper {
 
     /**
      * Checks if the graph has a path between two positions.
-     * @param graph The graph to be checked.
+     *
+     * @param graph         The graph to be checked.
      * @param startPosition The start position to check.
-     * @param endPosition The end position to be checked.
+     * @param endPosition   The end position to be checked.
      * @return True if the graph is connected, false otherwise.
      */
     private static boolean isConnected(Graph graph, Position startPosition, Position endPosition) {
@@ -83,11 +87,12 @@ public class BoardHelper {
 
     /**
      * Checks if a potential move is a valid move.
-     * @param board The game board.
-     * @param startRow The start row of the move.
-     * @param startCol The start column of the move.
-     * @param endRow The row position after the move.
-     * @param endCol The column position after the move.
+     *
+     * @param board           The game board.
+     * @param startRow        The start row of the move.
+     * @param startCol        The start column of the move.
+     * @param endRow          The row position after the move.
+     * @param endCol          The column position after the move.
      * @param numPiecesToMove The number of pieces to be moved.
      * @return True if the move is valid, false otherwise.
      */
@@ -105,7 +110,7 @@ public class BoardHelper {
             return false;
         }
 
-        if (board.getPieceAt(startRow,startCol) == null) {
+        if (board.getPieceAt(startRow, startCol) == null) {
             return false;
         }
 
@@ -119,20 +124,17 @@ public class BoardHelper {
             return false;
         }
 
-        if (!isPathClear(board, startRow, startCol, endRow, endCol, numPiecesToMove)) {
-            return false;
-        }
-
-        return true;
+        return isPathClear(board, startRow, startCol, endRow, endCol, numPiecesToMove);
     }
 
     /**
      * Gets all the pieces in a given path.
-     * @param board The game board.
+     *
+     * @param board    The game board.
      * @param startRow The starting row of the path.
      * @param startCol The starting column of the path.
-     * @param endRow The end row of the path.
-     * @param endCol The end column of the path.
+     * @param endRow   The end row of the path.
+     * @param endCol   The end column of the path.
      * @return a List containing the pieces in the given path.
      */
     protected static List<Piece> getPiecesInPath(Board board, int startRow, int startCol, int endRow, int endCol) {
@@ -147,8 +149,8 @@ public class BoardHelper {
         int currentCol = startCol;
 
         while (currentRow != endRow || currentCol != endCol) {
-            if (board.getPieceAt(currentRow,currentCol) != null) {
-                piecesInPath.add(board.getPieceAt(currentRow,currentCol));
+            if (board.getPieceAt(currentRow, currentCol) != null) {
+                piecesInPath.add(board.getPieceAt(currentRow, currentCol));
             }
             currentRow += rowIncrement;
             currentCol += colIncrement;
@@ -156,7 +158,7 @@ public class BoardHelper {
 
         // Add a piece at end position (if possible or if there are any)
         if (board.getPieceAt(endRow, endCol) != null) {
-            piecesInPath.add(board.getPieceAt(endRow,endCol));
+            piecesInPath.add(board.getPieceAt(endRow, endCol));
         }
 
         return piecesInPath;
@@ -164,9 +166,10 @@ public class BoardHelper {
 
     /**
      * Gets the height of the Stack of Pieces at a given position
+     *
      * @param board The game board.
-     * @param row The row to be checked.
-     * @param col The column to be checked.
+     * @param row   The row to be checked.
+     * @param col   The column to be checked.
      * @return The height of the stack at the given position.
      */
     private static int getStackHeight(Board board, int row, int col) {
@@ -180,10 +183,11 @@ public class BoardHelper {
 
     /**
      * Checks if two positions are orthogonal.
+     *
      * @param startRow The row of the starting position.
      * @param startCol The column of the starting column.
-     * @param endRow The row at the destination.
-     * @param endCol The column at the destination.
+     * @param endRow   The row at the destination.
+     * @param endCol   The column at the destination.
      * @return True if it's orthogonal, False otherwise.
      */
     private static boolean isOrthogonal(int startRow, int startCol, int endRow, int endCol) {
@@ -192,15 +196,16 @@ public class BoardHelper {
 
     /**
      * Checks if the given path is clear.
-     * @param board The game board.
-     * @param startRow The starting row of the path.
-     * @param startCol The starting column of the path.
-     * @param endRow The end row of the path.
-     * @param endCol The end column of the path.
+     *
+     * @param board           The game board.
+     * @param startRow        The starting row of the path.
+     * @param startCol        The starting column of the path.
+     * @param endRow          The end row of the path.
+     * @param endCol          The end column of the path.
      * @param numPiecesToMove The number of pieces to be moved.
      * @return True, if the path is clear, false otherwise.
      */
-    private static boolean isPathClear(Board board, int startRow, int startCol, int endRow, int endCol, int numPiecesToMove){
+    private static boolean isPathClear(Board board, int startRow, int startCol, int endRow, int endCol, int numPiecesToMove) {
         int rowIncrement = Integer.compare(endRow, startRow);
         int colIncrement = Integer.compare(endCol, startCol);
 
@@ -222,13 +227,14 @@ public class BoardHelper {
             }
         }
         return true;
-}
+    }
 
     /**
      * Logic to capture a piece.
-     * @param board The game board.
+     *
+     * @param board           The game board.
      * @param capturingPlayer The player capturing a piece.
-     * @param capturedPieces A list containing all the pieced captured by the player.
+     * @param capturedPieces  A list containing all the pieced captured by the player.
      */
     protected static void capturePieces(Board board, Player capturingPlayer, List<Piece> capturedPieces) {
         /*
@@ -244,11 +250,12 @@ public class BoardHelper {
 
     /**
      * Finds the position of a given piece.
-     * @param board The game board.
+     *
+     * @param board       The game board.
      * @param pieceToFind The piece that should be found.
      * @return The position of the piece.
      */
-    private static Position findPiecePosition(Board board, Piece pieceToFind) {
+    static Position findPiecePosition(Board board, Piece pieceToFind) {
         for (int row = 0; row < board.getSize(); row++) {
             for (int col = 0; col < board.getSize(); col++) {
                 if (board.getPieceAt(row, col) == pieceToFind) {
@@ -256,6 +263,75 @@ public class BoardHelper {
                 }
             }
         }
+        return null;
+    }
+
+    /**
+     * Ads an edge to a given graph based on a position.
+     * @param graph The graph to which the edges should be added to.
+     * @param position The positions to be added.
+     * @param size The size of the board.
+     */
+    private static void addEdgesForPosition(Graph<Position, DefaultEdge> graph, Position position, int size) {
+        int row = position.row;
+        int col = position.col;
+
+        if (row > 0) {
+            graph.addEdge(position, new Position(row - 1, col));
+        }
+        if (row < size - 1) {
+            graph.addEdge(position, new Position(row + 1, col));
+        }
+        if (col > 0) {
+            graph.addEdge(position, new Position(row, col - 1));
+        }
+        if (col < size - 1) {
+            graph.addEdge(position, new Position(row, col + 1));
+        }
+    }
+
+    /**
+     * Updates the given graph after a move was done.
+     * @param board The game board.
+     * @param startRow The starting row of the move.
+     * @param startCol The starting column of the move.
+     * @param endRow The end row of the move.
+     * @param endCol The end column of the move.
+     * @param currentPlayer The player performing the move.
+     */
+    protected void updateGraphAfterMove(Board board, int startRow, int startCol, int endRow, int endCol, Player currentPlayer) {
+        Graph<Position, DefaultEdge> graph = board.getGraph();
+
+        Piece movedPiece = board.getPieceAt(endRow, endCol);
+        if (movedPiece != null && movedPiece.isCapStone()) {
+            Position newCapstonePos = new Position(endRow, endCol);
+            graph.removeAllEdges(graph.edgesOf(newCapstonePos));
+
+            Position prevCapstonePos = new Position(startRow, startCol);
+            if (board.getPieceAt(startRow, startCol) == null || !board.getPieceAt(startRow, startCol).isCapStone()) {
+                addEdgesForPosition(graph, prevCapstonePos, board.getSize());
+            }
+
+            if (endRow < board.getSize() - 1) {
+                Piece pieceBelow = board.getPieceAt(endRow + 1, endCol);
+                if (pieceBelow.getType() == PieceType.STANDING) {
+                    board.placePiece(new FlatStone(pieceBelow.getOwner()), endRow + 1, endCol);
+                    addEdgesForPosition(graph, new Position(endRow + 1, endCol), board.getSize());
+                }
+            }
+        }
+        Player opponent = getOpponent(currentPlayer);
+        List<Piece> capturedPieces = opponent.getCapturedPieces();
+        for (Piece capturedPiece: capturedPieces) {
+            if (capturedPiece.isCapStone()) {
+                Position capturedPos = findPiecePosition(board, capturedPiece);
+                addEdgesForPosition(graph, capturedPos, board.getSize());
+            }
+        }
+    }
+
+    private static Player getOpponent(Player currentPlayer) {
+        //TODO: Implement Logic!
         return null;
     }
 }
