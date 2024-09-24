@@ -1,25 +1,29 @@
+// Main.java
 package main;
 
+import gui.MillGameUI;
+import game.mills.Game;
+import game.mills.Player;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.paint.Color;
 
 public class Main extends Application {
 
-    public static void main(String[] args) {
-        launch(args);
+    @Override
+    public void start(Stage primaryStage) {
+        // Initialize players
+        Player player1 = new Player("Player 1", Color.BLACK);
+        Player player2 = new Player("Player 2", Color.WHITE);
+
+        // Initialize the game
+        Game game = new Game(player1, player2);
+
+        // Start the GUI
+        new MillGameUI(primaryStage, game);
     }
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("/design/first_screen.fxml"));
-
-        Scene scene = new Scene(root);
-
-        stage.setScene(scene);
-        stage.setTitle("Title Screen");
-        stage.show();
+    public static void main(String[] args) {
+        launch(args);
     }
 }
