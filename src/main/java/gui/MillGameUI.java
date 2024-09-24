@@ -58,18 +58,6 @@ public class MillGameUI {
 
         // Correctly defined edges between node indices
         int[][] edges = board.getEdges();
-                /**{
-            // Outer square connections
-            {0, 1}, {1, 2}, {2, 14}, {14, 23}, {23, 22}, {22, 21}, {21, 9}, {9, 0},
-            // Middle square connections
-            {3, 4}, {4, 5}, {5, 13}, {13, 20}, {20, 19}, {19, 18}, {18, 10}, {10, 3},
-            // Inner square connections
-            {6, 7}, {7, 8}, {8, 12}, {12, 17}, {17, 16}, {16, 15}, {15, 11}, {11, 6},
-            // Vertical connections
-            {0, 3}, {3, 6}, {1, 4}, {4, 7}, {2, 5}, {5, 8},
-            {14, 13}, {13, 12}, {23, 20}, {20, 17}, {22, 19}, {19, 16}, {21, 18}, {18, 15}, {9, 10}, {10, 11}
-        };
-         */
 
         // Draw the nodes (positions on the board)
         Circle[] circles = new Circle[positions.length];

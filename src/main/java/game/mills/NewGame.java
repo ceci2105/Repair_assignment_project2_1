@@ -1,14 +1,19 @@
 package game.mills;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Implementation with graphing lib
  */
 public class NewGame {
+    private static Logger logger = Logger.getLogger(NewGame.class.getName());
     private Player player1;
     private Player player2;
     private Player currentPlayer;
     private Board board;
     private MoveValidator moveValidator;
+    private int totalMoves;
     private int phase;
 
     public NewGame(Player p1, Player p2) {
@@ -18,6 +23,7 @@ public class NewGame {
         this.board = new Board();
         this.moveValidator = new MoveValidator(board);
         this.phase = 1;
+        this.totalMoves = 0;
     }
 
     /**
@@ -36,10 +42,11 @@ public class NewGame {
         if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
             board.placePiece(currentPlayer, nodeID);
             if (board.checkMill(board.getNode(nodeID), currentPlayer)) {
+                logger.log(Level.ALL, "Player {0} made a mill!", currentPlayer.getName());
                 // TODO: Handle mill!
             }
             switchPlayer();
-            //updatePhase();
+            totalMoves++;
         } else {
             throw new InvalidMove("Placement is invalid!");
         }
@@ -61,6 +68,7 @@ public class NewGame {
         if (moveValidator.isValidMove(currentPlayer, fromID, toID)) {
             board.movePiece(currentPlayer, fromID, toID);
             if (board.checkMill(board.getNode(toID), currentPlayer)) {
+                logger.log(Level.ALL, "Player {0} made a mill!", currentPlayer.getName());
                 // TODO: Handle mill!
             }
         }else {
@@ -82,5 +90,15 @@ public class NewGame {
 
     public boolean canFly(Player currentPlayer) {
         return moveValidator.canFly(currentPlayer);
+    }
+
+    private void checkPhase() {
+        if (totalMoves >= 18) {
+            phase = 2;
+        }
+
+    }
+    public int getPhase() {
+        return phase;
     }
 }
