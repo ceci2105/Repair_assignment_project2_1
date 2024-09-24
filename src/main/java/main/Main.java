@@ -1,6 +1,7 @@
 // Main.java
 package main;
 
+import game.mills.NewGame;
 import gui.MillGameUI;
 import game.mills.Game;
 import game.mills.Player;
@@ -17,7 +18,7 @@ public class Main extends Application {
         Player player2 = new Player("Player 2", Color.WHITE);
 
         // Initialize the game
-        Game game = new Game(player1, player2);
+        NewGame game = new NewGame(player1, player2);
 
         // Start the GUI
         new MillGameUI(primaryStage, game);

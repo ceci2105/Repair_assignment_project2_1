@@ -1,9 +1,7 @@
 // MillGameUI.java
 package gui;
 
-import game.mills.Game;
-import game.mills.Node;
-import game.mills.Player;
+import game.mills.*;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
@@ -13,14 +11,15 @@ import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
 public class MillGameUI {
-
+    static Board board;
     private static final int CIRCLE_RADIUS = 15;
     private static final int BOARD_SIZE = 600;
     private Node selectedNode = null; // Store the selected node
 
     private Label statusLabel; // Label to display game status
 
-    public MillGameUI(Stage primaryStage, Game game) {
+    public MillGameUI(Stage primaryStage, NewGame game) {
+        board = new Board();
         Pane root = new Pane();
 
         // Initialize the status label
@@ -58,7 +57,8 @@ public class MillGameUI {
         };
 
         // Correctly defined edges between node indices
-        int[][] edges = {
+        int[][] edges = board.getEdges();
+                /**{
             // Outer square connections
             {0, 1}, {1, 2}, {2, 14}, {14, 23}, {23, 22}, {22, 21}, {21, 9}, {9, 0},
             // Middle square connections
@@ -69,6 +69,7 @@ public class MillGameUI {
             {0, 3}, {3, 6}, {1, 4}, {4, 7}, {2, 5}, {5, 8},
             {14, 13}, {13, 12}, {23, 20}, {20, 17}, {22, 19}, {19, 16}, {21, 18}, {18, 15}, {9, 10}, {10, 11}
         };
+         */
 
         // Draw the nodes (positions on the board)
         Circle[] circles = new Circle[positions.length];
@@ -124,7 +125,7 @@ public class MillGameUI {
     }
 
     // Handle the selection and movement of nodes
-    private void handleClick(Node node, Circle circle, Game game, int nodeIndex) {
+    private void handleClick(Node node, Circle circle, NewGame game, int nodeIndex) {
         Player currentPlayer = game.getCurrentPlayer();
 
         if (game.isPlacingPhase()) {

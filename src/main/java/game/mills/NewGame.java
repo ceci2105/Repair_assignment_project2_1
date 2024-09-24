@@ -39,7 +39,7 @@ public class NewGame {
                 // TODO: Handle mill!
             }
             switchPlayer();
-            updatePhase();
+            //updatePhase();
         } else {
             throw new InvalidMove("Placement is invalid!");
         }
@@ -66,5 +66,21 @@ public class NewGame {
         }else {
             throw new InvalidMove("Move is invalid!");
         }
+    }
+
+    public boolean isPlacingPhase() {
+        return phase == 1;
+    }
+
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public boolean canFly(Player currentPlayer) {
+        return moveValidator.canFly(currentPlayer);
     }
 }
