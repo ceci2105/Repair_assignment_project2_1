@@ -15,6 +15,7 @@ public class NewGame {
     private MoveValidator moveValidator;
     private int totalMoves;
     private int phase;
+    private boolean millFormed = false;
 
     public NewGame(Player p1, Player p2) {
         this.player1 = p1;
@@ -43,9 +44,10 @@ public class NewGame {
             board.placePiece(currentPlayer, nodeID);
             if (board.checkMill(board.getNode(nodeID), currentPlayer)) {
                 logger.log(Level.ALL, "Player {0} made a mill!", currentPlayer.getName());
-                // TODO: Handle mill!
+                millFormed = true;
+            } else {
+                switchPlayer();
             }
-            switchPlayer();
             totalMoves++;
             checkPhase();
         } else {
@@ -70,10 +72,25 @@ public class NewGame {
             board.movePiece(currentPlayer, fromID, toID);
             if (board.checkMill(board.getNode(toID), currentPlayer)) {
                 logger.log(Level.ALL, "Player {0} made a mill!", currentPlayer.getName());
-                // TODO: Handle mill!
+                millFormed = true;
+            } else {
+                switchPlayer();
             }
         }else {
             throw new InvalidMove("Move is invalid!");
+        }
+    }
+
+    public void removeOpponentStone(int nodeID) {
+        Node node = board.getNode(nodeID);
+        if (node.isOccupied() && node.getOccupant() != currentPlayer) {
+            Player opponent = node.getOccupant();
+            node.setOccupant(null);
+            opponent.decrementStonesOnBoard();
+            millFormed = false; // Reset flag after removal
+            logger.log(Level.ALL, "Player {0}'s stone at node {1} has been removed.", new Object[]{opponent.getName(), nodeID});
+        } else {
+            throw new InvalidMove("Cannot remove this stone.");
         }
     }
 
@@ -101,5 +118,13 @@ public class NewGame {
     }
     public int getPhase() {
         return phase;
+    }
+
+    public boolean isMillFormed() {
+        return millFormed;
+    }
+
+    public void setMillFormed(boolean millFormed) {
+        this.millFormed = millFormed;
     }
 }

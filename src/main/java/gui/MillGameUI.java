@@ -116,6 +116,22 @@ public class MillGameUI {
     private void handleClick(Node node, Circle circle, NewGame game, int nodeIndex) {
         Player currentPlayer = game.getCurrentPlayer();
 
+        if (game.isMillFormed()) {
+            // Handle stone removal
+            if (node.isOccupied() && node.getOccupant() != currentPlayer) {
+                game.removeOpponentStone(nodeIndex);
+                circle.setFill(Color.LIGHTGRAY); // Update UI
+                statusLabel.setText(currentPlayer.getName() + " removed an opponent's stone. " + currentPlayer.getName() + "'s turn.");
+                game.setMillFormed(false); // Reset the mill flag
+                // Now switch player after removal
+                game.switchPlayer();
+                statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
+            } else {
+                System.out.println("Select a valid opponent's stone to remove.");
+            }
+            return; // Exit after handling removal
+        }
+
         if (game.isPlacingPhase()) {
             // Placing phase logic
             if (!node.isOccupied()) {
@@ -128,7 +144,6 @@ public class MillGameUI {
 
                 // Update the status label
                 statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
-
             } else {
                 System.out.println("Node already occupied.");
             }
@@ -142,7 +157,8 @@ public class MillGameUI {
                     System.out.println("Select your own piece to move.");
                 }
             } else {
-                if (!node.isOccupied() && (game.getBoard().isValidMove(selectedNode, node) || game.canFly(currentPlayer))) {
+                boolean canFly = game.canFly(currentPlayer);
+                if (!node.isOccupied() && (game.getBoard().isValidMove(selectedNode, node) || canFly)) {
                     game.makeMove(selectedNode.getId(), node.getId());
 
                     // Update visuals
@@ -152,7 +168,7 @@ public class MillGameUI {
 
                     // Update the status label
                     statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
-
+                    
                     selectedNode = null;
                 } else {
                     System.out.println("Invalid move.");
@@ -162,4 +178,6 @@ public class MillGameUI {
             }
         }
     }
+
+
 }
