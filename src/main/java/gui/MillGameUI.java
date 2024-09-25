@@ -59,7 +59,24 @@ public class MillGameUI {
         // Correctly defined edges between node indices
         int[][] edges = board.getEdges();
 
-        // Draw the nodes (positions on the board)
+        // First draw the edges (lines between nodes) so the pieces (circles) will be drawn on top
+        for (int[] edge : edges) {
+            int start = edge[0];
+            int end = edge[1];
+
+            // Create a line between two connected nodes
+            Line line = new Line(
+                positions[start][0] * BOARD_SIZE, positions[start][1] * BOARD_SIZE,
+                positions[end][0] * BOARD_SIZE, positions[end][1] * BOARD_SIZE
+            );
+            line.setStroke(Color.BLACK);
+            line.setStrokeWidth(2);
+
+            // Add the line to the root pane
+            root.getChildren().add(line);
+        }
+
+        // Then draw the nodes (positions on the board) after the lines so the circles are on top
         Circle[] circles = new Circle[positions.length];
         for (int i = 0; i < positions.length; i++) {
             // Get the node (position) from the board
@@ -83,26 +100,9 @@ public class MillGameUI {
             // Store the circle in the node for later updates
             node.setCircle(circle);
 
-            // Add the circle to the root pane
+            // Add the circle to the root pane after the lines
             root.getChildren().add(circle);
             circles[i] = circle;
-        }
-
-        // Draw the edges (lines between nodes)
-        for (int[] edge : edges) {
-            int start = edge[0];
-            int end = edge[1];
-
-            // Create a line between two connected nodes
-            Line line = new Line(
-                circles[start].getCenterX(), circles[start].getCenterY(),
-                circles[end].getCenterX(), circles[end].getCenterY()
-            );
-            line.setStroke(Color.BLACK);
-            line.setStrokeWidth(2);
-
-            // Add the line to the root pane
-            root.getChildren().add(line);
         }
 
         // Set up the scene and stage
