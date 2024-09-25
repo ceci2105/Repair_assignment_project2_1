@@ -146,4 +146,19 @@ public class Board {
             .filter(node -> node.getOccupant() == opponent)
             .allMatch(node -> checkMill(node, opponent));
     }
+
+    public boolean hasValidMoves(Player player) {
+        for (Node node : nodes.values()) {
+            // Check if the node belongs to the current player
+            if (node.getOccupant() == player) {
+                // Check if any of the neighbors are empty (valid move)
+                for (Node neighbor : getNeighbours(node)) {
+                    if (!neighbor.isOccupied()) {
+                        return true; // Found a valid move
+                    }
+                }
+            }
+        }
+        return false; // No valid moves found
+    }
 }

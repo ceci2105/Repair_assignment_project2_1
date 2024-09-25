@@ -89,13 +89,12 @@ public class NewGame {
     public void removeOpponentStone(int nodeID) {
         Node node = board.getNode(nodeID);
         Player opponent = node.getOccupant();
-    
+        
         if (node.isOccupied() && opponent != currentPlayer) {
             // Check if the stone is part of a mill
             if (board.checkMill(node, opponent)) {
                 // Check if opponent has other stones that are not in mills
                 boolean canRemoveMillStone = board.allOpponentStonesInMill(opponent);
-    
                 if (canRemoveMillStone) {
                     // If all stones are in mills, allow removal
                     removeStone(node, opponent);
@@ -107,10 +106,14 @@ public class NewGame {
                 // If stone is not part of a mill, allow removal
                 removeStone(node, opponent);
             }
-    
-            // Immediately switch the turn after stone removal
-            switchPlayer();
             
+            // Check phase and game over after removing a stone
+            if (phase >= 2) { // Only check game over when phase 2 has started
+                checkGameOver();
+            }
+            
+            // Switch the turn after removing the stone
+            switchPlayer();
             if (ui != null) {
                 ui.updateGameStatus("Turn: " + currentPlayer.getName());
             }
@@ -166,12 +169,23 @@ public class NewGame {
     }
 
     private void checkGameOver() {
-        if (player1.getStonesOnBoard() <= 2) {
-            // Player 2 wins if Player 1 has 2 or fewer stones
-            gameOver(player2);
-        } else if (player2.getStonesOnBoard() <= 2) {
-            // Player 1 wins if Player 2 has 2 or fewer stones
-            gameOver(player1);
+        // Check if we're in phase 2 (moving phase) before considering stones on board
+        if (phase >= 2) {
+            // Check if any player has 2 or fewer stones
+            if (player1.getStonesOnBoard() <= 2) {
+                gameOver(player2); // Player 2 wins if Player 1 has 2 or fewer stones
+                return;
+            } else if (player2.getStonesOnBoard() <= 2) {
+                gameOver(player1); // Player 1 wins if Player 2 has 2 or fewer stones
+                return;
+            }
+        }
+    
+        // Check if any player has no valid moves left
+        if (!board.hasValidMoves(player1)) {
+            gameOver(player2); // Player 2 wins if Player 1 has no valid moves
+        } else if (!board.hasValidMoves(player2)) {
+            gameOver(player1); // Player 1 wins if Player 2 has no valid moves
         }
     }
 
