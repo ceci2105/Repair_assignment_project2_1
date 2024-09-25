@@ -47,6 +47,7 @@ public class NewGame {
             }
             switchPlayer();
             totalMoves++;
+            checkPhase();
         } else {
             throw new InvalidMove("Placement is invalid!");
         }
