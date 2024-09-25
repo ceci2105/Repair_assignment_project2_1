@@ -15,6 +15,7 @@ public class NewGame {
     private Player currentPlayer;
     private Board board;
     private MoveValidator moveValidator;
+    @SuppressWarnings("unused")
     private int totalMoves;
     private int phase;
     private boolean millFormed = false;
@@ -87,18 +88,46 @@ public class NewGame {
 
     public void removeOpponentStone(int nodeID) {
         Node node = board.getNode(nodeID);
-        if (node.isOccupied() && node.getOccupant() != currentPlayer) {
-            Player opponent = node.getOccupant();
-            node.setOccupant(null);
-            opponent.decrementStonesOnBoard();
-            millFormed = false; // Reset flag after removal
-            logger.log(Level.ALL, "Player {0}'s stone at node {1} has been removed.", new Object[]{opponent.getName(), nodeID});
-            checkGameOver();
+        Player opponent = node.getOccupant();
+    
+        if (node.isOccupied() && opponent != currentPlayer) {
+            // Check if the stone is part of a mill
+            if (board.checkMill(node, opponent)) {
+                // Check if opponent has other stones that are not in mills
+                boolean canRemoveMillStone = board.allOpponentStonesInMill(opponent);
+    
+                if (canRemoveMillStone) {
+                    // If all stones are in mills, allow removal
+                    removeStone(node, opponent);
+                } else {
+                    // If not all stones are in mills, disallow removal
+                    throw new InvalidMove("Cannot remove a stone from a mill while other stones are available.");
+                }
+            } else {
+                // If stone is not part of a mill, allow removal
+                removeStone(node, opponent);
+            }
+    
+            // Immediately switch the turn after stone removal
+            switchPlayer();
+            
+            if (ui != null) {
+                ui.updateGameStatus("Turn: " + currentPlayer.getName());
+            }
         } else {
             throw new InvalidMove("Cannot remove this stone.");
         }
     }
+    
 
+    private void removeStone(Node node, Player opponent) {
+        node.setOccupant(null);
+        opponent.decrementStonesOnBoard();
+        millFormed = false; // Reset flag after removal
+        logger.log(Level.ALL, "Player {0}'s stone at node {1} has been removed.", new Object[]{opponent.getName(), node.getId()});
+        checkGameOver();
+    }
+    
     public boolean isPlacingPhase() {
         return phase == 1;
     }

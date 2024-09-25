@@ -117,19 +117,22 @@ public class MillGameUI {
         Player currentPlayer = game.getCurrentPlayer();
 
         if (game.isMillFormed()) {
-            // Handle stone removal
             if (node.isOccupied() && node.getOccupant() != currentPlayer) {
-                game.removeOpponentStone(nodeIndex);
-                circle.setFill(Color.LIGHTGRAY); // Update UI
-                statusLabel.setText(currentPlayer.getName() + " removed an opponent's stone. " + currentPlayer.getName() + "'s turn.");
-                game.setMillFormed(false); // Reset the mill flag
-                // Now switch player after removal
-                game.switchPlayer();
-                statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
+                try {
+                    game.removeOpponentStone(nodeIndex);
+                    circle.setFill(Color.LIGHTGRAY); // Update UI after valid removal
+                    updateGameStatus(currentPlayer.getName() + " removed an opponent's stone.");
+        
+                    // Update turn to reflect the switch to the next player after removal
+                    updateGameStatus("Turn: " + game.getCurrentPlayer().getName());
+                } catch (InvalidMove e) {
+                    // If the removal is invalid, show the error message and prevent the stone removal
+                    updateGameStatus(e.getMessage());
+                }
             } else {
-                System.out.println("Select a valid opponent's stone to remove.");
+                updateGameStatus("Select a valid opponent's stone to remove.");
             }
-            return; // Exit after handling removal
+            return;  // Exit after handling removal
         }
 
         if (game.isPlacingPhase()) {
@@ -186,6 +189,10 @@ public class MillGameUI {
         // Display the game-over message on the status label
         statusLabel.setText("Game Over! " + winner.getName() + " wins!");
         // Additional logic to disable further clicks can be added here
+    }
+
+    public void updateGameStatus(String message) {
+        statusLabel.setText(message);
     }
 
 

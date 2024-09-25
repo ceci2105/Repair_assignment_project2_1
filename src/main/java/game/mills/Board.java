@@ -48,7 +48,6 @@ public class Board {
     private void createEdges() {
         for (int[] edge : edges) {
             graph.addEdge(edge[0], edge[1]);
-            System.out.println(Arrays.toString(edge));
         }
 
     }
@@ -140,5 +139,11 @@ public class Board {
             }
             return false;
         });
+    }
+
+    public boolean allOpponentStonesInMill(Player opponent) {
+        return nodes.values().stream()
+            .filter(node -> node.getOccupant() == opponent)
+            .allMatch(node -> checkMill(node, opponent));
     }
 }
