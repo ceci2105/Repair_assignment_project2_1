@@ -2,7 +2,10 @@
 package gui;
 
 import game.mills.*;
+import javafx.application.Platform;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -186,10 +189,19 @@ public class MillGameUI {
     }
 
     public void displayGameOverMessage(Player winner) {
-        // Display the game-over message on the status label
-        statusLabel.setText("Game Over! " + winner.getName() + " wins!");
-        // Additional logic to disable further clicks can be added here
+        // Create a new Alert of type INFORMATION
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Game Over");
+        alert.setHeaderText(null); // You can set a header text if you want
+        alert.setContentText("Game Over! " + winner.getName() + " wins!");
+
+        // Disable further clicks or interactions after the game is over
+        alert.setOnCloseRequest(event -> Platform.exit());
+
+        // Show the alert and wait for the user to click OK
+        alert.showAndWait();
     }
+
 
     public void updateGameStatus(String message) {
         statusLabel.setText(message);
