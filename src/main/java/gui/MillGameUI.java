@@ -125,7 +125,7 @@ public class MillGameUI {
                     game.removeOpponentStone(nodeIndex);
                     circle.setFill(Color.LIGHTGRAY); // Update UI after valid removal
                     updateGameStatus(currentPlayer.getName() + " removed an opponent's stone.");
-        
+
                     // Update turn to reflect the switch to the next player after removal
                     updateGameStatus("Turn: " + game.getCurrentPlayer().getName());
                 } catch (InvalidMove e) {
@@ -162,6 +162,11 @@ public class MillGameUI {
                 } else {
                     System.out.println("Select your own piece to move.");
                 }
+            } else if (selectedNode == node) {
+                // Deselect the piece if the same node is clicked again
+                selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
+                selectedNode = null; // Unselect the node
+                System.out.println("Piece deselected.");
             } else {
                 // Allow any move if player can fly
                 boolean canFly = game.canFly(currentPlayer);
