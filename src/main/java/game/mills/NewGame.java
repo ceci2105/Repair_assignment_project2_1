@@ -3,6 +3,8 @@ package game.mills;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import gui.MillGameUI;
+
 /**
  * Implementation with graphing lib
  */
@@ -16,6 +18,7 @@ public class NewGame {
     private int totalMoves;
     private int phase;
     private boolean millFormed = false;
+    private MillGameUI ui;
 
     public NewGame(Player p1, Player p2) {
         this.player1 = p1;
@@ -76,6 +79,7 @@ public class NewGame {
             } else {
                 switchPlayer();
             }
+            checkGameOver();
         } else {
             throw new InvalidMove("Move is invalid, or flying is not allowed!");
         }
@@ -89,6 +93,7 @@ public class NewGame {
             opponent.decrementStonesOnBoard();
             millFormed = false; // Reset flag after removal
             logger.log(Level.ALL, "Player {0}'s stone at node {1} has been removed.", new Object[]{opponent.getName(), nodeID});
+            checkGameOver();
         } else {
             throw new InvalidMove("Cannot remove this stone.");
         }
@@ -130,4 +135,26 @@ public class NewGame {
     public void setMillFormed(boolean millFormed) {
         this.millFormed = millFormed;
     }
+
+    private void checkGameOver() {
+        if (player1.getStonesOnBoard() <= 2) {
+            // Player 2 wins if Player 1 has 2 or fewer stones
+            gameOver(player2);
+        } else if (player2.getStonesOnBoard() <= 2) {
+            // Player 1 wins if Player 2 has 2 or fewer stones
+            gameOver(player1);
+        }
+    }
+
+    private void gameOver(Player winner) {
+        logger.log(Level.INFO, "Game Over! {0} wins!", new Object[]{winner.getName()});
+        if (ui != null) {
+            ui.displayGameOverMessage(winner);  // Display the game-over message
+        }
+    }
+
+    public void setUI(MillGameUI ui) {
+        this.ui = ui;
+    }
+
 }

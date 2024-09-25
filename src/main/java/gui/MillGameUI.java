@@ -182,5 +182,11 @@ public class MillGameUI {
         }
     }
 
+    public void displayGameOverMessage(Player winner) {
+        // Display the game-over message on the status label
+        statusLabel.setText("Game Over! " + winner.getName() + " wins!");
+        // Additional logic to disable further clicks can be added here
+    }
+
 
 }

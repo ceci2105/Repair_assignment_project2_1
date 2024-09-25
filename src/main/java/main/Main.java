@@ -1,4 +1,3 @@
-// Main.java
 package main;
 
 import game.mills.NewGame;
@@ -19,8 +18,11 @@ public class Main extends Application {
         // Initialize the game
         NewGame game = new NewGame(player1, player2);
 
-        // Start the GUI
-        new MillGameUI(primaryStage, game);
+        // Create the MillGameUI instance
+        MillGameUI ui = new MillGameUI(primaryStage, game);
+
+        // Pass the UI reference to the game
+        game.setUI(ui);
     }
 
     public static void main(String[] args) {
