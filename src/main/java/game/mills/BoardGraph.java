@@ -2,7 +2,6 @@
 package game.mills;
 
 import java.util.*;
-
 public class BoardGraph {
     private Map<Node, List<Node>> graph = new HashMap<>();
     private List<Node> nodes = new ArrayList<>();
