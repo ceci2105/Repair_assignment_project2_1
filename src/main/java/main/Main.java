@@ -3,7 +3,6 @@ package main;
 
 import game.mills.NewGame;
 import gui.MillGameUI;
-import game.mills.Game;
 import game.mills.Player;
 import javafx.application.Application;
 import javafx.stage.Stage;

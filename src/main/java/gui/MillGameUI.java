@@ -19,7 +19,7 @@ public class MillGameUI {
     private Label statusLabel; // Label to display game status
 
     public MillGameUI(Stage primaryStage, NewGame game) {
-        board = new Board();
+        board = game.getBoard();
         Pane root = new Pane();
 
         // Initialize the status label
@@ -157,23 +157,26 @@ public class MillGameUI {
                     System.out.println("Select your own piece to move.");
                 }
             } else {
+                // Allow any move if player can fly
                 boolean canFly = game.canFly(currentPlayer);
                 if (!node.isOccupied() && (game.getBoard().isValidMove(selectedNode, node) || canFly)) {
-                    game.makeMove(selectedNode.getId(), node.getId());
+                    try {
+                        game.makeMove(selectedNode.getId(), node.getId());
 
-                    // Update visuals
-                    selectedNode.getCircle().setFill(Color.LIGHTGRAY);
-                    selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
-                    circle.setFill(currentPlayer.getColor());
+                        // Update visuals
+                        selectedNode.getCircle().setFill(Color.LIGHTGRAY);
+                        selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
+                        circle.setFill(currentPlayer.getColor());
 
-                    // Update the status label
-                    statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
-                    
-                    selectedNode = null;
-                } else {
-                    System.out.println("Invalid move.");
-                    selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
-                    selectedNode = null;
+                        // Update the status label
+                        statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
+
+                        selectedNode = null;
+                    } catch (InvalidMove e) {
+                        System.out.println(e.getMessage());
+                        selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
+                        selectedNode = null;
+                    }
                 }
             }
         }

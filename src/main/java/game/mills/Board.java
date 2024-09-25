@@ -110,10 +110,9 @@ public class Board {
      */
     public void placePiece(Player player, int nodeID) {
         Node node = getNode(nodeID);
-        if (!node.isOccupied()) {
+        if (!node.isOccupied() && player.getStonesToPlace() > 0) {  // Only allow placement if player still has stones to place
             node.setOccupant(player);
-            player.decrementStonesToPlace();
-            player.incrementStonesOnBoard();
+            player.decrementStonesToPlace();  // This will both decrement stonesToPlace and increment stonesOnBoard
         }
     }
 

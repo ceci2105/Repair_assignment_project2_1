@@ -76,8 +76,8 @@ public class NewGame {
             } else {
                 switchPlayer();
             }
-        }else {
-            throw new InvalidMove("Move is invalid!");
+        } else {
+            throw new InvalidMove("Move is invalid, or flying is not allowed!");
         }
     }
 
@@ -107,15 +107,18 @@ public class NewGame {
     }
 
     public boolean canFly(Player currentPlayer) {
-        return moveValidator.canFly(currentPlayer);
+        logger.log(Level.INFO, "Player {0} has {1} stones on board.", new Object[]{currentPlayer.getName(), currentPlayer.getStonesOnBoard()});
+        boolean canFly = moveValidator.canFly(currentPlayer);  // Player can fly if they have exactly 3 stones
+        logger.log(Level.INFO, "Player {0} canFly: {1}", new Object[]{currentPlayer.getName(), canFly});
+        return canFly;
     }
 
     private void checkPhase() {
-        if (totalMoves >= 18) {
-            phase = 2;
+        if (player1.getStonesToPlace() == 0 && player2.getStonesToPlace() == 0) {
+            phase = 2;  // Transition to moving phase once all pieces are placed
         }
-
     }
+
     public int getPhase() {
         return phase;
     }
