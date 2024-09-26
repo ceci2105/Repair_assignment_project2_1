@@ -10,8 +10,8 @@ import gui.MillGameUI;
  */
 public class NewGame {
     private static Logger logger = Logger.getLogger(NewGame.class.getName());
-    private Player player1;
-    private Player player2;
+    private Player humanPlayer1;
+    private Player humanPlayer2;
     private Player currentPlayer;
     private Board board;
     private MoveValidator moveValidator;
@@ -22,8 +22,8 @@ public class NewGame {
     private MillGameUI ui;
 
     public NewGame(Player p1, Player p2) {
-        this.player1 = p1;
-        this.player2 = p2;
+        this.humanPlayer1 = p1;
+        this.humanPlayer2 = p2;
         this.currentPlayer = p1;
         this.board = new Board();
         this.moveValidator = new MoveValidator(board);
@@ -35,7 +35,7 @@ public class NewGame {
      * Switches the player when the turn changes.
      */
     public void switchPlayer() {
-        currentPlayer = (currentPlayer == player1) ? player2 : player1;
+        currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
 
     }
 
@@ -47,7 +47,7 @@ public class NewGame {
         if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
             board.placePiece(currentPlayer, nodeID);
             if (board.checkMill(board.getNode(nodeID), currentPlayer)) {
-                logger.log(Level.ALL, "Player {0} made a mill!", currentPlayer.getName());
+                logger.log(Level.ALL, "HumanPlayer {0} made a mill!", currentPlayer.getName());
                 millFormed = true;
             } else {
                 switchPlayer();
@@ -75,7 +75,7 @@ public class NewGame {
         if (moveValidator.isValidMove(currentPlayer, fromID, toID)) {
             board.movePiece(currentPlayer, fromID, toID);
             if (board.checkMill(board.getNode(toID), currentPlayer)) {
-                logger.log(Level.ALL, "Player {0} made a mill!", currentPlayer.getName());
+                logger.log(Level.ALL, "HumanPlayer {0} made a mill!", currentPlayer.getName());
                 millFormed = true;
             } else {
                 switchPlayer();
@@ -127,7 +127,7 @@ public class NewGame {
         node.setOccupant(null);
         opponent.decrementStonesOnBoard();
         millFormed = false; // Reset flag after removal
-        logger.log(Level.ALL, "Player {0}'s stone at node {1} has been removed.", new Object[]{opponent.getName(), node.getId()});
+        logger.log(Level.ALL, "HumanPlayer {0}'s stone at node {1} has been removed.", new Object[]{opponent.getName(), node.getId()});
         checkGameOver();
     }
     
@@ -144,14 +144,14 @@ public class NewGame {
     }
 
     public boolean canFly(Player currentPlayer) {
-        logger.log(Level.INFO, "Player {0} has {1} stones on board.", new Object[]{currentPlayer.getName(), currentPlayer.getStonesOnBoard()});
-        boolean canFly = moveValidator.canFly(currentPlayer);  // Player can fly if they have exactly 3 stones
-        logger.log(Level.INFO, "Player {0} canFly: {1}", new Object[]{currentPlayer.getName(), canFly});
+        logger.log(Level.INFO, "HumanPlayer {0} has {1} stones on board.", new Object[]{currentPlayer.getName(), currentPlayer.getStonesOnBoard()});
+        boolean canFly = moveValidator.canFly(currentPlayer);  // HumanPlayer can fly if they have exactly 3 stones
+        logger.log(Level.INFO, "HumanPlayer {0} canFly: {1}", new Object[]{currentPlayer.getName(), canFly});
         return canFly;
     }
 
     private void checkPhase() {
-        if (player1.getStonesToPlace() == 0 && player2.getStonesToPlace() == 0) {
+        if (humanPlayer1.getStonesToPlace() == 0 && humanPlayer2.getStonesToPlace() == 0) {
             phase = 2;  // Transition to moving phase once all pieces are placed
         }
     }
@@ -172,20 +172,20 @@ public class NewGame {
         // Check if we're in phase 2 (moving phase) before considering stones on board
         if (phase >= 2) {
             // Check if any player has 2 or fewer stones
-            if (player1.getStonesOnBoard() <= 2) {
-                gameOver(player2); // Player 2 wins if Player 1 has 2 or fewer stones
+            if (humanPlayer1.getStonesOnBoard() <= 2) {
+                gameOver(humanPlayer2); // HumanPlayer 2 wins if HumanPlayer 1 has 2 or fewer stones
                 return;
-            } else if (player2.getStonesOnBoard() <= 2) {
-                gameOver(player1); // Player 1 wins if Player 2 has 2 or fewer stones
+            } else if (humanPlayer2.getStonesOnBoard() <= 2) {
+                gameOver(humanPlayer1); // HumanPlayer 1 wins if HumanPlayer 2 has 2 or fewer stones
                 return;
             }
         }
     
         // Check if any player has no valid moves left
-        if (!board.hasValidMoves(player1)) {
-            gameOver(player2); // Player 2 wins if Player 1 has no valid moves
-        } else if (!board.hasValidMoves(player2)) {
-            gameOver(player1); // Player 1 wins if Player 2 has no valid moves
+        if (!board.hasValidMoves(humanPlayer1)) {
+            gameOver(humanPlayer2); // HumanPlayer 2 wins if HumanPlayer 1 has no valid moves
+        } else if (!board.hasValidMoves(humanPlayer2)) {
+            gameOver(humanPlayer1); // HumanPlayer 1 wins if HumanPlayer 2 has no valid moves
         }
     }
 

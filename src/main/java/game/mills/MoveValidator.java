@@ -15,7 +15,7 @@ public class MoveValidator {
     public boolean isValidMove(Player player, int nodeFrom, int nodeTo) {
         Node from = board.getNode(nodeFrom);
         Node to = board.getNode(nodeTo);
-        // Allow flying if player has 3 stones, otherwise check if move is valid based on adjacency
+        // Allow flying if humanPlayer has 3 stones, otherwise check if move is valid based on adjacency
         return (canFly(player) || board.isValidMove(from, to)) && from.getOccupant() == player;
     }
 

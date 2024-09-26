@@ -104,21 +104,21 @@ public class Board {
     /**
      * Places a piece on the board.
      *
-     * @param player The player that is placing
+     * @param Player The humanPlayer that is placing
      * @param nodeID The Node where the piece will be placed.
      */
-    public void placePiece(Player player, int nodeID) {
+    public void placePiece(Player Player, int nodeID) {
         Node node = getNode(nodeID);
-        if (!node.isOccupied() && player.getStonesToPlace() > 0) {  // Only allow placement if player still has stones to place
-            node.setOccupant(player);
-            player.decrementStonesToPlace();  // This will both decrement stonesToPlace and increment stonesOnBoard
+        if (!node.isOccupied() && Player.getStonesToPlace() > 0) {  // Only allow placement if humanPlayer still has stones to place
+            node.setOccupant(Player);
+            Player.decrementStonesToPlace();  // This will both decrement stonesToPlace and increment stonesOnBoard
         }
     }
 
     /**
-     * Moves a piece from a player from a given position to another.
+     * Moves a piece from a humanPlayer from a given position to another.
      *
-     * @param player The moving player.
+     * @param player The moving humanPlayer.
      * @param fromID The given position.
      * @param toID   The target position.
      */
@@ -149,7 +149,7 @@ public class Board {
 
     public boolean hasValidMoves(Player player) {
         for (Node node : nodes.values()) {
-            // Check if the node belongs to the current player
+            // Check if the node belongs to the current humanPlayer
             if (node.getOccupant() == player) {
                 // Check if any of the neighbors are empty (valid move)
                 for (Node neighbor : getNeighbours(node)) {

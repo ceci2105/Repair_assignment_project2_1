@@ -117,14 +117,14 @@ public class MillGameUI {
 
     // Handle the selection and movement of nodes
     private void handleClick(Node node, Circle circle, NewGame game, int nodeIndex) {
-        Player currentPlayer = game.getCurrentPlayer();
+        Player currentHumanPlayer = game.getCurrentPlayer();
 
         if (game.isMillFormed()) {
-            if (node.isOccupied() && node.getOccupant() != currentPlayer) {
+            if (node.isOccupied() && node.getOccupant() != currentHumanPlayer) {
                 try {
                     game.removeOpponentStone(nodeIndex);
                     circle.setFill(Color.LIGHTGRAY); // Update UI after valid removal
-                    updateGameStatus(currentPlayer.getName() + " removed an opponent's stone.");
+                    updateGameStatus(currentHumanPlayer.getName() + " removed an opponent's stone.");
 
                     // Update turn to reflect the switch to the next player after removal
                     updateGameStatus("Turn: " + game.getCurrentPlayer().getName());
@@ -156,7 +156,7 @@ public class MillGameUI {
         } else {
             // Moving phase logic
             if (selectedNode == null) {
-                if (node.getOccupant() == currentPlayer) {
+                if (node.getOccupant() == currentHumanPlayer) {
                     selectedNode = node;
                     circle.setStroke(Color.YELLOW); // Highlight selected piece
                 } else {
@@ -169,7 +169,7 @@ public class MillGameUI {
                 System.out.println("Piece deselected.");
             } else {
                 // Allow any move if player can fly
-                boolean canFly = game.canFly(currentPlayer);
+                boolean canFly = game.canFly(currentHumanPlayer);
                 if (!node.isOccupied() && (game.getBoard().isValidMove(selectedNode, node) || canFly)) {
                     try {
                         game.makeMove(selectedNode.getId(), node.getId());
@@ -177,7 +177,7 @@ public class MillGameUI {
                         // Update visuals
                         selectedNode.getCircle().setFill(Color.LIGHTGRAY);
                         selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
-                        circle.setFill(currentPlayer.getColor());
+                        circle.setFill(currentHumanPlayer.getColor());
 
                         // Update the status label
                         statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
