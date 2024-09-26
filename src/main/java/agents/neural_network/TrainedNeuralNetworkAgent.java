@@ -4,42 +4,34 @@ import game.mills.Board;
 import game.mills.Node;
 import game.mills.Player;
 import javafx.scene.paint.Color;
+import lombok.Getter;
 import org.tensorflow.SavedModelBundle;
-import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.ndarray.Shape;
-import org.tensorflow.ndarray.buffer.ByteDataBuffer;
-import org.tensorflow.ndarray.buffer.DataBuffer;
-import org.tensorflow.ndarray.buffer.FloatDataBuffer;
-import org.tensorflow.proto.DataType;
-import org.tensorflow.types.TFloat64;
-
-import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
+import org.tensorflow.ndarray.buffer.*;
+import org.tensorflow.types.TFloat16;
 
 
-public class NeuralNetworkAgent implements Player {
+
+@Getter
+public class TrainedNeuralNetworkAgent implements Player {
     private final SavedModelBundle model;
-    private String name;
-    private Color color;
+    private final String name;
+    private final Color color;
     private int stonesToPlace;
     private int stonesOnBoard;
 
-    public NeuralNetworkAgent(String modelPath) {
-        this.model = SavedModelBundle.load(modelPath, "serve");
+    public TrainedNeuralNetworkAgent(String modelID, Color color) {
+        this.model = SavedModelBundle.load(modelID, "serve");
+        this.name = modelID.concat(" AI Player");
+        this.color = color;
     }
 
     public int[] selectMove(Board board) {
-        Tensor inputTensor = null;
-
-        try (Session session = model.session()) {
-            Tensor outputTensor = session.runner().feed("serving_default_input_1", inputTensor).fetch("StatefulPartitionedCall").run().get(0);
-            int[] move = null;
-            return move;
-        }
+       return null;
     }
 
-    private Tensor convertBoardToTensor(Board board) {
+    protected Tensor convertBoardToTensor(Board board) {
         float[][] boardState = new float[1][24];
         for (int i = 0; i < 24; i++) {
             Node node = board.getNode(i);
@@ -50,7 +42,7 @@ public class NeuralNetworkAgent implements Player {
             }
         }
         float[][] adjMatrix = new float[24][24];
-        for (int[] edge:board.getEdges()) {
+        for (int[] edge : board.getEdges()) {
             adjMatrix[edge[0]][edge[1]] = 1;
             adjMatrix[edge[0]][edge[1]] = 1;
         }
@@ -66,33 +58,18 @@ public class NeuralNetworkAgent implements Player {
         float[] combinedInput = new float[boardState[0].length + flattenedAdjMatrix.length];
         System.arraycopy(boardState[0], 0, combinedInput, 0, boardState[0].length);
         System.arraycopy(flattenedAdjMatrix, 0, combinedInput, boardState[0].length, flattenedAdjMatrix.length);
-        ByteBuffer byteBuffer = ByteBuffer.allocate(combinedInput.length * Float.BYTES);
-        FloatDataBuffer floatBuffer = DataBuffer.of(combinedInput);
-        return Tensor.of(TFloat64.class,Shape.of(combinedInput.length), buffer);
-        }
-
-
-    public String getName() {
-        return name;
+        FloatDataBuffer buffer = DataBuffers.ofFloats((long) combinedInput.length * (long) Float.BYTES);
+        buffer.read(combinedInput);
+        //TODO: Check for compatibility compared to TBFloat!
+        return TFloat16.tensorOf(Shape.of(combinedInput.length), buffer);
     }
 
-    public Color getColor() {
-        return color;
-    }
-
-    public int getStonesToPlace() {
-        return stonesToPlace;
-    }
 
     public void decrementStonesToPlace() {
         if (stonesToPlace > 0) {
             stonesToPlace--;
             stonesOnBoard++;
         }
-    }
-
-    public int getStonesOnBoard() {
-        return stonesOnBoard;
     }
 
     public void incrementStonesOnBoard() {
