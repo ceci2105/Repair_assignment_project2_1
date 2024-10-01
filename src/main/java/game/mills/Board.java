@@ -3,7 +3,6 @@ package game.mills;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -11,20 +10,24 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Implementation using jgrapht
- * Handles all operations concerning the board:
- * Checking for a mill
- * Checking the neighbours
- * Checking if a move is valid
+ * The Board class represents the game board.
+ * It handles all operations concerning the board, including:
+ * - Checking for mills
+ * - Checking neighboring nodes
+ * - Validating moves
  */
 public class Board {
-    // Declaration of constants for better memory management and reusability.
+    // Declaration of constants for edges and mills.
     private static final int[][] edges = {{0, 1}, {1, 2}, {2, 14}, {14, 23}, {23, 22}, {22, 21}, {21, 9}, {9, 0}, {3, 4}, {4, 5}, {5, 13}, {13, 20}, {20, 19}, {19, 18}, {18, 10}, {10, 3}, {6, 7}, {7, 8}, {8, 12}, {12, 17}, {17, 16}, {16, 15}, {15, 11}, {11, 6}, {1, 4}, {4, 7}, {14, 13}, {13, 12}, {22, 19}, {19, 16}, {9, 10}, {10, 11}};
     private static final int[][] mills = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {15, 16, 17}, {18, 19, 20}, {21, 22, 23}, {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, {1, 4, 7}, {16, 19, 22}, {8, 12, 17}, {5, 13, 20}, {2, 14, 23}, {9, 10, 11}, {12, 13, 14}};
 
     private final SimpleGraph<Integer, DefaultEdge> graph;
     private final Map<Integer, Node> nodes;
 
+    /**
+     * Constructs a new Board and initializes the game graph.
+     * Creates the nodes and edges based on predefined constants.
+     */
     public Board() {
         graph = new SimpleGraph<>(DefaultEdge.class);
         nodes = new HashMap<>();
@@ -33,7 +36,8 @@ public class Board {
     }
 
     /**
-     * Created nodes for the Graph
+     * Creates nodes for the board and adds them to the graph.
+     * Each node represents a position on the game board.
      */
     private void createNodes() {
         for (int i = 0; i < 24; i++) {
@@ -43,7 +47,8 @@ public class Board {
     }
 
     /**
-     * Created edges based on the edges constant.
+     * Creates edges between the nodes based on predefined constants.
+     * These edges represent valid connections between the nodes on the game board.
      */
     private void createEdges() {
         for (int[] edge : edges) {
@@ -53,48 +58,48 @@ public class Board {
     }
 
     /**
-     * Gets node at given ID
+     * Retrieves the node at the specified ID.
      *
-     * @param id The ID of the Node
-     * @return The Node at ID
+     * @param id The ID of the node.
+     * @return The node at the specified ID.
      */
     public Node getNode(int id) {
         return nodes.get(id);
     }
 
     /**
-     * Getter method for the edges constant
+     * Returns the edges constant, representing connections between nodes.
      *
-     * @return The edges constant
+     * @return The edges constant.
      */
     public int[][] getEdges() {
         return edges;
     }
 
     /**
-     * Gets the Mills constant.
+     * Returns the mills constant, representing possible mills (three connected stones).
      *
-     * @return The Mills constant.
+     * @return The mills constant.
      */
     public int[][] getMills() {
         return mills;
     }
 
     /**
-     * Gets the neighbours of a given node.
+     * Gets the neighbors of a given node. These are nodes connected directly to the given node.
      *
-     * @param node The node to fetch.
-     * @return The neighbours of the node.
+     * @param node The node for which neighbors are to be fetched.
+     * @return A list of neighboring nodes.
      */
     public List<Node> getNeighbours(Node node) {
         return Graphs.neighborListOf(graph, node.getId()).stream().map(nodes::get).collect(Collectors.toList());
     }
 
     /**
-     * Checks if the move is Valid
+     * Validates if a move between two nodes is valid based on their adjacency.
      *
-     * @param from The starting point of the move.
-     * @param to   The end point of the move.
+     * @param from The starting node of the move.
+     * @param to   The destination node of the move.
      * @return True if the move is valid, false otherwise.
      */
     public boolean isValidMove(Node from, Node to) {
@@ -102,25 +107,25 @@ public class Board {
     }
 
     /**
-     * Places a piece on the board.
+     * Places a player's stone on a specified node.
      *
-     * @param Player The humanPlayer that is placing
-     * @param nodeID The Node where the piece will be placed.
+     * @param player The player placing the stone.
+     * @param nodeID The node where the stone will be placed.
      */
     public void placePiece(Player Player, int nodeID) {
         Node node = getNode(nodeID);
         if (!node.isOccupied() && Player.getStonesToPlace() > 0) {  // Only allow placement if humanPlayer still has stones to place
             node.setOccupant(Player);
-            Player.decrementStonesToPlace();  // This will both decrement stonesToPlace and increment stonesOnBoard
+            Player.decrementStonesToPlace();
         }
     }
 
-    /**
-     * Moves a piece from a humanPlayer from a given position to another.
+   /**
+     * Moves a player's stone from one node to another.
      *
-     * @param player The moving humanPlayer.
-     * @param fromID The given position.
-     * @param toID   The target position.
+     * @param player The player making the move.
+     * @param fromID The starting node.
+     * @param toID   The destination node.
      */
     public void movePiece(Player player, int fromID, int toID) {
         Node from = getNode(fromID);
@@ -132,6 +137,13 @@ public class Board {
         }
     }
 
+    /**
+     * Checks if placing or moving a stone forms a mill (three consecutive stones).
+     *
+     * @param node   The node where the stone is placed or moved to.
+     * @param player The player making the move.
+     * @return True if the player forms a mill, false otherwise.
+     */
     public boolean checkMill(Node node, Player player) {
         return Arrays.stream(mills).parallel().anyMatch(mill -> {
             if (Arrays.stream(mill).anyMatch(id -> id == node.getId())) {
@@ -141,12 +153,26 @@ public class Board {
         });
     }
 
+    /**
+     * Checks if all of an opponent's stones are part of mills.
+     * If all stones are in mills, the player can remove a mill stone.
+     *
+     * @param opponent The opponent whose stones are checked.
+     * @return True if all of the opponent's stones are in mills, false otherwise.
+     */
     public boolean allOpponentStonesInMill(Player opponent) {
         return nodes.values().stream()
             .filter(node -> node.getOccupant() == opponent)
             .allMatch(node -> checkMill(node, opponent));
     }
 
+    /**
+     * Checks if the player has any valid moves left.
+     * A valid move is available if any neighboring node is unoccupied.
+     *
+     * @param player The player whose available moves are checked.
+     * @return True if the player has at least one valid move, false otherwise.
+     */
     public boolean hasValidMoves(Player player) {
         for (Node node : nodes.values()) {
             // Check if the node belongs to the current humanPlayer
@@ -154,7 +180,7 @@ public class Board {
                 // Check if any of the neighbors are empty (valid move)
                 for (Node neighbor : getNeighbours(node)) {
                     if (!neighbor.isOccupied()) {
-                        return true; // Found a valid move
+                        return true;
                     }
                 }
             }
