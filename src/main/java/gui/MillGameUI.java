@@ -13,14 +13,24 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
+/**
+ * The MillGameUI class represents the graphical user interface (GUI) for the game.
+ * It handles creating the game board, pieces, and user interactions, as well as updating the game status.
+ */
 public class MillGameUI {
     static Board board;
-    private static final int CIRCLE_RADIUS = 15;
+    private static final int CIRCLE_RADIUS = 15; // Radius of the game piece circles
     private static final int BOARD_SIZE = 600;
-    private Node selectedNode = null; // Store the selected node
+    private Node selectedNode = null; // Store the currently selected node
 
-    private Label statusLabel; // Label to display game status
+    private Label statusLabel; // Label to display the current game status
 
+    /**
+     * Constructor to initialize the MillGameUI with the game board, pieces, and user interactions.
+     *
+     * @param primaryStage The primary stage to display the game UI.
+     * @param game         The instance of the game logic (NewGame).
+     */
     public MillGameUI(Stage primaryStage, NewGame game) {
         board = game.getBoard();
         Pane root = new Pane();
@@ -31,7 +41,7 @@ public class MillGameUI {
         statusLabel.setLayoutY(BOARD_SIZE - 30);
         root.getChildren().add(statusLabel);
 
-        // Coordinates for Nine Men's Morris positions
+        // Coordinates for vertex positions
         double[][] positions = {
             {0.1, 0.1},  // Node 0
             {0.5, 0.1},  // Node 1
@@ -59,15 +69,15 @@ public class MillGameUI {
             {0.9, 0.9}   // Node 23
         };
 
-        // Correctly defined edges between node indices
+        // Get edges between nodes to draw connections
         int[][] edges = board.getEdges();
 
-        // First draw the edges (lines between nodes) so the pieces (circles) will be drawn on top
+        // Drawing of edges
         for (int[] edge : edges) {
             int start = edge[0];
             int end = edge[1];
 
-            // Create a line between two connected nodes
+            // Creating a line between two connected nodes
             Line line = new Line(
                 positions[start][0] * BOARD_SIZE, positions[start][1] * BOARD_SIZE,
                 positions[end][0] * BOARD_SIZE, positions[end][1] * BOARD_SIZE
@@ -75,35 +85,34 @@ public class MillGameUI {
             line.setStroke(Color.BLACK);
             line.setStrokeWidth(2);
 
-            // Add the line to the root pane
+            // Adding the line to the root pane
             root.getChildren().add(line);
         }
 
-        // Then draw the nodes (positions on the board) after the lines so the circles are on top
+        // Drawing of nodes (on top of lines for visibility)
         Circle[] circles = new Circle[positions.length];
         for (int i = 0; i < positions.length; i++) {
-            // Get the node (position) from the board
             Node node = game.getBoard().getNode(i);
 
-            // Create a circle to represent this node
+            // Creating a circle for each node
             Circle circle = new Circle(CIRCLE_RADIUS);
             circle.setFill(Color.LIGHTGRAY);
             circle.setStroke(Color.BLACK);
 
-            // Set the position of the circle on the pane
+            // Setting of the circle on the pane
             circle.setCenterX(positions[i][0] * BOARD_SIZE);
             circle.setCenterY(positions[i][1] * BOARD_SIZE);
 
-            // Handle clicks to select and move pieces
-            int finalI = i;  // Final variable for lambda
+            // Handling clicks to select and move pieces
+            int finalI = i;
             circle.setOnMouseClicked(event -> {
                 handleClick(node, circle, game, finalI);
             });
 
-            // Store the circle in the node for later updates
+            // Storing the circle in the node for later updates
             node.setCircle(circle);
 
-            // Add the circle to the root pane after the lines
+            // Adding the circle to the root pane after the lines
             root.getChildren().add(circle);
             circles[i] = circle;
         }
@@ -115,18 +124,24 @@ public class MillGameUI {
         primaryStage.show();
     }
 
-    // Handle the selection and movement of nodes
+    /**
+     * Handles user clicks for selecting and moving pieces on the board.
+     * It manages the game logic based on the current game phase and player's actions.
+     *
+     * @param node       The node that was clicked.
+     * @param circle     The graphical circle representing the node.
+     * @param game       The current game instance.
+     * @param nodeIndex  The index of the clicked node.
+     */
     private void handleClick(Node node, Circle circle, NewGame game, int nodeIndex) {
         Player currentHumanPlayer = game.getCurrentPlayer();
-
+        // If a mill is formed, the player can remove an opponent's stone
         if (game.isMillFormed()) {
             if (node.isOccupied() && node.getOccupant() != currentHumanPlayer) {
                 try {
                     game.removeOpponentStone(nodeIndex);
-                    circle.setFill(Color.LIGHTGRAY); // Update UI after valid removal
+                    circle.setFill(Color.LIGHTGRAY);
                     updateGameStatus(currentHumanPlayer.getName() + " removed an opponent's stone.");
-
-                    // Update turn to reflect the switch to the next player after removal
                     updateGameStatus("Turn: " + game.getCurrentPlayer().getName());
                 } catch (InvalidMove e) {
                     // If the removal is invalid, show the error message and prevent the stone removal
@@ -135,20 +150,16 @@ public class MillGameUI {
             } else {
                 updateGameStatus("Select a valid opponent's stone to remove.");
             }
-            return;  // Exit after handling removal
+            return;
         }
 
+        // Handle the placing phase of the game
         if (game.isPlacingPhase()) {
-            // Placing phase logic
             if (!node.isOccupied()) {
                 game.placePiece(nodeIndex);
-
-                // Update the UI
                 if (node.getOccupant() != null) {
                     circle.setFill(node.getOccupant().getColor());
                 }
-
-                // Update the status label
                 statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
             } else {
                 System.out.println("Node already occupied.");
@@ -173,15 +184,10 @@ public class MillGameUI {
                 if (!node.isOccupied() && (game.getBoard().isValidMove(selectedNode, node) || canFly)) {
                     try {
                         game.makeMove(selectedNode.getId(), node.getId());
-
-                        // Update visuals
                         selectedNode.getCircle().setFill(Color.LIGHTGRAY);
                         selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
                         circle.setFill(currentHumanPlayer.getColor());
-
-                        // Update the status label
                         statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
-
                         selectedNode = null;
                     } catch (InvalidMove e) {
                         System.out.println(e.getMessage());
@@ -193,21 +199,26 @@ public class MillGameUI {
         }
     }
 
+    /**
+     * Displays a game over message when a player wins the game.
+     *
+     * @param winner The player who won the game.
+     */
     public void displayGameOverMessage(Player winner) {
-        // Create a new Alert of type INFORMATION
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Game Over");
-        alert.setHeaderText(null); // You can set a header text if you want
+        alert.setHeaderText(null);
         alert.setContentText("Game Over! " + winner.getName() + " wins!");
-
         // Disable further clicks or interactions after the game is over
         alert.setOnCloseRequest(event -> Platform.exit());
-
-        // Show the alert and wait for the user to click OK
         alert.showAndWait();
     }
 
-
+    /**
+     * Updates the game status label with a given message.
+     *
+     * @param message The message to be displayed in the status label.
+     */
     public void updateGameStatus(String message) {
         statusLabel.setText(message);
     }
