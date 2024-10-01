@@ -112,11 +112,11 @@ public class Board {
      * @param player The player placing the stone.
      * @param nodeID The node where the stone will be placed.
      */
-    public void placePiece(Player Player, int nodeID) {
+    public void placePiece(Player player, int nodeID) {
         Node node = getNode(nodeID);
-        if (!node.isOccupied() && Player.getStonesToPlace() > 0) {  // Only allow placement if humanPlayer still has stones to place
-            node.setOccupant(Player);
-            Player.decrementStonesToPlace();
+        if (!node.isOccupied() && player.getStonesToPlace() > 0) {  // Only allow placement if humanPlayer still has stones to place
+            node.setOccupant(player);
+            player.decrementStonesToPlace();
         }
     }
 
