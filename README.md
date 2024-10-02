@@ -1,8 +1,8 @@
-# Project 2_1 in Maastricht university.
-## What is it?
-This project aims to implement a game (Tak or Mills). The game(s) can be played by two players and Agents acting independently.
-The algorithms to be implemented are 'Fill out'.
-
-## How to use:
-Make sure maven is installed (https://maven.apache.org/download.cgi) and added to the PATH.
-Navigate to the Main.java file (located in src/main/java/main) and run it, or use `mvn javafx:run`. To run tests run `mvn test` and if you are encountering any issues, run `mvn clean compile`
+# Project 2_1 in Maastricht university 🫰.
+## What is it ❓
+This project aims to implement a game (Tak or Mills) 😲. The game(s) can be played by two players and Agents acting independently 😄. Where the agent play will be a future implementation 😿.
+## How to use ❓:
+Make sure maven is installed (https://maven.apache.org/download.cgi) and added to the PATH 😜.
+It is generally recommended to "clean" the maven project by runnning `mvn clean`. After that, you have two choices to run the game 👍:
+1. Locate the `Main.java` file situated in the `src/main` package and run it
+2. If that leads to any errors, use `mvn javafx:run`
