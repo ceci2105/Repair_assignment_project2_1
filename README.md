@@ -1,12 +1,23 @@
-# Project 2_1 in Maastricht university 🫰.
-## What is it ❓
-This project aims to implement a game (Tak or Mills) 😲. The game(s) can be played by two players and Agents acting independently 😄. Where the agent play will be a future implementation 😿.
-## How to use ❓:
-Make sure maven is installed (https://maven.apache.org/download.cgi) and added to the PATH 😜.
-It is generally recommended to "clean" the maven project by runnning `mvn clean`. After that, you have two choices to run the game 👍:
-1. Locate the `Main.java` file situated in the `src/main` package and run it
-2. If that leads to any errors, use `mvn javafx:run`
-## Game Rules
-For the official game rules please refer to the official wikipedia page (https://en.wikipedia.org/wiki/Nine_men's_morris#Rules).
+# Project 2_1: Mills Game 🎮
 
-## Most importantly: Have fun playing! 😄
+This project implements the classic board game Nine Men's Morris (also known as Mills or Tak). 
+
+**Features:**
+
+* **Two-player mode:**  Play against a friend on the same computer.
+* **AI opponent (future):**  Challenge an AI agent with varying difficulty levels (coming soon!).
+
+## Getting Started 🚀
+
+1. **Install Maven:** Ensure you have Maven installed and added to your PATH. You can download it from [the official website](https://maven.apache.org/download.cgi).
+2. **Clone the repository:**  `git clone [your repository url]`
+3. **Build the project:**
+    *  Clean the project: `mvn clean`
+    *  Run the game: 
+        *  Either run the `Main.java` file in the `src/main` package.
+        *  Or use `mvn javafx:run` if you encounter any issues.
+
+## Game Rules 📜
+
+Learn the rules of Nine Men's Morris on [Wikipedia](https://en.wikipedia.org/wiki/Nine_men's_morris#Rules).
+
