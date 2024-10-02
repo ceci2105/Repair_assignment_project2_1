@@ -1,6 +1,6 @@
 # Project 2_1: Mills Game 🎮
 
-This project implements the classic board game Nine Men's Morris (also known as Mills or Tak). 
+This project implements the classic board game Nine Men's Morris (also known as Mills. 
 
 **Features:**
 
@@ -10,7 +10,7 @@ This project implements the classic board game Nine Men's Morris (also known as 
 ## Getting Started 🚀
 
 1. **Install Maven:** Ensure you have Maven installed and added to your PATH. You can download it from [the official website](https://maven.apache.org/download.cgi).
-2. **Clone the repository:**  `git clone [your repository url]`
+2. **Clone the repository:**  `git clone [https://github.com/Tiimeeeyy/Project_2_1]`
 3. **Build the project:**
     *  Clean the project: `mvn clean`
     *  Run the game: 
