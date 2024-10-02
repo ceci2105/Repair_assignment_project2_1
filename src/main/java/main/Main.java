@@ -1,7 +1,7 @@
 package main;
 
+import game.mills.Game;
 import game.mills.HumanPlayer;
-import game.mills.NewGame;
 import gui.MillGameUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -26,7 +26,7 @@ public class Main extends Application {
         HumanPlayer humanPlayer2 = new HumanPlayer("HumanPlayer 2", Color.WHITE);
 
         // Initialize the game with the two players
-        NewGame game = new NewGame(humanPlayer1, humanPlayer2);
+        Game game = new Game(humanPlayer1, humanPlayer2);
         
         MillGameUI ui = new MillGameUI(primaryStage, game);
 

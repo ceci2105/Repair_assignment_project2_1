@@ -8,8 +8,8 @@ import gui.MillGameUI;
  * The NewGame class manages the game logic for Mills.
  * It controls the game phases, player turns, moves, and interactions with the game board.
  */
-public class NewGame {
-    private static Logger logger = Logger.getLogger(NewGame.class.getName());
+public class Game {
+    private static Logger logger = Logger.getLogger(Game.class.getName());
     private Player humanPlayer1;
     private Player humanPlayer2;
     private Player currentPlayer;
@@ -28,13 +28,14 @@ public class NewGame {
      * @param p1 the first player.
      * @param p2 the second player.
      */
-    public NewGame(Player p1, Player p2) {
+    public Game(Player p1, Player p2) {
         this.humanPlayer1 = p1;
         this.humanPlayer2 = p2;
         this.currentPlayer = p1;
         this.board = new Board();
         this.moveValidator = new MoveValidator(board);
         this.phase = 1; //Start the game in the placing phase
+
         this.totalMoves = 0;
     }
 

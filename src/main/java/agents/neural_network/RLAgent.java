@@ -1,3 +1,4 @@
+/**
 package agents.neural_network;
 
 import ai.djl.ndarray.NDArray;
@@ -21,7 +22,7 @@ import lombok.Getter;
 
 /**
  * Agent using Reinforcement Learning (RL)
- */
+
 public class RLAgent implements Player {
     @Getter
     private final String name;
@@ -64,7 +65,7 @@ public class RLAgent implements Player {
     /**
      * Updates the State of the board. Uses streaming for parallel computation
      * @param board
-     */
+
     public void updateBoardState(Board board) {
         board.getNodes().entrySet().stream().forEach(entry -> {
             int nodeID = entry.getKey();
@@ -96,3 +97,4 @@ public class RLAgent implements Player {
 
     }
 }
+*/

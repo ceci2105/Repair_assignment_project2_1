@@ -31,7 +31,7 @@ public class MillGameUI {
      * @param primaryStage The primary stage to display the game UI.
      * @param game         The instance of the game logic (NewGame).
      */
-    public MillGameUI(Stage primaryStage, NewGame game) {
+    public MillGameUI(Stage primaryStage, Game game) {
         board = game.getBoard();
         Pane root = new Pane();
 
@@ -133,7 +133,7 @@ public class MillGameUI {
      * @param game       The current game instance.
      * @param nodeIndex  The index of the clicked node.
      */
-    private void handleClick(Node node, Circle circle, NewGame game, int nodeIndex) {
+    private void handleClick(Node node, Circle circle, Game game, int nodeIndex) {
         Player currentHumanPlayer = game.getCurrentPlayer();
         // If a mill is formed, the player can remove an opponent's stone
         if (game.isMillFormed()) {
