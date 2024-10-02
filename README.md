@@ -1,6 +1,6 @@
 # Project 2_1: Mills Game 🎮
 
-This project implements the classic board game Nine Men's Morris (also known as Mills. 
+This project implements the classic board game Nine Men's Morris (also known as Mills). 
 
 **Features:**
 
