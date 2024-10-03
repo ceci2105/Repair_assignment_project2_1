@@ -1,6 +1,6 @@
 package main;
 
-import gui.MillGameUI;
+import gui.StartMenuUI;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -18,7 +18,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         // Create an instance of the MillGameUI, which will initialize and display the game
-        new MillGameUI(primaryStage);
+        new StartMenuUI(primaryStage);
     }
 
     /**
