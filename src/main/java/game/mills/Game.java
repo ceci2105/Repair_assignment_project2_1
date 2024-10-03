@@ -20,6 +20,7 @@ public class Game {
     private int phase;
     private boolean millFormed = false;
     private MillGameUI ui;
+    private boolean isGameOver = false;
 
     /**
      * Constructs a new game instance with two players.
@@ -235,6 +236,9 @@ public class Game {
      * Checks if the game is over and determines the winner if applicable.
      */
     private void checkGameOver() {
+        if (isGameOver) {
+            return; // Do not proceed if the game is already over
+        }
         if (phase >= 2) {
             // Check if any player has 2 or fewer stones
             if (humanPlayer1.getStonesOnBoard() <= 2) {
@@ -246,8 +250,15 @@ public class Game {
             }
         }
         // Check if any player has no valid moves left
-        if (!board.hasValidMoves(humanPlayer1)) {
+        boolean p1HasMoves = board.hasValidMoves(humanPlayer1);
+        boolean p2HasMoves = board.hasValidMoves(humanPlayer2);
+    
+        if (!p1HasMoves && !p2HasMoves) {
+            // If neither player has valid moves, it's a draw
+            gameOver(null);
+        } else if (!p1HasMoves) {
             gameOver(humanPlayer2);
+        } else if (!p2HasMoves) {
             gameOver(humanPlayer1);
         }
     }
@@ -258,9 +269,12 @@ public class Game {
      * @param winner the player who won the game.
      */
     private void gameOver(Player winner) {
-        logger.log(Level.INFO, "Game Over! {0} wins!", new Object[]{winner.getName()});
-        if (ui != null) {
-            ui.displayGameOverMessage(winner);  // Display the game-over message
+        if (!isGameOver) {
+            isGameOver = true;
+            logger.log(Level.INFO, winner != null ? "Game Over! {0} wins!" : "Game Over! It's a draw!", new Object[]{winner != null ? winner.getName() : ""});
+            if (ui != null) {
+                ui.displayGameOverMessage(winner);  // Display the game-over message
+            }
         }
     }
 

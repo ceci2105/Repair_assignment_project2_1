@@ -1,4 +1,3 @@
-// MillGameUI.java
 package gui;
 
 import game.mills.*;
@@ -6,6 +5,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -13,26 +13,54 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.stage.Stage;
 
+import java.util.Optional;
+
 /**
  * The MillGameUI class represents the graphical user interface (GUI) for the game.
  * It handles creating the game board, pieces, and user interactions, as well as updating the game status.
  */
 public class MillGameUI {
-    static Board board;
     private static final int CIRCLE_RADIUS = 15; // Radius of the game piece circles
     private static final int BOARD_SIZE = 600;
     private Node selectedNode = null; // Store the currently selected node
 
     private Label statusLabel; // Label to display the current game status
+    private Stage primaryStage; // Store the primary stage
+    private Game game; // Store the game instance
+    private Board board; // Store the board instance
 
     /**
-     * Constructor to initialize the MillGameUI with the game board, pieces, and user interactions.
+     * Constructor to initialize the MillGameUI.
      *
      * @param primaryStage The primary stage to display the game UI.
-     * @param game         The instance of the game logic (NewGame).
      */
-    public MillGameUI(Stage primaryStage, Game game) {
+    public MillGameUI(Stage primaryStage) {
+        this.primaryStage = primaryStage;
+        startNewGame();
+    }
+
+    /**
+     * Starts a new game by initializing players, the game logic, and rebuilding the UI.
+     */
+    public void startNewGame() {
+        selectedNode = null;
+        // Initialize players with name and stone color
+        HumanPlayer humanPlayer1 = new HumanPlayer("Player 1", Color.BLACK);
+        HumanPlayer humanPlayer2 = new HumanPlayer("Player 2", Color.WHITE);
+
+        // Initialize the game with the two players
+        this.game = new Game(humanPlayer1, humanPlayer2);
+        game.setUI(this);
         board = game.getBoard();
+
+        // Build the UI
+        buildUI();
+    }
+
+    /**
+     * Builds the game UI components, including the board, pieces, and event handlers.
+     */
+    private void buildUI() {
         Pane root = new Pane();
 
         // Initialize the status label
@@ -106,7 +134,7 @@ public class MillGameUI {
             // Handling clicks to select and move pieces
             int finalI = i;
             circle.setOnMouseClicked(event -> {
-                handleClick(node, circle, game, finalI);
+                handleClick(node, circle, finalI);
             });
 
             // Storing the circle in the node for later updates
@@ -130,18 +158,17 @@ public class MillGameUI {
      *
      * @param node       The node that was clicked.
      * @param circle     The graphical circle representing the node.
-     * @param game       The current game instance.
      * @param nodeIndex  The index of the clicked node.
      */
-    private void handleClick(Node node, Circle circle, Game game, int nodeIndex) {
-        Player currentHumanPlayer = game.getCurrentPlayer();
+    private void handleClick(Node node, Circle circle, int nodeIndex) {
+        Player currentPlayer = game.getCurrentPlayer();
         // If a mill is formed, the player can remove an opponent's stone
         if (game.isMillFormed()) {
-            if (node.isOccupied() && node.getOccupant() != currentHumanPlayer) {
+            if (node.isOccupied() && node.getOccupant() != currentPlayer) {
                 try {
                     game.removeOpponentStone(nodeIndex);
                     circle.setFill(Color.LIGHTGRAY);
-                    updateGameStatus(currentHumanPlayer.getName() + " removed an opponent's stone.");
+                    updateGameStatus(currentPlayer.getName() + " removed an opponent's stone.");
                     updateGameStatus("Turn: " + game.getCurrentPlayer().getName());
                 } catch (InvalidMove e) {
                     // If the removal is invalid, show the error message and prevent the stone removal
@@ -156,44 +183,50 @@ public class MillGameUI {
         // Handle the placing phase of the game
         if (game.isPlacingPhase()) {
             if (!node.isOccupied()) {
-                game.placePiece(nodeIndex);
-                if (node.getOccupant() != null) {
-                    circle.setFill(node.getOccupant().getColor());
+                try {
+                    game.placePiece(nodeIndex);
+                    if (node.getOccupant() != null) {
+                        circle.setFill(node.getOccupant().getColor());
+                    }
+                    statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
+                } catch (InvalidMove e) {
+                    updateGameStatus(e.getMessage());
                 }
-                statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
             } else {
-                System.out.println("Node already occupied.");
+                updateGameStatus("Node already occupied.");
             }
         } else {
             // Moving phase logic
             if (selectedNode == null) {
-                if (node.getOccupant() == currentHumanPlayer) {
+                if (node.getOccupant() == currentPlayer) {
                     selectedNode = node;
                     circle.setStroke(Color.YELLOW); // Highlight selected piece
                 } else {
-                    System.out.println("Select your own piece to move.");
+                    updateGameStatus("Select your own piece to move.");
                 }
             } else if (selectedNode == node) {
                 // Deselect the piece if the same node is clicked again
                 selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
                 selectedNode = null; // Unselect the node
-                System.out.println("Piece deselected.");
+                updateGameStatus("Piece deselected.");
             } else {
                 // Allow any move if player can fly
-                boolean canFly = game.canFly(currentHumanPlayer);
+                boolean canFly = game.canFly(currentPlayer);
                 if (!node.isOccupied() && (game.getBoard().isValidMove(selectedNode, node) || canFly)) {
                     try {
                         game.makeMove(selectedNode.getId(), node.getId());
                         selectedNode.getCircle().setFill(Color.LIGHTGRAY);
                         selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
-                        circle.setFill(currentHumanPlayer.getColor());
+                        circle.setFill(currentPlayer.getColor());
                         statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
                         selectedNode = null;
                     } catch (InvalidMove e) {
-                        System.out.println(e.getMessage());
+                        updateGameStatus(e.getMessage());
                         selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
                         selectedNode = null;
                     }
+                } else {
+                    updateGameStatus("Invalid move.");
                 }
             }
         }
@@ -205,13 +238,33 @@ public class MillGameUI {
      * @param winner The player who won the game.
      */
     public void displayGameOverMessage(Player winner) {
-        Alert alert = new Alert(AlertType.INFORMATION);
+        Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle("Game Over");
         alert.setHeaderText(null);
         alert.setContentText("Game Over! " + winner.getName() + " wins!");
-        // Disable further clicks or interactions after the game is over
-        alert.setOnCloseRequest(event -> Platform.exit());
-        alert.showAndWait();
+
+        ButtonType restartButton = new ButtonType("Restart");
+        ButtonType exitButton = new ButtonType("Exit");
+
+        // Set the custom buttons
+        alert.getButtonTypes().setAll(restartButton, exitButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            if (result.get() == restartButton) {
+                restartGame();
+            } else if (result.get() == exitButton) {
+                Platform.exit();
+            }
+        }
+    }
+
+    /**
+     * Restarts the game by re-initializing the game logic and UI.
+     */
+    private void restartGame() {
+        selectedNode = null;
+        startNewGame();
     }
 
     /**
@@ -222,6 +275,4 @@ public class MillGameUI {
     public void updateGameStatus(String message) {
         statusLabel.setText(message);
     }
-
-
 }
