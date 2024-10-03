@@ -8,8 +8,16 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * The {@code RulesUI} class displays the rules for the game.
+ * It provides a user interface where users can read the game rules, scroll through them, and close the window.
+ */
 public class RulesUI {
 
+    /**
+     * Displays a new window with the rules of Nine Men's Morris.
+     * The window includes a scrollable text area containing the rules and a button to close the window.
+     */
     public void display() {
         Stage window = new Stage();
         window.setTitle("How to Play Nine Men's Morris");
@@ -38,6 +46,11 @@ public class RulesUI {
         window.showAndWait(); // Use showAndWait to focus on this window
     }
 
+    /**
+     * Retrieves the formatted rules of the game as a string.
+     *
+     * @return A string containing the rules of Nine Men's Morris formatted for display.
+     */
     private String getGameRules() {
         return "Nine Men's Morris Rules:\n\n"
             + "1. The board consists of a grid with twenty-four intersections or points. Each player has nine pieces and the goal is to form a mill: three stones aligned horizontally or vertically, allowing a player to remove an opponent's stone from the game board.\n\n"

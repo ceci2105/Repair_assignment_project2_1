@@ -8,14 +8,27 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.control.Label;
 
+/**
+ * The {@code StartMenuUI} class is responsible for creating and displaying the
+ * start menu of the Nine Men's Morris game. It provides buttons to start a new game,
+ * view the game rules, and exit the application.
+ */
 public class StartMenuUI {
     private Stage primaryStage;
 
+    /**
+     * Constructor for the start menu user interface.
+     * 
+     * @param primaryStage The primary stage on which to set the scene.
+     */
     public StartMenuUI(Stage primaryStage) {
         this.primaryStage = primaryStage;
         setupStartMenu();
     }
 
+    /**
+     * Sets up the start menu layout including title, buttons, and their corresponding actions.
+     */
     private void setupStartMenu() {
         VBox menuBox = new VBox(20);
         menuBox.setAlignment(Pos.CENTER);
@@ -34,12 +47,16 @@ public class StartMenuUI {
 
         menuBox.getChildren().addAll(titleLabel, startButton, rulesButton, exitButton);
 
+        // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 600, 600);
         primaryStage.setScene(startMenuScene);
         primaryStage.setTitle("Nine Men's Morris - Start Menu");
         primaryStage.show();
     }
 
+    /**
+     * Initializes the game UI to start a new game of Nine Men's Morris.
+     */
     private void startGame() {
         new MillGameUI(primaryStage); // This will switch to the game UI
     }
