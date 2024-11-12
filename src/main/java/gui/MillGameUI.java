@@ -182,6 +182,46 @@ public class MillGameUI {
             circles[i] = circle;
         }
 
+        Image backButtonIcon = null;
+        try {
+            backButtonIcon = new Image(new FileInputStream("src/main/ressources/InGameBackIcon.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        ImageView backButtonImageView = new ImageView(backButtonIcon);
+        backButtonImageView.setX(560);
+        backButtonImageView.setY(560);
+        backButtonImageView.setFitHeight(30);
+        backButtonImageView.setFitWidth(30);
+
+        backButtonImageView.setOnMouseClicked(event -> {
+            primaryStage.setWidth(BOARD_SIZE);
+            new StartMenuUI(primaryStage);
+        });
+
+        backButtonImageView.setOnMouseEntered(event -> {
+            //System.out.println("Mouse over");
+            Image backButtonIconHover = null;
+            try {
+                backButtonIconHover = new Image(new FileInputStream("src/main/ressources/InGameBackIconHover.png"));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            backButtonImageView.setImage(backButtonIconHover);
+        });
+
+        backButtonImageView.setOnMouseExited(event -> {
+            //System.out.println("Mouse out");
+            Image backButtonIconSet = null;
+            try {
+                backButtonIconSet = new Image(new FileInputStream("src/main/ressources/InGameBackIcon.png"));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            backButtonImageView.setImage(backButtonIconSet);
+        });
+
         // Creating the image for the rules icon
         Image image = null;
         try {
@@ -235,9 +275,11 @@ public class MillGameUI {
         
         //Setting the preserve ratio of the image view 
         imageView.setPreserveRatio(false);  
+        backButtonImageView.setPreserveRatio(false);
 
         // Adding the image view to the root pane
         root.getChildren().add(imageView);
+        root.getChildren().add(backButtonImageView);
 
         // Set up the scene and stage
         Scene scene = new Scene(root, BOARD_SIZE, BOARD_SIZE);
