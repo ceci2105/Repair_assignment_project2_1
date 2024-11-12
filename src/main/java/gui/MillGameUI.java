@@ -163,6 +163,7 @@ public class MillGameUI {
             Circle circle = new Circle(CIRCLE_RADIUS);
             circle.setFill(Color.LIGHTGRAY);
             circle.setStroke(Color.BLACK);
+            circle.setStrokeWidth(1.5);
 
             // Setting of the circle on the pane
             circle.setCenterX(positions[i][0] * BOARD_SIZE);
@@ -336,13 +337,15 @@ public class MillGameUI {
             if (selectedNode == null) {
                 if (node.getOccupant() == currentPlayer) {
                     selectedNode = node;
-                    circle.setStroke(Color.YELLOW); // Highlight selected piece
+                    circle.setStroke(Color.YELLOWGREEN); // Highlight selected piece
+                    circle.setStrokeWidth(4.5);
                 } else {
                     updateGameStatus("Select your own piece to move.");
                 }
             } else if (selectedNode == node) {
                 // Deselect the piece if the same node is clicked again
                 selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
+                selectedNode.getCircle().setStrokeWidth(1.5);
                 selectedNode = null; // Unselect the node
                 updateGameStatus("Piece deselected.");
             } else {
@@ -353,12 +356,14 @@ public class MillGameUI {
                         game.makeMove(selectedNode.getId(), node.getId());
                         selectedNode.getCircle().setFill(Color.LIGHTGRAY);
                         selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
+                        selectedNode.getCircle().setStrokeWidth(1.5);
                         circle.setFill(currentPlayer.getColor());
                         statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
                         selectedNode = null;
                     } catch (InvalidMove e) {
                         updateGameStatus(e.getMessage());
                         selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
+                        selectedNode.getCircle().setStrokeWidth(1.5);
                         selectedNode = null;
                     }
                 } else {
