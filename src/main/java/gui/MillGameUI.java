@@ -11,8 +11,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Optional;
 
 /**
@@ -28,6 +34,9 @@ public class MillGameUI {
     private Stage primaryStage; // Store the primary stage
     private Game game; // Store the game instance
     private Board board; // Store the board instance
+    private Pane root = new Pane(); // Root pane to hold all UI elements
+    private int rulesCounter = 1;
+    private Text rules;
 
     /**
      * Constructor to initialize the MillGameUI.
@@ -57,11 +66,39 @@ public class MillGameUI {
         buildUI();
     }
 
+    private void showRules() {
+        rules = new Text();
+        //System.out.println("Rules clicked");
+        rules.setFill(Color.BLACK);
+        rules.setFont(new Font(18));
+        rules.setWrappingWidth(400);
+        rules.setX(600);
+        rules.setY(25);
+        rules.setText("Nine Men's Morris Rules:\n\n"
+            + "1. The board consists of a grid with twenty-four intersections or points. Each player has nine pieces and the goal is to form a mill: three stones aligned horizontally or vertically, allowing a player to remove an opponent's stone from the game board.\n\n"
+            + "2. Black starts first and players then take turns placing their stones onto empty points on the board. When all stones have been placed, players take turns moving a stone to an adjacent point.\n\n"
+            + "3. The game is won by the player who reduces their opponent to two pieces, or by blocking all possible moves of their opponent.\n\n"
+            + "4. If a player forms a mill, they may remove one of their opponent's stones from the board. This stone cannot be removed from a mill. If all opponent's stones are in mills, any stone can be removed.\n\n"
+            + "5. If a player is reduced to three pieces, they may jump to any empty point on the board.\n\n"
+            + "Enjoy the game!");
+
+        root.getChildren().add(rules);
+
+        //Increase stage size to show rules
+        primaryStage.setWidth(BOARD_SIZE + 410);
+    }
+
+    private void removeRules() {
+        root.getChildren().remove(rules);
+
+        //Decrease stage size to hide rules
+        primaryStage.setWidth(BOARD_SIZE);
+    }
+
     /**
      * Builds the game UI components, including the board, pieces, and event handlers.
      */
     private void buildUI() {
-        Pane root = new Pane();
 
         // Initialize the status label
         statusLabel = new Label("Game started. " + game.getCurrentPlayer().getName() + "'s turn.");
@@ -144,6 +181,63 @@ public class MillGameUI {
             root.getChildren().add(circle);
             circles[i] = circle;
         }
+
+        // Creating the image for the rules icon
+        Image image = null;
+        try {
+            image = new Image(new FileInputStream("src/main/ressources/InGameTutorialIcon.png"));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+      
+        //Setting the image view 
+        ImageView imageView = new ImageView(image); 
+        
+        //Setting the position of the image 
+        imageView.setX(560); 
+        imageView.setY(10); 
+        
+        //setting the fit height and width of the image view 
+        imageView.setFitHeight(30); 
+        imageView.setFitWidth(30); 
+
+        //Shows rules of the game when the question mark is clicked
+        imageView.setOnMouseClicked(event -> {
+            if (rulesCounter%2 == 0) {
+                removeRules();
+            } else {
+                showRules();
+            }
+            rulesCounter++;
+        });
+
+        imageView.setOnMouseEntered(event -> {
+            //System.out.println("Mouse over");
+            Image imageHover = null;
+            try {
+                imageHover = new Image(new FileInputStream("src/main/ressources/InGameTutorialIconHover.png"));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            imageView.setImage(imageHover);
+        });
+
+        imageView.setOnMouseExited(event -> {
+            //System.out.println("Mouse out");
+            Image rulesIcon = null;
+            try {
+                rulesIcon = new Image(new FileInputStream("src/main/ressources/InGameTutorialIcon.png"));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            imageView.setImage(rulesIcon);
+        });
+        
+        //Setting the preserve ratio of the image view 
+        imageView.setPreserveRatio(false);  
+
+        // Adding the image view to the root pane
+        root.getChildren().add(imageView);
 
         // Set up the scene and stage
         Scene scene = new Scene(root, BOARD_SIZE, BOARD_SIZE);
@@ -263,8 +357,7 @@ public class MillGameUI {
      * Restarts the game by re-initializing the game logic and UI.
      */
     private void restartGame() {
-        selectedNode = null;
-        startNewGame();
+        new MillGameUI(primaryStage);
     }
 
     /**
