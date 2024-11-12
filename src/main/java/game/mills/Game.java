@@ -20,7 +20,7 @@ public class Game {
     private int phase;
     private boolean millFormed = false;
     private MillGameUI ui;
-    private boolean isGameOver = false;
+    public boolean isGameOver = false;
 
     /**
      * Constructs a new game instance with two players.
@@ -46,6 +46,16 @@ public class Game {
     public void switchPlayer() {
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
 
+    }
+
+    public Player getOpponent(Player player) {
+        if (player == humanPlayer1) {
+            return humanPlayer2;
+        } else if (player == humanPlayer2) {
+            return humanPlayer1;
+        } else {
+            throw new IllegalArgumentException("Unknown player: " + player);
+        }
     }
 
     /**
@@ -110,7 +120,7 @@ public class Game {
     public void removeOpponentStone(int nodeID) {
         Node node = board.getNode(nodeID);
         Player opponent = node.getOccupant();
-        
+
         if (node.isOccupied() && opponent != currentPlayer) {
             if (board.checkMill(node, opponent)) {
                 boolean canRemoveMillStone = board.allOpponentStonesInMill(opponent);
@@ -125,12 +135,12 @@ public class Game {
                 // If stone is not part of a mill, allow removal
                 removeStone(node, opponent);
             }
-            
+
             // Checking phase and game over after removing a stone
             if (phase >= 2) { // Only checking game over when phase 2 has started
                 checkGameOver();
             }
-            
+
             // Switching the turn after removing the stone
             switchPlayer();
             if (ui != null) {
@@ -140,7 +150,7 @@ public class Game {
             throw new InvalidMove("Cannot remove this stone.");
         }
     }
-    
+
     /**
      * Helper method to remove a stone from the board and update the game state.
      *
@@ -252,7 +262,7 @@ public class Game {
         // Check if any player has no valid moves left
         boolean p1HasMoves = board.hasValidMoves(humanPlayer1);
         boolean p2HasMoves = board.hasValidMoves(humanPlayer2);
-    
+
         if (!p1HasMoves && !p2HasMoves) {
             // If neither player has valid moves, it's a draw
             gameOver(null);
@@ -286,5 +296,6 @@ public class Game {
     public void setUI(MillGameUI ui) {
         this.ui = ui;
     }
+
 
 }

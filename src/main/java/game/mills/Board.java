@@ -67,6 +67,11 @@ public class Board {
         return nodes.get(id);
     }
 
+    public Map<Integer, Node> getNodes() {
+        return nodes;
+    }
+
+
     /**
      * Returns the edges constant, representing connections between nodes.
      *
@@ -187,4 +192,6 @@ public class Board {
         }
         return false; // No valid moves found
     }
+
+
 }
