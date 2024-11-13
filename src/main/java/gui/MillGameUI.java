@@ -56,8 +56,8 @@ public class MillGameUI {
     public void startNewGame() {
         selectedNode = null;
         // Initialize players with name and stone color
-        HumanPlayer humanPlayer1 = new HumanPlayer("Player 1", Color.BLACK);
-        HumanPlayer humanPlayer2 = new HumanPlayer("Player 2", Color.WHITE);
+        HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
+        HumanPlayer humanPlayer2 = new HumanPlayer("White", Color.WHITE);
 
         // Initialize the game with the two players
         this.game = new Game(humanPlayer1, humanPlayer2);
