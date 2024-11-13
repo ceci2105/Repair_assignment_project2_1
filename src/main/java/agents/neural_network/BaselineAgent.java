@@ -3,6 +3,9 @@ package agents.neural_network;
 import game.mills.Player;
 import game.mills.Node;
 import javafx.scene.paint.Color;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import game.mills.Game;
 import game.mills.InvalidMove;
 
@@ -77,13 +80,17 @@ public class BaselineAgent implements Player {
     }
 
     private void placePiece() {
+        List<Integer> nodeIndices = new ArrayList<>();
         for (int i = 0; i < 24; i++) {
+            nodeIndices.add(i);
+        }
+        Collections.shuffle(nodeIndices); // Shuffle the node indices to randomize the placement
+
+        for (int i : nodeIndices) {
             Node node = game.getBoard().getNode(i);
             if (!node.isOccupied()) {
                 try {
                     game.placePiece(i);
-                    stonesToPlace--;
-                    stonesOnBoard++;
                     System.out.println("Bot placed piece at node " + i);
                     if (game.isMillFormed()) {
                         removeOpponentPiece();
@@ -99,7 +106,8 @@ public class BaselineAgent implements Player {
     }
 
     private void movePiece() {
-        for (int i = 0; i < 24; i++) {
+        int random = (int) (Math.random() * 24);
+        for (int i = random; i < 24; i++) {
             Node fromNode = game.getBoard().getNode(i);
             if (fromNode.isOccupied() && fromNode.getOccupant() == this) {
                 for (Node toNode : game.getBoard().getNeighbours(fromNode)) {
