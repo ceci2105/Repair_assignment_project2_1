@@ -1,6 +1,7 @@
 package gui;
 
 import game.mills.*;
+import agents.neural_network.BaselineAgent;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -30,6 +31,8 @@ public class MillGameUI {
     private static final int BOARD_SIZE = 600;
     private static final int SCENE_WIDTH = 700;
     private static final int SCENE_HEIGHT = 700;
+    private static final String humanGame = "humanGame";
+    private static final String baselineGame = "baselineGame";
     private Node selectedNode = null; // Store the currently selected node
 
     private Label statusLabel; // Label to display the current game status
@@ -45,9 +48,13 @@ public class MillGameUI {
      *
      * @param primaryStage The primary stage to display the game UI.
      */
-    public MillGameUI(Stage primaryStage) {
+    public MillGameUI(Stage primaryStage, String gameType) {
         this.primaryStage = primaryStage;
-        startNewGame();
+        if (gameType.equals(humanGame)) {
+            startNewGame();
+        } else if (gameType.equals(baselineGame)) {
+            startNewbaselineGame();
+        }
     }
 
     /**
@@ -65,6 +72,18 @@ public class MillGameUI {
         board = game.getBoard();
 
         // Build the UI
+        buildUI();
+    }
+
+    public void startNewbaselineGame() {
+
+        HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
+        BaselineAgent baselineAgent = new BaselineAgent("White", Color.WHITE);
+
+        this.game = new Game(humanPlayer1, baselineAgent);
+        game.setUI(this);
+        board = game.getBoard();
+
         buildUI();
     }
 
@@ -95,6 +114,18 @@ public class MillGameUI {
 
         //Decrease stage size to hide rules
         primaryStage.setWidth(SCENE_WIDTH);
+    }
+
+    public void refreshBoard() {
+        for (int i = 0; i < 24; i++) {
+            Node node = game.getBoard().getNode(i);
+            Circle circle = node.getCircle();
+            if (node.isOccupied()) {
+                circle.setFill(node.getOccupant().getColor());
+            } else {
+                circle.setFill(Color.LIGHTGRAY);
+            }
+        }
     }
 
     /**
@@ -319,6 +350,7 @@ public class MillGameUI {
                     updateGameStatus("Turn: " + game.getCurrentPlayer().getName());
                 } catch (InvalidMove e) {
                     // If the removal is invalid, show the error message and prevent the stone removal
+                    statusLabel.setTextFill(Color.RED);
                     updateGameStatus(e.getMessage());
                 }
             } else {
@@ -339,6 +371,7 @@ public class MillGameUI {
                     statusLabel.setTextFill(Color.BLACK);
                     statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
                 } catch (InvalidMove e) {
+                    statusLabel.setTextFill(Color.RED);
                     updateGameStatus(e.getMessage());
                 }
             } else {
@@ -377,6 +410,7 @@ public class MillGameUI {
                         statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
                         selectedNode = null;
                     } catch (InvalidMove e) {
+                        statusLabel.setTextFill(Color.RED);
                         updateGameStatus(e.getMessage());
                         selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
                         selectedNode.getCircle().setStrokeWidth(1.5);
@@ -422,7 +456,7 @@ public class MillGameUI {
      */
     private void restartGame() {
         primaryStage.setWidth(SCENE_WIDTH);
-        new MillGameUI(primaryStage);
+        new MillGameUI(primaryStage, humanGame);
     }
 
     /**

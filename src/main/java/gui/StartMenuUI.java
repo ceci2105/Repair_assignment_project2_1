@@ -15,6 +15,8 @@ import javafx.scene.control.Label;
  */
 public class StartMenuUI {
     private Stage primaryStage;
+    private static final String humanGame = "humanGame";
+    private static final String baselineGame = "baselineGame";
 
     /**
      * Constructor for the start menu user interface.
@@ -39,13 +41,16 @@ public class StartMenuUI {
         Button startButton = new Button("Start New Game");
         startButton.setOnAction(e -> startGame());
 
+        Button startbaseagentButton = new Button("Start New Game against Baseline Agent");
+        startbaseagentButton.setOnAction(e -> startbaselineGame());
+
         Button rulesButton = new Button("How to play");
         rulesButton.setOnAction(e -> new RulesUI().display());
 
         Button exitButton = new Button("Exit");
         exitButton.setOnAction(e -> Platform.exit());
 
-        menuBox.getChildren().addAll(titleLabel, startButton, rulesButton, exitButton);
+        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, rulesButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -58,6 +63,10 @@ public class StartMenuUI {
      * Initializes the game UI to start a new game of Nine Men's Morris.
      */
     private void startGame() {
-        new MillGameUI(primaryStage); // This will switch to the game UI
+        new MillGameUI(primaryStage, humanGame); // This will switch to the game UI
+    }
+
+    private void startbaselineGame() {
+        new MillGameUI(primaryStage, baselineGame); // This will switch to the game UI
     }
 }

@@ -187,4 +187,19 @@ public class Board {
         }
         return false; // No valid moves found
     }
+
+    /**
+     * Checks if a node is part of a mill.
+     *
+     * @param node The node to check.
+     * @return True if the node is part of a mill, false otherwise.
+     */
+    public boolean isPartOfMill(Node node) {
+        Player occupant = node.getOccupant();
+        if (occupant == null) {
+            return false;
+        }
+        return Arrays.stream(mills).anyMatch(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) &&
+                Arrays.stream(mill).allMatch(id -> nodes.get(id).getOccupant() == occupant));
+    }
 }

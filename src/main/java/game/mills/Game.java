@@ -2,6 +2,8 @@ package game.mills;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import agents.neural_network.BaselineAgent;
 import gui.MillGameUI;
 
 /**
@@ -38,6 +40,13 @@ public class Game {
         this.phase = 1; //Start the game in the placing phase
 
         this.totalMoves = 0;
+
+        if (p1 instanceof BaselineAgent) {
+            ((BaselineAgent) p1).setGame(this);
+        }
+        if (p2 instanceof BaselineAgent) {
+            ((BaselineAgent) p2).setGame(this);
+        }
     }
 
     /**
@@ -45,6 +54,10 @@ public class Game {
      */
     public void switchPlayer() {
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
+        if (currentPlayer instanceof BaselineAgent) {
+            ((BaselineAgent) currentPlayer).makeMove();
+        }
+        notifyUI();
 
     }
 
@@ -58,6 +71,7 @@ public class Game {
     public void placePiece(int nodeID) {
         if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
             board.placePiece(currentPlayer, nodeID);
+            notifyUI();
             if (board.checkMill(board.getNode(nodeID), currentPlayer)) {
                 logger.log(Level.ALL, "HumanPlayer {0} made a mill!", currentPlayer.getName());
                 millFormed = true;
@@ -89,6 +103,7 @@ public class Game {
     public void makeMove(int fromID, int toID) {
         if (moveValidator.isValidMove(currentPlayer, fromID, toID)) {
             board.movePiece(currentPlayer, fromID, toID);
+            notifyUI();
             if (board.checkMill(board.getNode(toID), currentPlayer)) {
                 logger.log(Level.ALL, "HumanPlayer {0} made a mill!", currentPlayer.getName());
                 millFormed = true;
@@ -156,6 +171,24 @@ public class Game {
     }
 
     /**
+     * Removes a piece from the board at the specified node ID.
+     * Validates the removal and updates the game state.
+     *
+     * @param nodeID the node ID where the piece is to be removed.
+     * @throws InvalidMove if the removal is not valid.
+     */
+    public void removePiece(int nodeID) throws InvalidMove {
+        Node node = board.getNode(nodeID);
+        if (node.isOccupied() && node.getOccupant() != currentPlayer && !board.isPartOfMill(node)) {
+            removeStone(node, node.getOccupant());
+            notifyUI();
+            switchPlayer();
+        } else {
+            throw new InvalidMove("Removal is invalid!");
+        }
+    }
+
+    /**
      * Checks if the game is currently in the placing phase.
      *
      * @return true if the game is in the placing phase, false otherwise.
@@ -181,6 +214,13 @@ public class Game {
     public Board getBoard() {
         return board;
     }
+
+    public void notifyUI() {
+        if (ui != null) {
+            ui.refreshBoard();
+        }
+    }
+
 
     /**
      * Checks if the current player is allowed to "fly" (move a piece to any open space on the board).
