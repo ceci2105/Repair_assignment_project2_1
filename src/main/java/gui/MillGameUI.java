@@ -1,5 +1,6 @@
 package gui;
 
+import Minimax.MinimaxAIPlayer;
 import game.mills.*;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -47,6 +48,7 @@ public class MillGameUI {
         // Initialize players with name and stone color
         HumanPlayer humanPlayer1 = new HumanPlayer("Player 1", Color.BLACK);
         HumanPlayer humanPlayer2 = new HumanPlayer("Player 2", Color.WHITE);
+        //MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("AI Player", 3, game, Color.WHITE);
 
         // Initialize the game with the two players
         this.game = new Game(humanPlayer1, humanPlayer2);

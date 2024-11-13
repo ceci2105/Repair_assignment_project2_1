@@ -2,6 +2,8 @@ package game.mills;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import Minimax.MinimaxAIPlayer;
 import gui.MillGameUI;
 
 /**
@@ -13,6 +15,7 @@ public class Game {
     private Player humanPlayer1;
     private Player humanPlayer2;
     private Player currentPlayer;
+    private Player aiPlayer;
     private Board board;
     private MoveValidator moveValidator;
     @SuppressWarnings("unused")
@@ -38,15 +41,21 @@ public class Game {
         this.phase = 1; //Start the game in the placing phase
 
         this.totalMoves = 0;
+        this.aiPlayer = p2;
+
     }
 
     /**
      * Switches the player when the turn changes.
      */
     public void switchPlayer() {
-        currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
-
+        if (currentPlayer == humanPlayer1 || currentPlayer == humanPlayer2) {
+            currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
+        } else {
+            currentPlayer = (currentPlayer == aiPlayer) ? humanPlayer1 : aiPlayer;
+        }
     }
+
 
     public Player getOpponent(Player player) {
         if (player == humanPlayer1) {
