@@ -474,6 +474,7 @@ public class MillGameUI {
      * Restarts the game by re-initializing the game logic and UI.
      */
     private void restartGame() {
+        //TODO: Implement game restart logic when playing against the baseline agent. Use game type to determine reset attributes.
         primaryStage.setWidth(SCENE_WIDTH);
         new MillGameUI(primaryStage, humanGame);
     }
