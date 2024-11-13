@@ -36,6 +36,7 @@ public class MillGameUI {
     private Node selectedNode = null; // Store the currently selected node
 
     private Label statusLabel; // Label to display the current game status
+    private Label phaseLabel; // Label to display the current game phase
     private Stage primaryStage; // Store the primary stage
     private Game game; // Store the game instance
     private Board board; // Store the board instance
@@ -140,6 +141,13 @@ public class MillGameUI {
         statusLabel.setFont(new Font(18));
         statusLabel.setTextFill(Color.BLACK);
         root.getChildren().add(statusLabel);
+
+        phaseLabel = new Label("Placing Phase");
+        phaseLabel.setLayoutX(20);
+        phaseLabel.setLayoutY(SCENE_HEIGHT - 75);
+        phaseLabel.setFont(new Font(18));
+        phaseLabel.setTextFill(Color.BLACK);
+        root.getChildren().add(phaseLabel);
 
         // Coordinates for vertex positions
         double[][] positions = {
@@ -466,5 +474,9 @@ public class MillGameUI {
      */
     public void updateGameStatus(String message) {
         statusLabel.setText(message);
+    }
+
+    public void updateGamePhaseLabel(String message) {
+        phaseLabel.setText(message);
     }
 }

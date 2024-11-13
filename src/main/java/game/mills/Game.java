@@ -23,6 +23,7 @@ public class Game {
     private boolean millFormed = false;
     private MillGameUI ui;
     private boolean isGameOver = false;
+    private boolean movingPhaseMessageDisplayed = false;
 
     /**
      * Constructs a new game instance with two players.
@@ -242,6 +243,12 @@ public class Game {
     private void checkPhase() {
         if (humanPlayer1.getStonesToPlace() == 0 && humanPlayer2.getStonesToPlace() == 0) {
             phase = 2;
+            if (!movingPhaseMessageDisplayed) {
+                if (ui != null) {
+                    ui.updateGamePhaseLabel("Game is now in moving phase!");
+                }
+                movingPhaseMessageDisplayed = true;
+            }
         }
     }
 
