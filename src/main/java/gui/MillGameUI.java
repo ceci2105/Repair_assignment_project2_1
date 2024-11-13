@@ -213,8 +213,10 @@ public class MillGameUI {
             circle.setStrokeWidth(1.5);
 
             // Setting of the circle on the pane
-            circle.setCenterX(positions[i][0] * BOARD_SIZE + offsetX);
-            circle.setCenterY(positions[i][1] * BOARD_SIZE + offsetY);
+            double centerX = positions[i][0] * BOARD_SIZE + offsetX;
+            double centerY = positions[i][1] * BOARD_SIZE + offsetY;
+            circle.setCenterX(centerX);
+            circle.setCenterY(centerY);
 
             // Handling clicks to select and move pieces
             int finalI = i;
@@ -228,6 +230,15 @@ public class MillGameUI {
             // Adding the circle to the root pane after the lines
             root.getChildren().add(circle);
             circles[i] = circle;
+
+            Text nodeLabel = new Text(String.valueOf(i));
+            nodeLabel.setFont(new Font(8));
+            nodeLabel.setFill(Color.BLACK);
+
+            nodeLabel.setX(centerX + CIRCLE_RADIUS + 2);
+            nodeLabel.setY(centerY + CIRCLE_RADIUS + 2);
+
+            root.getChildren().add(nodeLabel);
         }
 
         Image backButtonIcon = null;
