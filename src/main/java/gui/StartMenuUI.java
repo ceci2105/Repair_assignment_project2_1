@@ -48,7 +48,7 @@ public class StartMenuUI {
         menuBox.getChildren().addAll(titleLabel, startButton, rulesButton, exitButton);
 
         // Creating the scene and setting it on the stage
-        Scene startMenuScene = new Scene(menuBox, 600, 600);
+        Scene startMenuScene = new Scene(menuBox, 700, 700);
         primaryStage.setScene(startMenuScene);
         primaryStage.setTitle("Nine Men's Morris - Start Menu");
         primaryStage.show();

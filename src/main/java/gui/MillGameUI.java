@@ -28,6 +28,8 @@ import java.util.Optional;
 public class MillGameUI {
     private static final int CIRCLE_RADIUS = 15; // Radius of the game piece circles
     private static final int BOARD_SIZE = 600;
+    private static final int SCENE_WIDTH = 700;
+    private static final int SCENE_HEIGHT = 700;
     private Node selectedNode = null; // Store the currently selected node
 
     private Label statusLabel; // Label to display the current game status
@@ -72,8 +74,8 @@ public class MillGameUI {
         rules.setFill(Color.BLACK);
         rules.setFont(new Font(18));
         rules.setWrappingWidth(400);
-        rules.setX(600);
-        rules.setY(25);
+        rules.setX(685);
+        rules.setY(70);
         rules.setText("Nine Men's Morris Rules:\n\n"
             + "1. The board consists of a grid with twenty-four intersections or points. Each player has nine pieces and the goal is to form a mill: three stones aligned horizontally or vertically, allowing a player to remove an opponent's stone from the game board.\n\n"
             + "2. Black starts first and players then take turns placing their stones onto empty points on the board. When all stones have been placed, players take turns moving a stone to an adjacent point.\n\n"
@@ -85,14 +87,14 @@ public class MillGameUI {
         root.getChildren().add(rules);
 
         //Increase stage size to show rules
-        primaryStage.setWidth(BOARD_SIZE + 410);
+        primaryStage.setWidth(SCENE_WIDTH + 410);
     }
 
     private void removeRules() {
         root.getChildren().remove(rules);
 
         //Decrease stage size to hide rules
-        primaryStage.setWidth(BOARD_SIZE);
+        primaryStage.setWidth(SCENE_WIDTH);
     }
 
     /**
@@ -102,8 +104,10 @@ public class MillGameUI {
 
         // Initialize the status label
         statusLabel = new Label("Game started. " + game.getCurrentPlayer().getName() + "'s turn.");
-        statusLabel.setLayoutX(10);
-        statusLabel.setLayoutY(BOARD_SIZE - 30);
+        statusLabel.setLayoutX(20);
+        statusLabel.setLayoutY(SCENE_HEIGHT - 50);
+        statusLabel.setFont(new Font(18));
+        statusLabel.setTextFill(Color.BLACK);
         root.getChildren().add(statusLabel);
 
         // Coordinates for vertex positions
@@ -134,6 +138,10 @@ public class MillGameUI {
             {0.9, 0.9}   // Node 23
         };
 
+        // Calculate the offset to center the board
+        double offsetX = (SCENE_WIDTH - BOARD_SIZE) / 2;
+        double offsetY = (SCENE_HEIGHT - BOARD_SIZE) / 2;
+
         // Get edges between nodes to draw connections
         int[][] edges = board.getEdges();
 
@@ -144,8 +152,8 @@ public class MillGameUI {
 
             // Creating a line between two connected nodes
             Line line = new Line(
-                positions[start][0] * BOARD_SIZE, positions[start][1] * BOARD_SIZE,
-                positions[end][0] * BOARD_SIZE, positions[end][1] * BOARD_SIZE
+                positions[start][0] * BOARD_SIZE + offsetX, positions[start][1] * BOARD_SIZE + offsetY,
+                positions[end][0] * BOARD_SIZE + offsetX, positions[end][1] * BOARD_SIZE + offsetY
             );
             line.setStroke(Color.BLACK);
             line.setStrokeWidth(2);
@@ -166,8 +174,8 @@ public class MillGameUI {
             circle.setStrokeWidth(1.5);
 
             // Setting of the circle on the pane
-            circle.setCenterX(positions[i][0] * BOARD_SIZE);
-            circle.setCenterY(positions[i][1] * BOARD_SIZE);
+            circle.setCenterX(positions[i][0] * BOARD_SIZE + offsetX);
+            circle.setCenterY(positions[i][1] * BOARD_SIZE + offsetY);
 
             // Handling clicks to select and move pieces
             int finalI = i;
@@ -191,13 +199,13 @@ public class MillGameUI {
         }
 
         ImageView backButtonImageView = new ImageView(backButtonIcon);
-        backButtonImageView.setX(560);
-        backButtonImageView.setY(560);
+        backButtonImageView.setX(570 + offsetX);
+        backButtonImageView.setY(570 + offsetY);
         backButtonImageView.setFitHeight(30);
         backButtonImageView.setFitWidth(30);
 
         backButtonImageView.setOnMouseClicked(event -> {
-            primaryStage.setWidth(BOARD_SIZE);
+            primaryStage.setWidth(SCENE_WIDTH);
             new StartMenuUI(primaryStage);
         });
 
@@ -235,8 +243,8 @@ public class MillGameUI {
         ImageView imageView = new ImageView(image); 
         
         //Setting the position of the image 
-        imageView.setX(560); 
-        imageView.setY(10); 
+        imageView.setX(570 + offsetX); 
+        imageView.setY(0 + offsetY); 
         
         //setting the fit height and width of the image view 
         imageView.setFitHeight(30); 
@@ -283,7 +291,7 @@ public class MillGameUI {
         root.getChildren().add(backButtonImageView);
 
         // Set up the scene and stage
-        Scene scene = new Scene(root, BOARD_SIZE, BOARD_SIZE);
+        Scene scene = new Scene(root, SCENE_WIDTH, SCENE_HEIGHT);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Nine Men's Morris");
         primaryStage.show();
@@ -305,13 +313,16 @@ public class MillGameUI {
                 try {
                     game.removeOpponentStone(nodeIndex);
                     circle.setFill(Color.LIGHTGRAY);
+                    statusLabel.setTextFill(Color.BLACK);
                     updateGameStatus(currentPlayer.getName() + " removed an opponent's stone.");
+                    statusLabel.setTextFill(Color.BLACK);
                     updateGameStatus("Turn: " + game.getCurrentPlayer().getName());
                 } catch (InvalidMove e) {
                     // If the removal is invalid, show the error message and prevent the stone removal
                     updateGameStatus(e.getMessage());
                 }
             } else {
+                statusLabel.setTextFill(Color.RED);
                 updateGameStatus("Select a valid opponent's stone to remove.");
             }
             return;
@@ -325,11 +336,13 @@ public class MillGameUI {
                     if (node.getOccupant() != null) {
                         circle.setFill(node.getOccupant().getColor());
                     }
+                    statusLabel.setTextFill(Color.BLACK);
                     statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
                 } catch (InvalidMove e) {
                     updateGameStatus(e.getMessage());
                 }
             } else {
+                statusLabel.setTextFill(Color.RED);
                 updateGameStatus("Node already occupied.");
             }
         } else {
@@ -340,6 +353,7 @@ public class MillGameUI {
                     circle.setStroke(Color.YELLOWGREEN); // Highlight selected piece
                     circle.setStrokeWidth(4.5);
                 } else {
+                    statusLabel.setTextFill(Color.RED);
                     updateGameStatus("Select your own piece to move.");
                 }
             } else if (selectedNode == node) {
@@ -347,6 +361,7 @@ public class MillGameUI {
                 selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
                 selectedNode.getCircle().setStrokeWidth(1.5);
                 selectedNode = null; // Unselect the node
+                statusLabel.setTextFill(Color.BLACK);
                 updateGameStatus("Piece deselected.");
             } else {
                 // Allow any move if player can fly
@@ -358,6 +373,7 @@ public class MillGameUI {
                         selectedNode.getCircle().setStroke(Color.BLACK); // Remove highlight
                         selectedNode.getCircle().setStrokeWidth(1.5);
                         circle.setFill(currentPlayer.getColor());
+                        statusLabel.setTextFill(Color.BLACK);
                         statusLabel.setText(game.getCurrentPlayer().getName() + "'s turn.");
                         selectedNode = null;
                     } catch (InvalidMove e) {
@@ -367,6 +383,7 @@ public class MillGameUI {
                         selectedNode = null;
                     }
                 } else {
+                    statusLabel.setTextFill(Color.RED);
                     updateGameStatus("Invalid move.");
                 }
             }
@@ -404,6 +421,7 @@ public class MillGameUI {
      * Restarts the game by re-initializing the game logic and UI.
      */
     private void restartGame() {
+        primaryStage.setWidth(SCENE_WIDTH);
         new MillGameUI(primaryStage);
     }
 
