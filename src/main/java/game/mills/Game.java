@@ -372,5 +372,9 @@ public class Game {
         this.ui = ui;
     }
 
+    public void setSecondPlayer(Player player) {
+        this.humanPlayer2 = player;
+    }
+
 
 }

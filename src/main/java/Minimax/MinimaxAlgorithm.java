@@ -13,7 +13,7 @@ import game.mills.Node;
 public class MinimaxAlgorithm {
     private final int depth;                       // The maximum search depth for the Minimax algorithm
     private EvaluationFunction evaluationFunction; // Instance of EvaluationFunction to score board states
-    private final Game game;                       // The current game instance
+    private Game game;                       // The current game instance
 
     /**
      * Constructor to initialize MinimaxAlgorithm with a Game instance and search depth.

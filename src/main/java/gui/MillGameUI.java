@@ -97,12 +97,14 @@ public class MillGameUI {
 
     public void startNewminimaxGame() {
         HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
-        MinimaxAIPlayer minimaxAgent = new MinimaxAIPlayer("White", Color.WHITE);
-
-        this.game = new Game(humanPlayer1, minimaxAgent);
+        
+        this.game = new Game(humanPlayer1, null);
         game.setUI(this);
         board = game.getBoard();
 
+        int depth = 3;
+        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("White", Color.WHITE, game, depth);
+        game.setSecondPlayer(minimaxAIPlayer);
         buildUI();
     }
 

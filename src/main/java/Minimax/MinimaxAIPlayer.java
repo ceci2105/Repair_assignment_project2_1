@@ -27,10 +27,12 @@ public class MinimaxAIPlayer implements Player {
      * @param game The game instance for accessing board and opponent information.
      * @param color The color representing the AI player’s pieces on the board.
      */
-    public MinimaxAIPlayer(String name, Color color) {
+    public MinimaxAIPlayer(String name, Color color, Game game, int depth) {
         this.name = name;
-        this.minimax = new MinimaxAlgorithm(game, depth); // Initialize the Minimax algorithm
         this.color = color;
+        this.depth = depth;
+        this.game = game;
+        this.minimax = new MinimaxAlgorithm(game, depth); // Initialize the Minimax algorithm
     }
 
     /**
