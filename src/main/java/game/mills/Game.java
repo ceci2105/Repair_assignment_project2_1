@@ -9,6 +9,9 @@ import Minimax.MinimaxAIPlayer;
 import agents.neural_network.BaselineAgent;
 
 import gui.MillGameUI;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.java.Log;
 
 /**
  * The NewGame class manages the game logic for Mills.
@@ -18,12 +21,46 @@ public class Game {
     private static Logger logger = Logger.getLogger(Game.class.getName());
     private Player humanPlayer1;
     private Player humanPlayer2;
+    /**
+     * -- GETTER --
+     *  Gets the current player whose turn it is.
+     *
+     * @return the current player.
+     */
+    @Getter
     private Player currentPlayer;
+    /**
+     * -- GETTER --
+     *  Gets the game board.
+     *
+     * @return the board object representing the game board.
+     */
+    @Getter
     private Board board;
     private MoveValidator moveValidator;
     @SuppressWarnings("unused")
     private int totalMoves;
+    /**
+     * -- GETTER --
+     *  Gets the current game phase.
+     *
+     * @return the current phase of the game.
+     */
+    @Getter
     private int phase;
+    /**
+     * -- GETTER --
+     *  Checks if a mill has been formed by the current player.
+     *
+     *
+     * -- SETTER --
+     *  Sets the mill formed status.
+     *
+     @return true if a mill has been formed, false otherwise.
+      * @param millFormed true if a mill has been formed, false otherwise.
+     */
+    @Setter
+    @Getter
     private boolean millFormed = false;
     private MillGameUI ui;
 
@@ -108,7 +145,9 @@ public class Game {
      * @throws InvalidMove if the move is not valid.
      */
     public void placePiece(int nodeID) {
+        logger.log(Level.INFO, "Place Piece called");
         if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
+            logger.log(Level.INFO, "If statement entered -> Valid placement");
             board.placePiece(currentPlayer, nodeID);
             notifyUI();
             if (board.checkMill(board.getNode(nodeID), currentPlayer)) {
@@ -236,24 +275,6 @@ public class Game {
         return phase == 1;
     }
 
-    /**
-     * Gets the current player whose turn it is.
-     *
-     * @return the current player.
-     */
-    public Player getCurrentPlayer() {
-        return currentPlayer;
-    }
-
-    /**
-     * Gets the game board.
-     *
-     * @return the board object representing the game board.
-     */
-    public Board getBoard() {
-        return board;
-    }
-
     public void notifyUI() {
         if (ui != null) {
             ui.refreshBoard();
@@ -288,33 +309,6 @@ public class Game {
                 movingPhaseMessageDisplayed = true;
             }
         }
-    }
-
-    /**
-     * Gets the current game phase.
-     *
-     * @return the current phase of the game.
-     */
-    public int getPhase() {
-        return phase;
-    }
-
-    /**
-     * Checks if a mill has been formed by the current player.
-     *
-     * @return true if a mill has been formed, false otherwise.
-     */
-    public boolean isMillFormed() {
-        return millFormed;
-    }
-
-    /**
-     * Sets the mill formed status.
-     *
-     * @param millFormed true if a mill has been formed, false otherwise.
-     */
-    public void setMillFormed(boolean millFormed) {
-        this.millFormed = millFormed;
     }
 
     /**

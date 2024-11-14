@@ -1,14 +1,51 @@
 package game.mills;
 
 import javafx.scene.shape.Circle;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * The Node class represents a single position on the game board.
  * Each node can be occupied by a player and is associated with a visual circle in the UI.
  */
 public class Node {
+    /**
+     * -- GETTER --
+     * Returns the ID of a given Node.
+     */
+    @Getter
+    /**
+     *  -- SETTER --
+     * Sets the ID of a given Node object.
+     * @param id The id to be set as the ID.
+     */
+    @Setter
     private int id;             // Unique ID for each position on the board
+    /**
+     * -- SETTER --
+     * Sets the player occupying this node.
+     *
+     * @param player the player to set as the occupant of the node.
+     */
+    @Setter
+    /**
+     * -- GETTER --
+     * Returns the occupant of a given Node.
+     */
+    @Getter
     private Player occupant;    // The player occupying the node (null if empty)
+    /**
+     * -- SETTER --
+     * Sets the visual representation (circle) of this node in the UI.
+     *
+     * @param circle the Circle object to associate with this node.
+     */
+    @Setter
+    /**
+     * -- GETTER --
+     *  Returns the visual representation (circle) of this node in the UI.
+     */
+    @Getter
     private Circle circle;      // Reference to the circle representing the node in the UI
 
     /**
@@ -21,32 +58,6 @@ public class Node {
         this.occupant = null;
     }
 
-    /**
-     * Gets the unique ID of the node.
-     *
-     * @return the node's unique identifier.
-     */
-    public int getId() {
-        return id;
-    }
-
-    /**
-     * Gets the player currently occupying this node.
-     *
-     * @return the player occupying the node, or null if the node is unoccupied.
-     */
-    public Player getOccupant() {
-        return occupant;
-    }
-
-    /**
-     * Sets the player occupying this node.
-     *
-     * @param player the player to set as the occupant of the node.
-     */
-    public void setOccupant(Player player) {
-        this.occupant = player;
-    }
 
     /**
      * Checks whether the node is currently occupied by a player.
@@ -57,21 +68,5 @@ public class Node {
         return occupant != null;
     }
 
-    /**
-     * Gets the visual representation (circle) of this node in the UI.
-     *
-     * @return the Circle object associated with this node.
-     */
-    public Circle getCircle() {
-        return circle;
-    }
 
-    /**
-     * Sets the visual representation (circle) of this node in the UI.
-     *
-     * @param circle the Circle object to associate with this node.
-     */
-    public void setCircle(Circle circle) {
-        this.circle = circle;
-    }
 }

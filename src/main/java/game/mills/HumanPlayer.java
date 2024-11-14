@@ -1,16 +1,26 @@
 package game.mills;
 
 import javafx.scene.paint.Color;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * The HumanPlayer class represents a player in the game.
  * It implements the Player interface and manages the player's name, color, and the number of stones
  * the player has to place and already placed on the board.
  */
-public class HumanPlayer implements Player{
+public class HumanPlayer implements Player {
+    @Getter
+    @Setter
     private String name;
+    @Getter
+    @Setter
     private Color color;
+    @Getter
+    @Setter
     private int stonesToPlace;
+    @Getter
+    @Setter
     private int stonesOnBoard;
 
     /**
@@ -27,32 +37,6 @@ public class HumanPlayer implements Player{
         this.stonesOnBoard = 0;
     }
 
-     /**
-     * Gets the name of the player.
-     *
-     * @return the player's name.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Gets the color of the player's stones.
-     *
-     * @return the color of the player's stones.
-     */
-    public Color getColor() {
-        return color;
-    }
-
-    /**
-     * Gets the number of stones the player has left to place on the board.
-     *
-     * @return the number of stones left to place.
-     */
-    public int getStonesToPlace() {
-        return stonesToPlace;
-    }
 
     /**
      * Decrements the number of stones the player has left to place and increments the number of stones on the board.
@@ -63,15 +47,6 @@ public class HumanPlayer implements Player{
             stonesToPlace--;
             stonesOnBoard++;
         }
-    }
-
-    /**
-     * Gets the number of stones the player currently has on the board.
-     *
-     * @return the number of stones on the board.
-     */
-    public int getStonesOnBoard() {
-        return stonesOnBoard;
     }
 
     /**

@@ -12,7 +12,7 @@ import game.mills.Game;
  */
 public class EvaluationFunction {
 
-    private final Game game;
+    private Game game;
 
     /**
      * Constructor to initialize the EvaluationFunction with a Game instance.

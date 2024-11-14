@@ -1,25 +1,34 @@
 package agents.neural_network;
 
-import game.mills.Player;
-import game.mills.Node;
-import javafx.scene.paint.Color;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
 import game.mills.Game;
 import game.mills.InvalidMove;
+import game.mills.Node;
+import game.mills.Player;
+import javafx.scene.paint.Color;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public class BaselineAgent implements Player {
+    @Getter
     private String name;
+    @Getter
     private Color color;
+    @Getter
     private int stonesToPlace;
+    @Getter
     private int stonesOnBoard;
+    @Setter
     private Game game;
 
     /**
      * Constructor for the BaselineAgent class.
-     * 
-     * @param name The name of the player.
+     *
+     * @param name  The name of the player.
      * @param color The color of the player's pieces.
      */
     public BaselineAgent(String name, Color color) {
@@ -29,25 +38,6 @@ public class BaselineAgent implements Player {
         this.stonesOnBoard = 0;
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public Color getColor() {
-        return color;
-    }
-
-    @Override
-    public int getStonesToPlace() {
-        return stonesToPlace;
-    }
-
-    @Override
-    public int getStonesOnBoard() {
-        return stonesOnBoard;
-    }
 
     @Override
     public void decrementStonesToPlace() {
@@ -65,10 +55,6 @@ public class BaselineAgent implements Player {
     @Override
     public void decrementStonesOnBoard() {
         stonesOnBoard--;
-    }
-
-    public void setGame(Game game) {
-        this.game = game;
     }
 
     public void makeMove() {
@@ -106,7 +92,8 @@ public class BaselineAgent implements Player {
     }
 
     private void movePiece() {
-        int random = (int) (Math.random() * 24);
+        Random r = new Random();
+        int random = r.nextInt(24);
         for (int i = random; i < 24; i++) {
             Node fromNode = game.getBoard().getNode(i);
             if (fromNode.isOccupied() && fromNode.getOccupant() == this) {
