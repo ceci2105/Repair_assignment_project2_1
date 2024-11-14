@@ -18,6 +18,7 @@ public class MinimaxAIPlayer implements Player {
     private Color color;                 // Color representing the AI player’s pieces on the board
     private int stonesToPlace;           // Stones the AI player still needs to place in the placement phase
     private int stonesOnBoard;           // Stones the AI player currently has on the board
+    private Game game;                   // The current game instance
 
     /**
      * Constructor to initialize the MinimaxAIPlayer with a given name, depth, game, and color.
@@ -26,9 +27,8 @@ public class MinimaxAIPlayer implements Player {
      * @param game The game instance for accessing board and opponent information.
      * @param color The color representing the AI player’s pieces on the board.
      */
-    public MinimaxAIPlayer(String name, int depth, Game game, Color color) {
+    public MinimaxAIPlayer(String name, Color color) {
         this.name = name;
-        this.depth = depth;
         this.minimax = new MinimaxAlgorithm(game, depth); // Initialize the Minimax algorithm
         this.color = color;
     }
@@ -58,10 +58,23 @@ public class MinimaxAIPlayer implements Player {
      * @param phase The current phase of the game (placement, movement, or endgame).
      */
     public void makeMove(Board board, int phase) {
-        Node[] bestMove = minimax.findBestMove(board, this, phase); // Get best move from Minimax
-        if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
-            board.movePiece(this, bestMove[0].getId(), bestMove[1].getId()); // Apply the move
-        }
+
+        if (stonesToPlace == 9) {
+            game.placePiece((int) (Math.random() * 24));
+        } else if (phase == 1) {  // If in placement phase, place a stone
+                int bestPlacement = minimax.findBestPlacement(board, this);
+                if (bestPlacement != -1) {
+                    game.placePiece(bestPlacement);
+                    System.out.println("AI placed a stone at node " + bestPlacement);
+                }
+            } else {  // Else proceed with regular movement
+                Node[] bestMove = minimax.findBestMove(board, this, phase);
+                if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
+                    board.movePiece(this, bestMove[0].getId(), bestMove[1].getId());
+                    System.out.println("AI moved a stone from node " + bestMove[0].getId() + " to node " + bestMove[1].getId());
+                } 
+            }
+        
     }
 
     /**
@@ -105,5 +118,9 @@ public class MinimaxAIPlayer implements Player {
      */
     public void decrementStonesOnBoard() {
         stonesOnBoard--;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 }

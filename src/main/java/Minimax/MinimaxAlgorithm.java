@@ -11,9 +11,9 @@ import game.mills.Node;
  * This class includes both the primary Minimax algorithm with recursive depth-limited search and evaluation function.
  */
 public class MinimaxAlgorithm {
-    private int depth;                       // The maximum search depth for the Minimax algorithm
+    private final int depth;                       // The maximum search depth for the Minimax algorithm
     private EvaluationFunction evaluationFunction; // Instance of EvaluationFunction to score board states
-    private Game game;                       // The current game instance
+    private final Game game;                       // The current game instance
 
     /**
      * Constructor to initialize MinimaxAlgorithm with a Game instance and search depth.
@@ -21,9 +21,29 @@ public class MinimaxAlgorithm {
      * @param depth The maximum search depth for the Minimax algorithm.
      */
     public MinimaxAlgorithm(Game game, int depth) {
-        this.depth = depth;
         this.game = game;
+        this.depth = depth;
         this.evaluationFunction = new EvaluationFunction(game); // Initialize evaluation function for board scoring
+    }
+
+    public int findBestPlacement(Board board, Player player) {
+        int bestValue = Integer.MIN_VALUE;
+        int bestPlacement = -1;
+
+        // Evaluate each empty node for potential placement
+        for (Node node : board.getNodes().values()) {
+            if (!node.isOccupied()) {  // Only consider empty nodes
+                board.placePiece(player, node.getId());  // Temporarily place a piece
+                int placementValue = evaluationFunction.evaluate(board, player, 1); // Evaluate
+                game.removeStone(board.getNode(node.getId()), player);  // Remove the piece after evaluation
+
+                if (placementValue > bestValue) {  // Update if this placement is better
+                    bestValue = placementValue;
+                    bestPlacement = node.getId();
+                }
+            }
+        }
+        return bestPlacement;  // Return the best placement node ID
     }
 
     /**
@@ -39,7 +59,9 @@ public class MinimaxAlgorithm {
 
         // Iterate over all nodes occupied by the player
         for (Node fromNode : board.getNodes().values()) {
+            
             if (fromNode.getOccupant() == player) {
+                System.out.println("From node: " + fromNode.getId());
                 // Evaluate each possible move from the current node to neighboring nodes
                 for (Node toNode : board.getNeighbours(fromNode)) {
                     if (!toNode.isOccupied() && board.isValidMove(fromNode, toNode)) {
@@ -127,4 +149,5 @@ public class MinimaxAlgorithm {
             return minEval;
         }
     }
+
 }

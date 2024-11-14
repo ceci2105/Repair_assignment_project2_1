@@ -19,7 +19,6 @@ public class Game {
     private Player humanPlayer1;
     private Player humanPlayer2;
     private Player currentPlayer;
-    private Player aiPlayer;
     private Board board;
     private MoveValidator moveValidator;
     @SuppressWarnings("unused")
@@ -49,7 +48,7 @@ public class Game {
 
         this.totalMoves = 0;
 
-        this.aiPlayer = p2;
+ 
 
 
 
@@ -59,6 +58,13 @@ public class Game {
         if (p2 instanceof BaselineAgent) {
             ((BaselineAgent) p2).setGame(this);
         }
+        if (p1 instanceof MinimaxAIPlayer) {
+            ((MinimaxAIPlayer) p1).setGame(this);
+        }
+        if (p2 instanceof MinimaxAIPlayer) {
+            ((MinimaxAIPlayer) p2).setGame(this);
+        }
+        //TODO: refactor into switch case
 
     }
 
@@ -72,14 +78,17 @@ public class Game {
         //} else {
         //    currentPlayer = (currentPlayer == aiPlayer) ? humanPlayer1 : aiPlayer;
         // }
-    }
+    
 
 
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
         if (currentPlayer instanceof BaselineAgent) {
             ((BaselineAgent) currentPlayer).makeMove();
+        } else if (currentPlayer instanceof MinimaxAIPlayer) {
+            ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
         }
         notifyUI();
+    }
 
     public Player getOpponent(Player player) {
         if (player == humanPlayer1) {
@@ -192,7 +201,7 @@ public class Game {
      * @param node     the node from which the stone is to be removed.
      * @param opponent the player whose stone is being removed.
      */
-    private void removeStone(Node node, Player opponent) {
+    public void removeStone(Node node, Player opponent) {
         node.setOccupant(null);
         opponent.decrementStonesOnBoard();
         millFormed = false; // Reset flag after removal

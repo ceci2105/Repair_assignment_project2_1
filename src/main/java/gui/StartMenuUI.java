@@ -17,6 +17,7 @@ public class StartMenuUI {
     private Stage primaryStage;
     private static final String humanGame = "humanGame";
     private static final String baselineGame = "baselineGame";
+    private static final String minimaxGame = "minimaxGame";
 
     /**
      * Constructor for the start menu user interface.
@@ -44,13 +45,16 @@ public class StartMenuUI {
         Button startbaseagentButton = new Button("Start New Game against Baseline Agent");
         startbaseagentButton.setOnAction(e -> startbaselineGame());
 
+        Button startminimaxButton = new Button("Start New Game against Minimax Agent");
+        startminimaxButton.setOnAction(e -> startminimaxGame());
+
         Button rulesButton = new Button("How to play");
         rulesButton.setOnAction(e -> new RulesUI().display());
 
         Button exitButton = new Button("Exit");
         exitButton.setOnAction(e -> Platform.exit());
 
-        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, rulesButton, exitButton);
+        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, rulesButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -69,4 +73,10 @@ public class StartMenuUI {
     private void startbaselineGame() {
         new MillGameUI(primaryStage, baselineGame); // This will switch to the game UI
     }
+
+    private void startminimaxGame() {
+        new MillGameUI(primaryStage, minimaxGame); // This will switch to the game UI
+    }
+
+
 }

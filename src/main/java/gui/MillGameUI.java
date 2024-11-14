@@ -34,6 +34,7 @@ public class MillGameUI {
     private static final int SCENE_HEIGHT = 700;
     private static final String humanGame = "humanGame";
     private static final String baselineGame = "baselineGame";
+    private static final String minimaxGame = "minimaxGame";
     private Node selectedNode = null; // Store the currently selected node
 
     private Label statusLabel; // Label to display the current game status
@@ -58,6 +59,8 @@ public class MillGameUI {
             startNewGame();
         } else if (gameType.equals(baselineGame)) {
             startNewbaselineGame();
+        } else if (gameType.equals(minimaxGame)) {
+            startNewminimaxGame();
         }
     }
 
@@ -86,6 +89,17 @@ public class MillGameUI {
         BaselineAgent baselineAgent = new BaselineAgent("White", Color.WHITE);
 
         this.game = new Game(humanPlayer1, baselineAgent);
+        game.setUI(this);
+        board = game.getBoard();
+
+        buildUI();
+    }
+
+    public void startNewminimaxGame() {
+        HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
+        MinimaxAIPlayer minimaxAgent = new MinimaxAIPlayer("White", Color.WHITE);
+
+        this.game = new Game(humanPlayer1, minimaxAgent);
         game.setUI(this);
         board = game.getBoard();
 
