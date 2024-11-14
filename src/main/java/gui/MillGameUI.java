@@ -43,6 +43,7 @@ public class MillGameUI {
     private Pane root = new Pane(); // Root pane to hold all UI elements
     private int rulesCounter = 1;
     private Text rules;
+    private String gameType;
 
     /**
      * Constructor to initialize the MillGameUI.
@@ -51,6 +52,7 @@ public class MillGameUI {
      */
     public MillGameUI(Stage primaryStage, String gameType) {
         this.primaryStage = primaryStage;
+        this.gameType = gameType;
         if (gameType.equals(humanGame)) {
             startNewGame();
         } else if (gameType.equals(baselineGame)) {
@@ -474,9 +476,8 @@ public class MillGameUI {
      * Restarts the game by re-initializing the game logic and UI.
      */
     private void restartGame() {
-        //TODO: Implement game restart logic when playing against the baseline agent. Use game type to determine reset attributes.
         primaryStage.setWidth(SCENE_WIDTH);
-        new MillGameUI(primaryStage, humanGame);
+        new MillGameUI(primaryStage, gameType);
     }
 
     /**
