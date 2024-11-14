@@ -1,5 +1,6 @@
 package gui;
 
+import Minimax.MinimaxAIPlayer;
 import game.mills.*;
 import agents.neural_network.BaselineAgent;
 import javafx.application.Platform;
@@ -66,6 +67,7 @@ public class MillGameUI {
     public void startNewGame() {
         selectedNode = null;
         // Initialize players with name and stone color
+
         HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
         HumanPlayer humanPlayer2 = new HumanPlayer("White", Color.WHITE);
 
