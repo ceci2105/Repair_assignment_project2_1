@@ -47,6 +47,8 @@ public class MinimaxAIPlayer implements Player {
         this.color = color;
         this.depth = depth;
         this.game = game;
+        this.stonesToPlace = 9;
+        this.stonesOnBoard = 0;
         this.minimax = new MinimaxAlgorithm(game, depth); // Initialize the Minimax algorithm
     }
 
@@ -59,14 +61,15 @@ public class MinimaxAIPlayer implements Player {
      * @param phase The current phase of the game (placement, movement, or endgame).
      */
     public void makeMove(Board board, int phase) {
+
         Random r = new Random();
         if (stonesToPlace == 9) {
             game.placePiece(r.nextInt(24));
             log.log(Level.INFO, "Placed Random piece!");
-        } else{
+        } else {
             if (phase == 1) {  // If in placement phase, place a stone
                 int bestPlacement = minimax.findBestPlacement(board, this);
-                log.log(Level.INFO, "Placement at: {}", bestPlacement);
+                int i = 1;
                 if (bestPlacement != -1) {
                     game.placePiece(bestPlacement);
                 }

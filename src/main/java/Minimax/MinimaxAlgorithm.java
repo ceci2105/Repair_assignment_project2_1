@@ -4,12 +4,16 @@ import game.mills.Board;
 import game.mills.Game;
 import game.mills.Player;
 import game.mills.Node;
+import lombok.extern.java.Log;
+
+import java.util.logging.Level;
 
 /**
  * The MinimaxAlgorithm class implements the Minimax algorithm to determine the best move for the AI player.
  * It evaluates potential moves up to a given depth and chooses the move with the optimal outcome for the player.
  * This class includes both the primary Minimax algorithm with recursive depth-limited search and evaluation function.
  */
+@Log
 public class MinimaxAlgorithm {
     private final int depth;                       // The maximum search depth for the Minimax algorithm
     private EvaluationFunction evaluationFunction; // Instance of EvaluationFunction to score board states
@@ -29,14 +33,13 @@ public class MinimaxAlgorithm {
     public int findBestPlacement(Board board, Player player) {
         int bestValue = Integer.MIN_VALUE;
         int bestPlacement = -1;
-
+        Board copyBoard = board.deepCopy();
         // Evaluate each empty node for potential placement
-        for (Node node : board.getNodes().values()) {
+        for (Node node : copyBoard.getNodes().values()) {
             if (!node.isOccupied()) {  // Only consider empty nodes
-                board.placePiece(player, node.getId());  // Temporarily place a piece
+                copyBoard.placePiece(player, node.getId());  // Temporarily place a piece
                 int placementValue = evaluationFunction.evaluate(board, player, 1); // Evaluate
-                game.removeStone(board.getNode(node.getId()), player);  // Remove the piece after evaluation
-
+                System.out.println("Placement value " + placementValue);
                 if (placementValue > bestValue) {  // Update if this placement is better
                     bestValue = placementValue;
                     bestPlacement = node.getId();

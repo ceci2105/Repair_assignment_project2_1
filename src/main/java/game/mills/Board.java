@@ -30,7 +30,7 @@ public class Board {
 
     private final SimpleGraph<Integer, DefaultEdge> graph;
     @Getter
-    private final Map<Integer, Node> nodes;
+    private Map<Integer, Node> nodes;
 
     /**
      * Constructs a new Board and initializes the game graph.
@@ -196,4 +196,17 @@ public class Board {
                 Arrays.stream(mill).allMatch(id -> nodes.get(id).getOccupant() == occupant));
     }
 
+    public Board deepCopy() {
+        Board copy = new Board();
+        copy.nodes = new HashMap<>();
+        for (Map.Entry<Integer, Node> entry : this.nodes.entrySet()) {
+            Node originalNode = entry.getValue();
+            Node copiedNode = new Node(originalNode.getId());
+            copiedNode.setOccupant(originalNode.getOccupant());
+            copiedNode.setCircle(originalNode.getCircle());
+            copy.nodes.put(entry.getKey(), copiedNode);
+        }
+        return copy;
+
+    }
 }

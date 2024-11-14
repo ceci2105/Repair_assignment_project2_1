@@ -109,7 +109,7 @@ public class Game {
      * Switches the player when the turn changes.
      */
     public void switchPlayer() {
-
+        logger.log(Level.INFO, "PLayer switch called!");
         // if (currentPlayer == humanPlayer1 || currentPlayer == humanPlayer2) {
         //    currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
         //} else {
@@ -120,8 +120,10 @@ public class Game {
 
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
         if (currentPlayer instanceof BaselineAgent) {
+            logger.log(Level.INFO, "Baseline Player");
             ((BaselineAgent) currentPlayer).makeMove();
         } else if (currentPlayer instanceof MinimaxAIPlayer) {
+            logger.log(Level.INFO, "Minimax Player");
             ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
         }
         notifyUI();
