@@ -20,6 +20,9 @@ The implementation does not feature any performance intensive tasks, therefore i
     *  Clean the project: `mvn clean`
     *  Run the game: 
         * run the `Main.java` file in the `src/main` package if you are using a code editor.
+     
+## Dependencies
+With a maven install, all of the dependencies should be satisfied. Packages used can be found in the [pom.xml](https://github.com/Tiimeeeyy/Project_2_1/blob/master/pom.xml) file.
 
 ## Game Rules 📜
 
@@ -28,6 +31,6 @@ Learn the rules of Nine Men's Morris on [Wikipedia](https://en.wikipedia.org/wik
 ## Documentation 📖
 The JavaDocs can be found in the `/apidocs` folder and can be viewed by running the `index.html` file.
 
-##License##
-MIT
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
 
