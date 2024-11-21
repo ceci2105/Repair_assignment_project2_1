@@ -20,6 +20,7 @@ The implementation does not feature any performance intensive tasks, therefore i
     *  Clean the project: `mvn clean`
     *  Run the game: 
         * run the `Main.java` file in the `src/main` package if you are using a code editor.
+        * Or use mvn javafx:run if you are runnning the game form the shell.
      
 ## Dependencies
 With a maven install, all of the dependencies should be satisfied. Packages used can be found in the [pom.xml](https://github.com/Tiimeeeyy/Project_2_1/blob/master/pom.xml) file.
