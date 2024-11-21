@@ -4,11 +4,13 @@ import javafx.scene.shape.Circle;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 /**
  * The Node class represents a single position on the game board.
  * Each node can be occupied by a player and is associated with a visual circle in the UI.
  */
-public class Node {
+public class Node implements Serializable {
     /**
      * -- GETTER --
      * Returns the ID of a given Node.

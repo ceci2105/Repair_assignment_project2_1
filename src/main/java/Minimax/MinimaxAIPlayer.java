@@ -69,8 +69,10 @@ public class MinimaxAIPlayer implements Player {
         } else {
             if (phase == 1) {  // If in placement phase, place a stone
                 int bestPlacement = minimax.findBestPlacement(board, this);
+                log.log(Level.INFO, "Best Placement {0}", bestPlacement);
                 int i = 1;
                 if (bestPlacement != -1) {
+                    log.log(Level.INFO, "If entered");
                     game.placePiece(bestPlacement);
                 }
             } else {  // Else proceed with regular movement

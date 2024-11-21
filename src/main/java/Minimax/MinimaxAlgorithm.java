@@ -34,13 +34,15 @@ public class MinimaxAlgorithm {
         int bestValue = Integer.MIN_VALUE;
         int bestPlacement = -1;
         Board copyBoard = board.deepCopy();
+        log.log(Level.INFO, "Copy and Original are the same: {0}", copyBoard.equals(board));
         // Evaluate each empty node for potential placement
         for (Node node : copyBoard.getNodes().values()) {
             if (!node.isOccupied()) {  // Only consider empty nodes
-                copyBoard.placePiece(player, node.getId());  // Temporarily place a piece
-                int placementValue = evaluationFunction.evaluate(board, player, 1); // Evaluate
-                System.out.println("Placement value " + placementValue);
+                copyBoard.placePieceAgent(player, node.getId());  // Temporarily place a piece
+                int placementValue = evaluationFunction.evaluate(board, player, 1, node); // Evaluate
+                System.out.println("Placement value " + placementValue + " NodeID: " + node.getId());
                 if (placementValue > bestValue) {  // Update if this placement is better
+                    log.log(Level.INFO, "Placement Value updated");
                     bestValue = placementValue;
                     bestPlacement = node.getId();
                 }
@@ -101,7 +103,7 @@ public class MinimaxAlgorithm {
     private int minimax(Board board, int depth, boolean isMaximizingPlayer, Player player, int phase) {
         // Base case: evaluate board if maximum depth reached or game is over
         if (depth == 0 || game.isGameOver) {
-            return evaluationFunction.evaluate(board, player, phase);
+            return evaluationFunction.evaluate(board, player, phase, null);
         }
 
         // Maximizing player (AI) - aims to maximize score

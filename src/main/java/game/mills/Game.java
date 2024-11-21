@@ -1,17 +1,13 @@
 package game.mills;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
 import Minimax.MinimaxAIPlayer;
-
 import agents.neural_network.BaselineAgent;
-
 import gui.MillGameUI;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.java.Log;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The NewGame class manages the game logic for Mills.
@@ -19,11 +15,12 @@ import lombok.extern.java.Log;
  */
 public class Game {
     private static Logger logger = Logger.getLogger(Game.class.getName());
+    public boolean isGameOver = false;
     private Player humanPlayer1;
     private Player humanPlayer2;
     /**
      * -- GETTER --
-     *  Gets the current player whose turn it is.
+     * Gets the current player whose turn it is.
      *
      * @return the current player.
      */
@@ -31,7 +28,7 @@ public class Game {
     private Player currentPlayer;
     /**
      * -- GETTER --
-     *  Gets the game board.
+     * Gets the game board.
      *
      * @return the board object representing the game board.
      */
@@ -42,7 +39,7 @@ public class Game {
     private int totalMoves;
     /**
      * -- GETTER --
-     *  Gets the current game phase.
+     * Gets the current game phase.
      *
      * @return the current phase of the game.
      */
@@ -50,22 +47,19 @@ public class Game {
     private int phase;
     /**
      * -- GETTER --
-     *  Checks if a mill has been formed by the current player.
-     *
-     *
+     * Checks if a mill has been formed by the current player.
+     * <p>
+     * <p>
      * -- SETTER --
-     *  Sets the mill formed status.
+     * Sets the mill formed status.
      *
-     @return true if a mill has been formed, false otherwise.
-      * @param millFormed true if a mill has been formed, false otherwise.
+     * @return true if a mill has been formed, false otherwise.
+     * @param millFormed true if a mill has been formed, false otherwise.
      */
     @Setter
     @Getter
     private boolean millFormed = false;
     private MillGameUI ui;
-
-    public boolean isGameOver = false;
-
     private boolean movingPhaseMessageDisplayed = false;
 
     /**
@@ -84,9 +78,6 @@ public class Game {
         this.phase = 1; //Start the game in the placing phase
 
         this.totalMoves = 0;
-
- 
-
 
 
         if (p1 instanceof BaselineAgent) {
@@ -115,7 +106,6 @@ public class Game {
         //} else {
         //    currentPlayer = (currentPlayer == aiPlayer) ? humanPlayer1 : aiPlayer;
         // }
-    
 
 
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
@@ -165,6 +155,24 @@ public class Game {
         }
     }
 
+    public void placePieceCopy(int nodeID, Board copy) {
+        logger.log(Level.INFO, "Place Piece called");
+        if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
+            logger.log(Level.INFO, "If statement entered -> Valid placement");
+            copy.placePiece(currentPlayer, nodeID);
+            notifyUI();
+            if (copy.checkMill(copy.getNode(nodeID), currentPlayer)) {
+                logger.log(Level.ALL, "HumanPlayer {0} made a mill!", currentPlayer.getName());
+                millFormed = true;
+            } else {
+                switchPlayer();
+            }
+            totalMoves++;
+            checkPhase();
+        } else {
+            throw new InvalidMove("Placement is invalid!");
+        }
+    }
     /**
      * Updates the current game phase
      */

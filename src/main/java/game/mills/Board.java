@@ -6,6 +6,7 @@ import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +22,13 @@ import java.util.stream.Collectors;
  * - Validating moves
  */
 @Log
-public class Board {
-    // Declaration of constants for edges and mills.
+public class Board implements Serializable {
+    // Declaration of constants for edges and mills
     @Getter
     private static final int[][] edges = {{0, 1}, {1, 2}, {2, 14}, {14, 23}, {23, 22}, {22, 21}, {21, 9}, {9, 0}, {3, 4}, {4, 5}, {5, 13}, {13, 20}, {20, 19}, {19, 18}, {18, 10}, {10, 3}, {6, 7}, {7, 8}, {8, 12}, {12, 17}, {17, 16}, {16, 15}, {15, 11}, {11, 6}, {1, 4}, {4, 7}, {14, 13}, {13, 12}, {22, 19}, {19, 16}, {9, 10}, {10, 11}};
     @Getter
     private static final int[][] mills = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {15, 16, 17}, {18, 19, 20}, {21, 22, 23}, {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, {1, 4, 7}, {16, 19, 22}, {8, 12, 17}, {5, 13, 20}, {2, 14, 23}, {9, 10, 11}, {12, 13, 14}};
-
+    private static final long serialVersionUID = 1L;
     private final SimpleGraph<Integer, DefaultEdge> graph;
     @Getter
     private Map<Integer, Node> nodes;
@@ -113,6 +114,20 @@ public class Board {
     }
 
     /**
+     * Places a player's stone on a specified node.
+     *
+     * @param player The player placing the stone.
+     * @param nodeID The node where the stone will be placed.
+     */
+    public void placePieceAgent(Player player, int nodeID) {
+        log.log(Level.INFO, "Place Piece called in board");
+        Node node = getNode(nodeID);
+        if (!node.isOccupied() && player.getStonesToPlace() > 0) {  // Only allow placement if humanPlayer still has stones to place
+            node.setOccupant(player);
+        }
+    }
+
+    /**
      * Moves a player's stone from one node to another.
      *
      * @param player The player making the move.
@@ -180,6 +195,15 @@ public class Board {
         return false; // No valid moves found
     }
 
+    public int getPlayerNeighbours(int nodeID, Player player) {
+
+        return (int) Graphs.neighborListOf(graph, nodeID).stream()
+                .map(nodes::get)
+                .filter(neighbour -> neighbour.getOccupant() == player)
+                .count();
+
+    }
+
 
     /**
      * Checks if a node is part of a mill.
@@ -198,6 +222,7 @@ public class Board {
 
     public Board deepCopy() {
         Board copy = new Board();
+        copy.createEdges();
         copy.nodes = new HashMap<>();
         for (Map.Entry<Integer, Node> entry : this.nodes.entrySet()) {
             Node originalNode = entry.getValue();
@@ -207,6 +232,20 @@ public class Board {
             copy.nodes.put(entry.getKey(), copiedNode);
         }
         return copy;
-
     }
+
+//    public Board deepCopy() {
+//        try {
+//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//            ObjectOutputStream oos = new ObjectOutputStream(bos);
+//            oos.writeObject(this);
+//            oos.flush();
+//            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
+//            ObjectInputStream ois = new ObjectInputStream(bis);
+//            return (Board) ois.readObject();
+//        } catch (IOException | ClassNotFoundException e) {
+//            throw new RuntimeException("Failed to copy Board", e);
+//        }
+//    }
+
 }

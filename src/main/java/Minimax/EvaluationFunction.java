@@ -4,12 +4,17 @@ import game.mills.Board;
 import game.mills.Node;
 import game.mills.Player;
 import game.mills.Game;
+import lombok.extern.java.Log;
+
+import java.util.List;
+import java.util.logging.Level;
 
 /**
  * The EvaluationFunction class provides scoring heuristics for different phases of the game
  * in order to evaluate the game state from the perspective of a given player.
  * It is used by the Minimax algorithm to determine the best moves based on board positions.
  */
+@Log
 public class EvaluationFunction {
 
     private Game game;
@@ -29,10 +34,10 @@ public class EvaluationFunction {
      * @param phase The current game phase (1 - placement, 2 - movement, 3 - endgame).
      * @return An integer score representing the board state from the player's perspective.
      */
-    public int evaluate(Board board, Player player, int phase) {
+    public int evaluate(Board board, Player player, int phase, Node node) {
         switch (phase) {
             case 1:
-                return evaluatePlacementPhase(board, player);
+                return evaluatePlacementPhase(board, player, node);
             case 2:
                 return evaluateMovementPhase(board, player);
             case 3:
@@ -48,22 +53,24 @@ public class EvaluationFunction {
      * @param player The player for whom the evaluation is performed.
      * @return A score based on piece placement quality, potential mills, and flexibility.
      */
-    private int evaluatePlacementPhase(Board board, Player player) {
+    private int evaluatePlacementPhase(Board board, Player player, Node node) {
         int score = 0;
 
-        for (Node node : board.getNodes().values()) {
+        //List<Node> neighbours = board.getNeighbours(node);
+        //for (Node nodes : neighbours) {
             if (node.getOccupant() == player) {
                 score += 5; // Basic score for each placed piece
 
                 // Additional score if the piece forms a mill
                 if (board.checkMill(node, player)) {
-                    score += 10;
+                    score += 100;
                 }
 
                 // Reward flexibility in placement by scoring based on the number of neighboring nodes
-                score += board.getNeighbours(node).size();
+                score += board.getPlayerNeighbours(node.getId(), player) * 10;
             }
-        }
+        // }
+        log.log(Level.INFO, "Score: {0}", score);
         return score;
     }
 
