@@ -11,7 +11,7 @@ import java.util.logging.Level;
 /**
  * The MinimaxAlgorithm class implements the Minimax algorithm to determine the best move for the AI player.
  * It evaluates potential moves up to a given depth and chooses the move with the optimal outcome for the player.
- * This class includes both the primary Minimax algorithm with recursive depth-limited search and evaluation function.
+ * This class includes both the primary Minimax algorithm with recursive depth-limited searc h and evaluation function.
  */
 @Log
 public class MinimaxAlgorithm {
@@ -39,13 +39,16 @@ public class MinimaxAlgorithm {
         for (Node node : copyBoard.getNodes().values()) {
             if (!node.isOccupied()) {  // Only consider empty nodes
                 copyBoard.placePieceAgent(player, node.getId());  // Temporarily place a piece
-                int placementValue = evaluationFunction.evaluate(board, player, 1, node); // Evaluate
+                int placementValue = evaluationFunction.evaluate(copyBoard, player, 1, node); // Evaluate
                 System.out.println("Placement value " + placementValue + " NodeID: " + node.getId());
                 if (placementValue > bestValue) {  // Update if this placement is better
                     log.log(Level.INFO, "Placement Value updated");
                     bestValue = placementValue;
                     bestPlacement = node.getId();
                 }
+
+                Node tempNode = copyBoard.getNode(node.getId());
+                tempNode.setOccupant(null);  // Revert state
             }
         }
         return bestPlacement;  // Return the best placement node ID

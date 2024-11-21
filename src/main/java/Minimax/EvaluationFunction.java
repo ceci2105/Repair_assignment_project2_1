@@ -55,21 +55,22 @@ public class EvaluationFunction {
      */
     private int evaluatePlacementPhase(Board board, Player player, Node node) {
         int score = 0;
-
-        //List<Node> neighbours = board.getNeighbours(node);
-        //for (Node nodes : neighbours) {
-            if (node.getOccupant() == player) {
-                score += 5; // Basic score for each placed piece
-
-                // Additional score if the piece forms a mill
-                if (board.checkMill(node, player)) {
-                    score += 100;
-                }
-
+        if (node.getOccupant() == player) {
+            score += 5; // Basic score for each placed piece
                 // Reward flexibility in placement by scoring based on the number of neighboring nodes
-                score += board.getPlayerNeighbours(node.getId(), player) * 10;
+            score += board.getPlayerNeighbours(node.getId(), player) * 10;
+
+            if (board.checkMill(node, player)) {
+                score += 100;
             }
-        // }
+
+            Player opponent = game.getOpponent(player);
+
+            if (board.isOneMoveAwayFromMill(opponent)) {
+                score += 200;
+            }
+
+        }
         log.log(Level.INFO, "Score: {0}", score);
         return score;
     }
