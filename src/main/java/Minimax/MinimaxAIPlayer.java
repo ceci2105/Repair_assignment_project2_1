@@ -1,9 +1,6 @@
 package Minimax;
 
-import game.mills.Board;
-import game.mills.Game;
-import game.mills.Node;
-import game.mills.Player;
+import game.mills.*;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,14 +35,12 @@ public class MinimaxAIPlayer implements Player {
      * Constructor to initialize the MinimaxAIPlayer with a given name, depth, game, and color.
      *
      * @param name  The name of the AI player.
-     * @param depth The search depth for the Minimax algorithm.
      * @param game  The game instance for accessing board and opponent information.
      * @param color The color representing the AI player’s pieces on the board.
      */
-    public MinimaxAIPlayer(String name, Color color, Game game, int depth) {
+    public MinimaxAIPlayer(String name, Color color, Game game) {
         this.name = name;
         this.color = color;
-        this.depth = depth;
         this.game = game;
         this.stonesToPlace = 9;
         this.stonesOnBoard = 0;
@@ -67,23 +62,28 @@ public class MinimaxAIPlayer implements Player {
             game.placePiece(r.nextInt(24));
             log.log(Level.INFO, "Placed Random piece!");
         } else {
-            if (phase == 1) {  // If in placement phase, place a stone
+            if (phase == 1) {
                 int bestPlacement = minimax.findBestPlacement(board, this);
                 log.log(Level.INFO, "Best Placement {0}", bestPlacement);
-                int i = 1;
                 if (bestPlacement != -1) {
                     log.log(Level.INFO, "If entered");
-                    game.placePiece(bestPlacement);
-                }  else {
-                    game.switchPlayer();
+                    try {
+                        game.placePiece(bestPlacement); // Use Game's placePiece method
+                    } catch (InvalidMove e) {
+                        log.log(Level.WARNING, "Failed to place piece: {0}", e.getMessage());
+                    }
                 }
-            } else {  // Else proceed with regular movement
+            } else {
                 Node[] bestMove = minimax.findBestMove(board, this, phase);
                 if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
-                    board.movePiece(this, bestMove[0].getId(), bestMove[1].getId());
-                    System.out.println("AI moved a stone from node " + bestMove[0].getId() + " to node " + bestMove[1].getId());
+                    try {
+                        game.makeMove(bestMove[0].getId(), bestMove[1].getId());
+                        log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
+                    } catch (InvalidMove e) {
+                        log.log(Level.WARNING, "Failed to make move: {0}", e.getMessage());
+                    }
                 } else {
-                    game.switchPlayer();
+                    log.log(Level.WARNING, "No valid move found for AI.");
                 }
             }
         }

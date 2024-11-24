@@ -97,27 +97,20 @@ public class MinimaxAlgorithm {
      * @return An integer score representing the board evaluation at this depth.
      */
     private int minimax(Board board, int depth, boolean isMaximizingPlayer, Player player, int phase) {
-        // Base case: evaluate board if maximum depth reached or game is over
         if (depth == 0 || game.isGameOver) {
             return evaluationFunction.evaluate(board, player, phase, null);
         }
 
-        // Maximizing player (AI) - aims to maximize score
         if (isMaximizingPlayer) {
-            int maxEval = Integer.MIN_VALUE; // Initialize with minimum possible value
+            int maxEval = Integer.MIN_VALUE;
 
-            // Loop over each node occupied by the maximizing player
             for (Node fromNode : board.getNodes().values()) {
                 if (fromNode.getOccupant() == player) {
                     for (Node toNode : board.getNeighbours(fromNode)) {
                         if (!toNode.isOccupied() && board.isValidMove(fromNode, toNode)) {
-                            // Apply the move temporarily
                             board.movePiece(player, fromNode.getId(), toNode.getId());
-                            // Evaluate move with recursive call, now minimizing opponent's turn
                             int eval = minimax(board, depth - 1, false, player, phase);
-                            // Undo the move
                             board.movePiece(player, toNode.getId(), fromNode.getId());
-                            // Update maxEval if a higher evaluation score is found
                             maxEval = Math.max(maxEval, eval);
                         }
                     }
@@ -125,23 +118,17 @@ public class MinimaxAlgorithm {
             }
             return maxEval;
 
-            // Minimizing player (opponent) - aims to minimize score
         } else {
-            int minEval = Integer.MAX_VALUE; // Initialize with maximum possible value
-            Player opponent = game.getOpponent(player); // Get the opponent player
+            int minEval = Integer.MAX_VALUE;
+            Player opponent = game.getOpponent(player);
 
-            // Loop over each node occupied by the minimizing player
             for (Node fromNode : board.getNodes().values()) {
                 if (fromNode.getOccupant() == opponent) {
                     for (Node toNode : board.getNeighbours(fromNode)) {
                         if (!toNode.isOccupied() && board.isValidMove(fromNode, toNode)) {
-                            // Apply the move temporarily
                             board.movePiece(opponent, fromNode.getId(), toNode.getId());
-                            // Evaluate move with recursive call, now maximizing player's turn
                             int eval = minimax(board, depth - 1, true, player, phase);
-                            // Undo the move
                             board.movePiece(opponent, toNode.getId(), fromNode.getId());
-                            // Update minEval if a lower evaluation score is found
                             minEval = Math.min(minEval, eval);
                         }
                     }

@@ -84,13 +84,11 @@ public class EvaluationFunction {
         int score = 0;
         Player opponent = game.getOpponent(player);
 
-        // Evaluate based on mills and potential mobility
         for (Node node : board.getNodes().values()) {
             if (node.getOccupant() == player) {
                 if (board.checkMill(node, player)) {
-                    score += 20; // Reward forming mills
+                    score += 20;
                 }
-                // Reward mobility based on unoccupied neighboring nodes
                 for (Node neighbor : board.getNeighbours(node)) {
                     if (!neighbor.isOccupied()) {
                         score += 5;
@@ -98,12 +96,9 @@ public class EvaluationFunction {
                 }
             }
         }
-
-        // Additional score if the opponent has no valid moves, giving player a strategic advantage
         if (!board.hasValidMoves(opponent)) {
-            score += 50; // High reward if opponent has no valid moves
+            score += 50;
         }
-
         return score;
     }
 
