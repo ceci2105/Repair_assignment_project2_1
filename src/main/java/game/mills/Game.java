@@ -101,13 +101,6 @@ public class Game {
      */
     public void switchPlayer() {
         logger.log(Level.INFO, "PLayer switch called!");
-        // if (currentPlayer == humanPlayer1 || currentPlayer == humanPlayer2) {
-        //    currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
-        //} else {
-        //    currentPlayer = (currentPlayer == aiPlayer) ? humanPlayer1 : aiPlayer;
-        // }
-
-
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
         if (currentPlayer instanceof BaselineAgent) {
             logger.log(Level.INFO, "Baseline Player");

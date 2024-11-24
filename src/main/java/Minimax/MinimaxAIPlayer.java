@@ -74,12 +74,16 @@ public class MinimaxAIPlayer implements Player {
                 if (bestPlacement != -1) {
                     log.log(Level.INFO, "If entered");
                     game.placePiece(bestPlacement);
+                }  else {
+                    game.switchPlayer();
                 }
             } else {  // Else proceed with regular movement
                 Node[] bestMove = minimax.findBestMove(board, this, phase);
                 if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
                     board.movePiece(this, bestMove[0].getId(), bestMove[1].getId());
                     System.out.println("AI moved a stone from node " + bestMove[0].getId() + " to node " + bestMove[1].getId());
+                } else {
+                    game.switchPlayer();
                 }
             }
         }
