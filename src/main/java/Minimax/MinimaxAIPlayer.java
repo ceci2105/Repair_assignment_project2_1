@@ -35,12 +35,14 @@ public class MinimaxAIPlayer implements Player {
      * Constructor to initialize the MinimaxAIPlayer with a given name, depth, game, and color.
      *
      * @param name  The name of the AI player.
+     * @param depth The search depth for the Minimax algorithm.
      * @param game  The game instance for accessing board and opponent information.
      * @param color The color representing the AI player’s pieces on the board.
      */
-    public MinimaxAIPlayer(String name, Color color, Game game) {
+    public MinimaxAIPlayer(String name, Color color, Game game, int depth) {
         this.name = name;
         this.color = color;
+        this.depth = depth;
         this.game = game;
         this.stonesToPlace = 9;
         this.stonesOnBoard = 0;
@@ -77,7 +79,7 @@ public class MinimaxAIPlayer implements Player {
                 Node[] bestMove = minimax.findBestMove(board, this, phase);
                 if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
                     try {
-                        game.makeMove(bestMove[0].getId(), bestMove[1].getId());
+                        game.makeMove(bestMove[0].getId(), bestMove[1].getId()); // Use Game's makeMove method
                         log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
                     } catch (InvalidMove e) {
                         log.log(Level.WARNING, "Failed to make move: {0}", e.getMessage());
