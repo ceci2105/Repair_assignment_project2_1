@@ -15,9 +15,9 @@ import java.util.logging.Level;
  */
 @Log
 public class MinimaxAlgorithm {
-    private final int depth;                       // The maximum search depth for the Minimax algorithm
-    private EvaluationFunction evaluationFunction; // Instance of EvaluationFunction to score board states
-    private Game game;                       // The current game instance
+    private final int depth;
+    private EvaluationFunction evaluationFunction;
+    private Game game;
 
     /**
      * Constructor to initialize MinimaxAlgorithm with a Game instance and search depth.
@@ -27,7 +27,7 @@ public class MinimaxAlgorithm {
     public MinimaxAlgorithm(Game game, int depth) {
         this.game = game;
         this.depth = depth;
-        this.evaluationFunction = new EvaluationFunction(game); // Initialize evaluation function for board scoring
+        this.evaluationFunction = new EvaluationFunction(game);
     }
 
     public int findBestPlacement(Board board, Player player) {
@@ -35,23 +35,22 @@ public class MinimaxAlgorithm {
         int bestPlacement = -1;
         Board copyBoard = board.deepCopy();
         log.log(Level.INFO, "Copy and Original are the same: {0}", copyBoard.equals(board));
-        // Evaluate each empty node for potential placement
         for (Node node : copyBoard.getNodes().values()) {
-            if (!node.isOccupied()) {  // Only consider empty nodes
-                copyBoard.placePieceAgent(player, node.getId());  // Temporarily place a piece
+            if (!node.isOccupied()) {
+                copyBoard.placePieceAgent(player, node.getId());
                 int placementValue = evaluationFunction.evaluate(copyBoard, player, 1, node); // Evaluate
                 System.out.println("Placement value " + placementValue + " NodeID: " + node.getId());
-                if (placementValue > bestValue) {  // Update if this placement is better
+                if (placementValue > bestValue) {
                     log.log(Level.INFO, "Placement Value updated");
                     bestValue = placementValue;
                     bestPlacement = node.getId();
                 }
 
                 Node tempNode = copyBoard.getNode(node.getId());
-                tempNode.setOccupant(null);  // Revert state
+                tempNode.setOccupant(null);
             }
         }
-        return bestPlacement;  // Return the best placement node ID
+        return bestPlacement;
     }
 
     /**
@@ -62,25 +61,19 @@ public class MinimaxAlgorithm {
      * @return An array containing the best fromNode and toNode representing the move.
      */
     public Node[] findBestMove(Board board, Player player, int phase) {
-        Node[] bestMove = new Node[2];  // Array to store the best move's start and end nodes
-        int bestValue = Integer.MIN_VALUE;  // Initialize best value for maximizing player
+        Node[] bestMove = new Node[2];
+        int bestValue = Integer.MIN_VALUE;
 
-        // Iterate over all nodes occupied by the player
         for (Node fromNode : board.getNodes().values()) {
             
             if (fromNode.getOccupant() == player) {
                 System.out.println("From node: " + fromNode.getId());
-                // Evaluate each possible move from the current node to neighboring nodes
                 for (Node toNode : board.getNeighbours(fromNode)) {
                     if (!toNode.isOccupied() && board.isValidMove(fromNode, toNode)) {
-                        // Apply the move temporarily
                         board.movePiece(player, fromNode.getId(), toNode.getId());
-                        // Evaluate the move using Minimax
                         int moveValue = minimax(board, depth - 1, false, player, phase);
-                        // Undo the move
                         board.movePiece(player, toNode.getId(), fromNode.getId());
 
-                        // If the move value is better than the best found, update bestMove
                         if (moveValue > bestValue) {
                             bestValue = moveValue;
                             bestMove[0] = fromNode;
@@ -90,7 +83,7 @@ public class MinimaxAlgorithm {
                 }
             }
         }
-        return bestMove; // Return the best move found
+        return bestMove;
     }
 
     /**

@@ -204,7 +204,6 @@ public class Board implements Serializable {
 
     }
 
-
     /**
      * Checks if a node is part of a mill.
      *
@@ -234,28 +233,17 @@ public class Board implements Serializable {
         return copy;
     }
 
-    public boolean isOneMoveAwayFromMill(Player opponent) {
-        if (!(getAllEdgesOfOpponent(opponent).isEmpty())) {
-            return true;
-        }
-        return false;
+    public boolean willFormMill(Node node, Player opponent, Board board) {
+        return Arrays.stream(board.getMills()).anyMatch(mill -> {
+            if (Arrays.stream(mill).anyMatch(id -> id == node.getId())) {
+                return Arrays.stream(mill)
+                        .filter(id -> id != node.getId())
+                        .allMatch(id -> board.getNode(id).getOccupant() == opponent);
+            }
+            return false;
+        });
     }
-/**
- * Retrieves all edges where both nodes are occupied by the opponent.
- *
- * @param opponent The opponent player.
- * @return A list of edges (pairs of node IDs) where both nodes are occupied by the opponent.
- */
-    public List<int[]> getAllEdgesOfOpponent(Player opponent) {
-        return Arrays.stream(edges)
-                .filter(edge -> {
-                    Node node1 = nodes.get(edge[0]);
-                    Node node2 = nodes.get(edge[1]);
-            // Check if both nodes in the edge are occupied by the opponent
-                    return node1.getOccupant() == opponent && node2.getOccupant() == opponent;
-                })
-                .collect(Collectors.toList());
-    }
+
 
 
 //    public Board deepCopy() {
