@@ -155,6 +155,16 @@ public class BaselineAgent implements Player {
                     System.out.println("Invalid removal at node " + i + ", trying next node.");
                     continue;
                 }
+            } else if (node.isOccupied() && node.getOccupant().getColor() == Color.WHITE && !game.getBoard().isPartOfMill(node)) {
+                try {
+                    game.removePiece(i);
+                    System.out.println("Bot removed opponent's piece at node " + i);
+                    break;
+                } catch (InvalidMove e) {
+                    // Move to the next node if the removal is invalid
+                    System.out.println("Invalid removal at node " + i + ", trying next node.");
+                    continue;
+                }
             }
         }
     }
