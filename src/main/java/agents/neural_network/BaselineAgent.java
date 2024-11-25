@@ -92,29 +92,55 @@ public class BaselineAgent implements Player {
     }
 
     private void movePiece() {
-        Random r = new Random();
-        int random = r.nextInt(24);
-        for (int i = random; i < 24; i++) {
-            Node fromNode = game.getBoard().getNode(i);
+        boolean canFly = game.canFly(this);
+        List<Integer> nodeIndices = new ArrayList<>();
+        for (int i = 0; i < 24; i++) {
+            nodeIndices.add(i);
+        }
+        Collections.shuffle(nodeIndices); // Shuffle to add randomness
+    
+        for (int fromIndex : nodeIndices) {
+            Node fromNode = game.getBoard().getNode(fromIndex);
             if (fromNode.isOccupied() && fromNode.getOccupant() == this) {
-                for (Node toNode : game.getBoard().getNeighbours(fromNode)) {
-                    if (!toNode.isOccupied()) {
-                        try {
-                            game.makeMove(fromNode.getId(), toNode.getId());
-                            System.out.println("Bot moved piece from node " + fromNode.getId() + " to node " + toNode.getId());
-                            if (game.isMillFormed()) {
-                                removeOpponentPiece();
-                            }
-                            return;
-                        } catch (InvalidMove e) {
-                            // Move to the next node if the move is invalid
-                            System.out.println("Invalid move from node " + fromNode.getId() + " to node " + toNode.getId() + ", trying next node.");
+                List<Integer> possibleToIndices = new ArrayList<>();
+    
+                if (canFly) {
+                    // Can fly to any empty node
+                    for (int toIndex = 0; toIndex < 24; toIndex++) {
+                        Node toNode = game.getBoard().getNode(toIndex);
+                        if (!toNode.isOccupied()) {
+                            possibleToIndices.add(toIndex);
                         }
+                    }
+                } else {
+                    // Only adjacent nodes
+                    for (Node toNode : game.getBoard().getNeighbours(fromNode)) {
+                        if (!toNode.isOccupied()) {
+                            possibleToIndices.add(toNode.getId());
+                        }
+                    }
+                }
+    
+                Collections.shuffle(possibleToIndices); // Shuffle possible moves
+                for (int toIndex : possibleToIndices) {
+                    try {
+                        game.makeMove(fromNode.getId(), toIndex);
+                        System.out.println("Bot moved piece from node " + fromNode.getId() + " to node " + toIndex);
+                        if (game.isMillFormed()) {
+                            removeOpponentPiece();
+                        }
+                        return;
+                    } catch (InvalidMove e) {
+                        // If the move is invalid, try the next one
+                        System.out.println("Invalid move from node " + fromNode.getId() + " to node " + toIndex + ", trying next move.");
                     }
                 }
             }
         }
+        // If no valid moves are found
+        System.out.println("Bot has no valid moves.");
     }
+    
 
     private void removeOpponentPiece() {
         for (int i = 0; i < 24; i++) {

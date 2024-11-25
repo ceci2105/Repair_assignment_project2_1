@@ -3,11 +3,13 @@ package game.mills;
 import Minimax.MinimaxAIPlayer;
 import agents.neural_network.BaselineAgent;
 import gui.MillGameUI;
+import javafx.animation.PauseTransition;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.util.Duration;
 
 /**
  * The NewGame class manages the game logic for Mills.
@@ -104,7 +106,17 @@ public class Game {
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
         if (currentPlayer instanceof BaselineAgent) {
             logger.log(Level.INFO, "Baseline Player");
+
+        // Add a delay before the bot makes its move
+        PauseTransition pause = new PauseTransition(Duration.seconds(0.2)); // 1-second delay
+        pause.setOnFinished(event -> {
             ((BaselineAgent) currentPlayer).makeMove();
+
+            // Update the UI after the bot has made its move
+            notifyUI();
+            ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+        });
+        pause.play();
         } else if (currentPlayer instanceof MinimaxAIPlayer) {
             logger.log(Level.INFO, "Minimax Player");
             ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
