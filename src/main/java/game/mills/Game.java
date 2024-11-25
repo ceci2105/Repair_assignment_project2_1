@@ -108,7 +108,7 @@ public class Game {
             logger.log(Level.INFO, "Baseline Player");
 
         // Add a delay before the bot makes its move
-        PauseTransition pause = new PauseTransition(Duration.seconds(0.2)); // 1-second delay
+        PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay 
         pause.setOnFinished(event -> {
             ((BaselineAgent) currentPlayer).makeMove();
 
@@ -119,7 +119,13 @@ public class Game {
         pause.play();
         } else if (currentPlayer instanceof MinimaxAIPlayer) {
             logger.log(Level.INFO, "Minimax Player");
+        PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay 
+        pause.setOnFinished(event -> {
             ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
+            notifyUI();
+            ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+        });
+        pause.play();
         }
         notifyUI();
     }
