@@ -7,10 +7,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -233,6 +230,13 @@ public class Board implements Serializable {
         return copy;
     }
 
+    /**
+     *
+     * @param node
+     * @param opponent
+     * @param board
+     * @return
+     */
     public boolean willFormMill(Node node, Player opponent, Board board) {
         return Arrays.stream(board.getMills()).anyMatch(mill -> {
             if (Arrays.stream(mill).anyMatch(id -> id == node.getId())) {
@@ -244,20 +248,24 @@ public class Board implements Serializable {
         });
     }
 
+    /**
+     *
+     * @param board
+     * @param opponent
+     * @return
+     */
+    public List<Node> findPossibleMills(Board board, Player opponent) {
+        List<Node> possibleMills = new ArrayList<>();
+        for (Node node : nodes.values()) {
+            if (node.getOccupant() == opponent && getPlayerNeighbours(node.getId(), opponent) == 2) {
+                possibleMills.add(node);
+            }
+        }
+        return possibleMills;
+    }
 
 
-//    public Board deepCopy() {
-//        try {
-//            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//            ObjectOutputStream oos = new ObjectOutputStream(bos);
-//            oos.writeObject(this);
-//            oos.flush();
-//            ByteArrayInputStream bis = new ByteArrayInputStream(bos.toByteArray());
-//            ObjectInputStream ois = new ObjectInputStream(bis);
-//            return (Board) ois.readObject();
-//        } catch (IOException | ClassNotFoundException e) {
-//            throw new RuntimeException("Failed to copy Board", e);
-//        }
-//    }
+
+
 
 }

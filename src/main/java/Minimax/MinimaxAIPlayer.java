@@ -16,8 +16,8 @@ import java.util.logging.Level;
  */
 @Log
 public class MinimaxAIPlayer implements Player {
-    private int depth;                   // The search depth for the Minimax algorithm
-    private MinimaxAlgorithm minimax;    // Instance of MinimaxAlgorithm for calculating the best moves
+    private final int depth;                   // The search depth for the Minimax algorithm
+    private final MinimaxAlgorithm minimax;    // Instance of MinimaxAlgorithm for calculating the best moves
     @Getter
     @Setter
     private String name;                 // Name of the AI player
@@ -75,7 +75,7 @@ public class MinimaxAIPlayer implements Player {
                         log.log(Level.WARNING, "Failed to place piece: {0}", e.getMessage());
                     }
                 }
-            } else {
+            } else if (phase == 2) {
                 Node[] bestMove = minimax.findBestMove(board, this, phase);
                 if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
                     try {
@@ -87,10 +87,20 @@ public class MinimaxAIPlayer implements Player {
                 } else {
                     log.log(Level.WARNING, "No valid move found for AI.");
                 }
+            } else if (phase == 3) {
+                Node bestMove = minimax.bestRemoval(board, this);
+                if (bestMove != null) {
+                    try {
+                        game.removePiece(bestMove.getId());
+                        log.log(Level.INFO, "AI removed stone at:", new Object[]{bestMove.getId()});
+                    } catch (InvalidMove e) {
+                        log.log(Level.WARNING, "Failed to make move: {0}", e.getMessage());
+                    }
+                }
             }
         }
-
     }
+
 
     /**
      * Decreases the number of stones the AI player has to place by one

@@ -6,6 +6,9 @@ import game.mills.Player;
 import game.mills.Node;
 import lombok.extern.java.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 
 /**
@@ -34,7 +37,6 @@ public class MinimaxAlgorithm {
         int bestValue = Integer.MIN_VALUE;
         int bestPlacement = -1;
         Board copyBoard = board.deepCopy();
-        log.log(Level.INFO, "Copy and Original are the same: {0}", copyBoard.equals(board));
         for (Node node : copyBoard.getNodes().values()) {
             if (!node.isOccupied()) {
                 copyBoard.placePieceAgent(player, node.getId());
@@ -138,4 +140,12 @@ public class MinimaxAlgorithm {
         }
     }
 
+    public Node bestRemoval(Board board, Player player) {
+        Board copyBoard = board.deepCopy();
+        Player opponent = game.getOpponent(player);
+        List<Node> bestRemovalNodes = copyBoard.findPossibleMills(copyBoard, opponent);
+        Random random = new Random();
+        int index = random.nextInt(bestRemovalNodes.size());
+        return bestRemovalNodes.get(index);
+    }
 }

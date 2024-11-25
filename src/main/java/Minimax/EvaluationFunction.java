@@ -109,26 +109,7 @@ public class EvaluationFunction {
      * @return A score based on mills, piece count advantage, and winning conditions.
      */
     private int evaluateEndgamePhase(Board board, Player player) {
-        int score = 0;
-        Player opponent = game.getOpponent(player);
-
-        // Check for winning or losing conditions
-        if (!board.hasValidMoves(opponent) || countPieces(board, opponent) < 3) {
-            return Integer.MAX_VALUE; // Winning condition for the player
-        } else if (!board.hasValidMoves(player) || countPieces(board, player) < 3) {
-            return Integer.MIN_VALUE; // Losing condition for the player
-        }
-
-        // Reward mills and compare piece counts between the player and the opponent
-        for (Node node : board.getNodes().values()) {
-            if (node.getOccupant() == player && board.checkMill(node, player)) {
-                score += 30; // High score for each mill
-            }
-        }
-
-        // Additional score based on piece count advantage
-        score += (countPieces(board, player) - countPieces(board, opponent)) * 15;
-        return score;
+        return 0;
     }
 
     /**
