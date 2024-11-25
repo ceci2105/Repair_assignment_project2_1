@@ -391,5 +391,37 @@ public class Game {
         this.humanPlayer2 = player;
     }
 
+    // In Game.java
+
+    public void startGame() {
+        if (currentPlayer instanceof BaselineAgent) {
+            logger.log(Level.INFO, "Starting game with Baseline Agent");
+            // Add a delay before the bot makes its move
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay 
+            pause.setOnFinished(event -> {
+                ((BaselineAgent) currentPlayer).makeMove();
+
+                // Update the UI after the bot has made its move
+                notifyUI();
+                if (ui != null) {
+                    ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+                }
+            });
+            pause.play();
+        } else if (currentPlayer instanceof MinimaxAIPlayer) {
+            logger.log(Level.INFO, "Starting game with Minimax AI Player");
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay 
+            pause.setOnFinished(event -> {
+                ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
+                notifyUI();
+                if (ui != null) {
+                    ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+                }
+            });
+            pause.play();
+        }
+    }
+
+
 
 }

@@ -381,6 +381,7 @@ public class MillGameUI {
         primaryStage.setScene(scene);
         primaryStage.setTitle("Nine Men's Morris");
         primaryStage.show();
+        game.startGame();
     }
 
     /**
