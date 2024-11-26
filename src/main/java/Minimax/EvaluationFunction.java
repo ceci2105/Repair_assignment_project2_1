@@ -70,7 +70,6 @@ public class EvaluationFunction {
 
 
         }
-        log.log(Level.INFO, "Score: {0}", score);
         return score;
     }
 

@@ -152,7 +152,6 @@ public class MillGameUI {
 
     private void showRules() {
         rules = new Text();
-        //System.out.println("Rules clicked");
         rules.setFill(Color.BLACK);
         rules.setFont(new Font(18));
         rules.setWrappingWidth(400);
@@ -323,7 +322,6 @@ public class MillGameUI {
         });
 
         backButtonImageView.setOnMouseEntered(event -> {
-            //System.out.println("Mouse over");
             Image backButtonIconHover = null;
             try {
                 backButtonIconHover = new Image(new FileInputStream("src/main/ressources/InGameBackIconHover.png"));
@@ -334,7 +332,6 @@ public class MillGameUI {
         });
 
         backButtonImageView.setOnMouseExited(event -> {
-            //System.out.println("Mouse out");
             Image backButtonIconSet = null;
             try {
                 backButtonIconSet = new Image(new FileInputStream("src/main/ressources/InGameBackIcon.png"));
@@ -385,7 +382,6 @@ public class MillGameUI {
         });
 
         imageView.setOnMouseExited(event -> {
-            //System.out.println("Mouse out");
             Image rulesIcon = null;
             try {
                 rulesIcon = new Image(new FileInputStream("src/main/ressources/InGameTutorialIcon.png"));

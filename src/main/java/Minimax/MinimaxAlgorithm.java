@@ -41,9 +41,7 @@ public class MinimaxAlgorithm {
             if (!node.isOccupied()) {
                 copyBoard.placePieceAgent(player, node.getId());
                 int placementValue = evaluationFunction.evaluate(copyBoard, player, 1, node); // Evaluate
-                System.out.println("Placement value " + placementValue + " NodeID: " + node.getId());
                 if (placementValue > bestValue) {
-                    log.log(Level.INFO, "Placement Value updated");
                     bestValue = placementValue;
                     bestPlacement = node.getId();
                 }
@@ -69,7 +67,6 @@ public class MinimaxAlgorithm {
         for (Node fromNode : board.getNodes().values()) {
             
             if (fromNode.getOccupant() == player) {
-                System.out.println("From node: " + fromNode.getId());
                 for (Node toNode : board.getNeighbours(fromNode)) {
                     if (!toNode.isOccupied() && board.isValidMove(fromNode, toNode)) {
                         board.movePiece(player, fromNode.getId(), toNode.getId());

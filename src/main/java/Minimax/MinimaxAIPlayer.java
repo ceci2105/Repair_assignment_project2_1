@@ -63,12 +63,10 @@ public class MinimaxAIPlayer implements Player {
         if (stonesToPlace == 9) {
             game.placePiece(r.nextInt(24));
             MillGameUI.incrementMinimaxMoves();
-            log.log(Level.INFO, "Placed Random piece!");
         } else {
             if (phase == 1) {
                 // Placement phase
                 int bestPlacement = minimax.findBestPlacement(board, this);
-                log.log(Level.INFO, "Best Placement {0}", bestPlacement);
                 if (bestPlacement != -1) {
                     try {
                         game.placePiece(bestPlacement);
@@ -88,7 +86,7 @@ public class MinimaxAIPlayer implements Player {
                     try {
                         game.makeMove(bestMove[0].getId(), bestMove[1].getId());
                         MillGameUI.incrementMinimaxMoves();
-                        log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
+                        //log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
                         // Check for mill formation
                         if (game.isMillFormed()) {
                             handleMillFormation(board);
@@ -137,7 +135,7 @@ public class MinimaxAIPlayer implements Player {
         if (bestRemovalNode != null) {
             try {
                 game.removePiece(bestRemovalNode.getId());
-                log.log(Level.INFO, "AI removed opponent's piece at node {0}", new Object[]{bestRemovalNode.getId()});
+                //log.log(Level.INFO, "AI removed opponent's piece at node {0}", new Object[]{bestRemovalNode.getId()});
             } catch (InvalidMove e) {
                 log.log(Level.WARNING, "Failed to remove piece: {0}", e.getMessage());
             }
