@@ -58,44 +58,42 @@ public class MinimaxAIPlayer implements Player {
      * @param phase The current phase of the game (placement, movement, or endgame).
      */
     public void makeMove(Board board, int phase) {
-
         Random r = new Random();
         if (stonesToPlace == 9) {
             game.placePiece(r.nextInt(24));
             log.log(Level.INFO, "Placed Random piece!");
         } else {
             if (phase == 1) {
+                // Placement phase
                 int bestPlacement = minimax.findBestPlacement(board, this);
                 log.log(Level.INFO, "Best Placement {0}", bestPlacement);
                 if (bestPlacement != -1) {
-                    log.log(Level.INFO, "If entered");
                     try {
-                        game.placePiece(bestPlacement); // Use Game's placePiece method
+                        game.placePiece(bestPlacement);
+                        // Check for mill formation
+                        if (game.isMillFormed()) {
+                            handleMillFormation(board);
+                        }
                     } catch (InvalidMove e) {
                         log.log(Level.WARNING, "Failed to place piece: {0}", e.getMessage());
                     }
                 }
-            } else if (phase == 2) {
+            } else {
+                // Movement phase
                 Node[] bestMove = minimax.findBestMove(board, this, phase);
                 if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
                     try {
-                        game.makeMove(bestMove[0].getId(), bestMove[1].getId()); // Use Game's makeMove method
+                        game.makeMove(bestMove[0].getId(), bestMove[1].getId());
                         log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
+                        // Check for mill formation
+                        if (game.isMillFormed()) {
+                            handleMillFormation(board);
+                        }
                     } catch (InvalidMove e) {
                         log.log(Level.WARNING, "Failed to make move: {0}", e.getMessage());
                     }
                 } else {
                     log.log(Level.WARNING, "No valid move found for AI.");
-                }
-            } else if (phase == 3) {
-                Node bestMove = minimax.bestRemoval(board, this);
-                if (bestMove != null) {
-                    try {
-                        game.removePiece(bestMove.getId());
-                        log.log(Level.INFO, "AI removed stone at:", new Object[]{bestMove.getId()});
-                    } catch (InvalidMove e) {
-                        log.log(Level.WARNING, "Failed to make move: {0}", e.getMessage());
-                    }
                 }
             }
         }
@@ -127,6 +125,21 @@ public class MinimaxAIPlayer implements Player {
      */
     public void decrementStonesOnBoard() {
         stonesOnBoard--;
+    }
+
+    // Helper method to handle mill formation and remove opponent's piece
+    private void handleMillFormation(Board board) {
+        Node bestRemovalNode = minimax.bestRemoval(board, this);
+        if (bestRemovalNode != null) {
+            try {
+                game.removePiece(bestRemovalNode.getId());
+                log.log(Level.INFO, "AI removed opponent's piece at node {0}", new Object[]{bestRemovalNode.getId()});
+            } catch (InvalidMove e) {
+                log.log(Level.WARNING, "Failed to remove piece: {0}", e.getMessage());
+            }
+        } else {
+            log.log(Level.WARNING, "No opponent pieces to remove.");
+        }
     }
 
 }

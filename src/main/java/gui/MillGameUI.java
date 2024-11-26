@@ -486,25 +486,27 @@ public class MillGameUI {
      * @param winner The player who won the game.
      */
     public void displayGameOverMessage(Player winner) {
-        Alert alert = new Alert(AlertType.CONFIRMATION);
-        alert.setTitle("Game Over");
-        alert.setHeaderText(null);
-        alert.setContentText("Game Over! " + winner.getName() + " wins!");
+        Platform.runLater(() -> {
+            Alert alert = new Alert(AlertType.CONFIRMATION);
+            alert.setTitle("Game Over");
+            alert.setHeaderText(null);
+            alert.setContentText("Game Over! " + winner.getName() + " wins!");
 
-        ButtonType restartButton = new ButtonType("Restart");
-        ButtonType exitButton = new ButtonType("Exit");
+            ButtonType restartButton = new ButtonType("Restart");
+            ButtonType exitButton = new ButtonType("Exit");
 
-        // Set the custom buttons
-        alert.getButtonTypes().setAll(restartButton, exitButton);
+            // Set the custom buttons
+            alert.getButtonTypes().setAll(restartButton, exitButton);
 
-        Optional<ButtonType> result = alert.showAndWait();
-        if (result.isPresent()) {
-            if (result.get() == restartButton) {
-                restartGame();
-            } else if (result.get() == exitButton) {
-                Platform.exit();
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent()) {
+                if (result.get() == restartButton) {
+                    restartGame();
+                } else if (result.get() == exitButton) {
+                    Platform.exit();
+                }
             }
-        }
+        });
     }
 
     /**

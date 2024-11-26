@@ -102,6 +102,9 @@ public class Game {
      * Switches the player when the turn changes.
      */
     public void switchPlayer() {
+        if (isGameOver) {
+            return; // Do not switch player or make AI move if game is over
+        }
         logger.log(Level.INFO, "PLayer switch called!");
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
         if (currentPlayer instanceof BaselineAgent) {
