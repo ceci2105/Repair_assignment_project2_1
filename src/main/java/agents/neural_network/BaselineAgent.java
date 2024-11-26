@@ -78,7 +78,6 @@ public class BaselineAgent implements Player {
             if (!node.isOccupied()) {
                 try {
                     game.placePiece(i);
-                    System.out.println("Bot placed piece at node " + i);
                     MillGameUI.incrementBaselineMoves();
                     if (game.isMillFormed()) {
                         removeOpponentPiece();
@@ -86,7 +85,6 @@ public class BaselineAgent implements Player {
                     break;
                 } catch (InvalidMove e) {
                     // Move to the next node if the move is invalid
-                    System.out.println("Invalid move at node " + i + ", trying next node.");
                     continue;
                 }
             }
@@ -128,20 +126,17 @@ public class BaselineAgent implements Player {
                     try {
                         game.makeMove(fromNode.getId(), toIndex);
                         MillGameUI.incrementBaselineMoves();
-                        System.out.println("Bot moved piece from node " + fromNode.getId() + " to node " + toIndex);
                         if (game.isMillFormed()) {
                             removeOpponentPiece();
                         }
                         return;
                     } catch (InvalidMove e) {
                         // If the move is invalid, try the next one
-                        System.out.println("Invalid move from node " + fromNode.getId() + " to node " + toIndex + ", trying next move.");
                     }
                 }
             }
         }
         // If no valid moves are found
-        System.out.println("Bot has no valid moves.");
     }
     
 
@@ -151,21 +146,16 @@ public class BaselineAgent implements Player {
             if (node.isOccupied() && node.getOccupant().getColor() == Color.BLACK && !game.getBoard().isPartOfMill(node)) {
                 try {
                     game.removePiece(i);
-                    System.out.println("Bot removed opponent's piece at node " + i);
                     break;
                 } catch (InvalidMove e) {
                     // Move to the next node if the removal is invalid
-                    System.out.println("Invalid removal at node " + i + ", trying next node.");
                     continue;
                 }
             } else if (node.isOccupied() && node.getOccupant().getColor() == Color.WHITE && !game.getBoard().isPartOfMill(node)) {
                 try {
                     game.removePiece(i);
-                    System.out.println("Bot removed opponent's piece at node " + i);
                     break;
                 } catch (InvalidMove e) {
-                    // Move to the next node if the removal is invalid
-                    System.out.println("Invalid removal at node " + i + ", trying next node.");
                     continue;
                 }
             }

@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * - Validating moves
  */
 @Log
-public class Board implements Serializable {
+public class Board {
     // Declaration of constants for edges and mills
     @Getter
     private static final int[][] edges = {{0, 1}, {1, 2}, {2, 14}, {14, 23}, {23, 22}, {22, 21}, {21, 9}, {9, 0}, {3, 4}, {4, 5}, {5, 13}, {13, 20}, {20, 19}, {19, 18}, {18, 10}, {10, 3}, {6, 7}, {7, 8}, {8, 12}, {12, 17}, {17, 16}, {16, 15}, {15, 11}, {11, 6}, {1, 4}, {4, 7}, {14, 13}, {13, 12}, {22, 19}, {19, 16}, {9, 10}, {10, 11}};
@@ -102,7 +102,6 @@ public class Board implements Serializable {
      * @param nodeID The node where the stone will be placed.
      */
     public void placePiece(Player player, int nodeID) {
-        log.log(Level.INFO, "Place Piece called in board");
         Node node = getNode(nodeID);
         if (!node.isOccupied() && player.getStonesToPlace() > 0) {  // Only allow placement if humanPlayer still has stones to place
             node.setOccupant(player);
@@ -117,7 +116,6 @@ public class Board implements Serializable {
      * @param nodeID The node where the stone will be placed.
      */
     public void placePieceAgent(Player player, int nodeID) {
-        log.log(Level.INFO, "Place Piece called in board");
         Node node = getNode(nodeID);
         if (!node.isOccupied() && player.getStonesToPlace() > 0) {  // Only allow placement if humanPlayer still has stones to place
             node.setOccupant(player);
@@ -192,6 +190,12 @@ public class Board implements Serializable {
         return false; // No valid moves found
     }
 
+    /**
+     * Gets all the neighbouring nodes from a given node of a given player.
+     * @param nodeID The node to check.
+     * @param player The Player.
+     * @return The count of neighbouring nodes.
+     */
     public int getPlayerNeighbours(int nodeID, Player player) {
 
         return (int) Graphs.neighborListOf(graph, nodeID).stream()
@@ -216,6 +220,10 @@ public class Board implements Serializable {
                 Arrays.stream(mill).allMatch(id -> nodes.get(id).getOccupant() == occupant));
     }
 
+    /**
+     * Copies a given board one to one.
+     * @return The copied board.
+     */
     public Board deepCopy() {
         Board copy = new Board();
         copy.createEdges();
@@ -231,11 +239,11 @@ public class Board implements Serializable {
     }
 
     /**
-     *
-     * @param node
-     * @param opponent
-     * @param board
-     * @return
+     * Tests if a given stone placement will form a mill.
+     * @param node The node of the given stone.
+     * @param opponent The opponent of the given player.
+     * @param board The game Board.
+     * @return True if the placement will form a mill, false otherwise.
      */
     public boolean willFormMill(Node node, Player opponent, Board board) {
         return Arrays.stream(board.getMills()).anyMatch(mill -> {
@@ -249,10 +257,10 @@ public class Board implements Serializable {
     }
 
     /**
-     *
-     * @param board
-     * @param opponent
-     * @return
+     * Finds the Nodes at which the Opponent might form a mill (2 neighboured stoned)
+     * @param board The Game board.
+     * @param opponent The opponent of the Player.
+     * @return A list containing all nodes based on which a mill could be formed.
      */
     public List<Node> findPossibleMills(Board board, Player opponent) {
         List<Node> possibleMills = new ArrayList<>();

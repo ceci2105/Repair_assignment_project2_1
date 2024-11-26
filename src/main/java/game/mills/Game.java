@@ -109,7 +109,6 @@ public class Game {
         if (p2 instanceof MinimaxAIPlayer) {
             ((MinimaxAIPlayer) p2).setGame(this);
         }
-        //TODO: refactor into switch case
 
     }
 
@@ -120,10 +119,8 @@ public class Game {
         if (isGameOver) {
             return; // Do not switch player or make AI move if game is over
         }
-        logger.log(Level.INFO, "PLayer switch called!");
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
         if (currentPlayer instanceof BaselineAgent) {
-            logger.log(Level.INFO, "Baseline Player");
 
         // Add a delay before the bot makes its move
         PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay 
@@ -136,8 +133,7 @@ public class Game {
         });
         pause.play();
         } else if (currentPlayer instanceof MinimaxAIPlayer) {
-            logger.log(Level.INFO, "Minimax Player");
-        PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay 
+        PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay
         pause.setOnFinished(event -> {
             ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
             notifyUI();
@@ -166,13 +162,10 @@ public class Game {
      * @throws InvalidMove if the move is not valid.
      */
     public void placePiece(int nodeID) {
-        logger.log(Level.INFO, "Place Piece called");
         if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
-            logger.log(Level.INFO, "If statement entered -> Valid placement");
             board.placePiece(currentPlayer, nodeID);
             notifyUI();
             if (board.checkMill(board.getNode(nodeID), currentPlayer)) {
-                logger.log(Level.ALL, "HumanPlayer {0} made a mill!", currentPlayer.getName());
                 millFormed = true;
             } else {
                 switchPlayer();
@@ -185,13 +178,10 @@ public class Game {
     }
 
     public void placePieceCopy(int nodeID, Board copy) {
-        logger.log(Level.INFO, "Place Piece called");
         if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
-            logger.log(Level.INFO, "If statement entered -> Valid placement");
             copy.placePiece(currentPlayer, nodeID);
             notifyUI();
             if (copy.checkMill(copy.getNode(nodeID), currentPlayer)) {
-                logger.log(Level.ALL, "HumanPlayer {0} made a mill!", currentPlayer.getName());
                 millFormed = true;
             } else {
                 switchPlayer();
@@ -222,7 +212,6 @@ public class Game {
             board.movePiece(currentPlayer, fromID, toID);
             notifyUI();
             if (board.checkMill(board.getNode(toID), currentPlayer)) {
-                logger.log(Level.ALL, "HumanPlayer {0} made a mill!", currentPlayer.getName());
                 millFormed = true;
             } else {
                 switchPlayer();
@@ -283,7 +272,6 @@ public class Game {
         node.setOccupant(null);
         opponent.decrementStonesOnBoard();
         millFormed = false; // Reset flag after removal
-        logger.log(Level.ALL, "HumanPlayer {0}'s stone at node {1} has been removed.", new Object[]{opponent.getName(), node.getId()});
         checkGameOver();
     }
 
@@ -329,9 +317,7 @@ public class Game {
      * @return true if the player can fly, false otherwise.
      */
     public boolean canFly(Player currentPlayer) {
-        logger.log(Level.INFO, "HumanPlayer {0} has {1} stones on board.", new Object[]{currentPlayer.getName(), currentPlayer.getStonesOnBoard()});
         boolean canFly = moveValidator.canFly(currentPlayer);  // HumanPlayer can fly if they have exactly 3 stones
-        logger.log(Level.INFO, "HumanPlayer {0} canFly: {1}", new Object[]{currentPlayer.getName(), canFly});
         return canFly;
     }
 
