@@ -20,6 +20,21 @@ public class Game {
     public boolean isGameOver = false;
     private Player humanPlayer1;
     private Player humanPlayer2;
+    private Player winner = null;
+
+    public Player getWinner() {
+        return winner;
+    }
+
+    public Player getPlayer1() {
+        return humanPlayer1;
+    }
+    
+    public Player getPlayer2() {
+        return humanPlayer2;
+    }
+    
+    
     /**
      * -- GETTER --
      * Gets the current player whose turn it is.
@@ -374,6 +389,7 @@ public class Game {
     private void gameOver(Player winner) {
         if (!isGameOver) {
             isGameOver = true;
+            this.winner = winner;
             logger.log(Level.INFO, winner != null ? "Game Over! {0} wins!" : "Game Over! It's a draw!", new Object[]{winner != null ? winner.getName() : ""});
             if (ui != null) {
                 ui.displayGameOverMessage(winner);  // Display the game-over message

@@ -3,6 +3,7 @@ package gui;
 import Minimax.MinimaxAIPlayer;
 import game.mills.*;
 import agents.neural_network.BaselineAgent;
+import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -18,6 +19,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,7 +38,13 @@ public class MillGameUI {
     private static final String baselineGame = "baselineGame";
     private static final String minimaxGame = "minimaxGame";
     private static final String baselineminimaxGame = "baselineminimaxGame";
+    private static final String run100Games = "run100Games";
     private Node selectedNode = null; // Store the currently selected node
+    private static int numGames;
+    private static int gamesPlayed;
+    private static int baselineWins;
+    private static int minimaxWins;
+    private static int draws;
 
     private Label statusLabel; // Label to display the current game status
     private Label phaseLabel; // Label to display the current game phase
@@ -47,6 +55,7 @@ public class MillGameUI {
     private int rulesCounter = 1;
     private Text rules;
     private String gameType;
+    
 
     /**
      * Constructor to initialize the MillGameUI.
@@ -64,6 +73,8 @@ public class MillGameUI {
             startNewminimaxGame();
         } else if (gameType.equals(baselineminimaxGame)) {
             startNewbaselineminimaxGame();
+        } else if (gameType.equals(run100Games)) {
+            run100Games();
         }
     }
 
@@ -124,6 +135,17 @@ public class MillGameUI {
         buildUI();
     }
 
+    private void run100Games() {
+        if (gamesPlayed == 0) { // Initialize only once
+            numGames = 3;
+            gamesPlayed = 0;
+            baselineWins = 0;
+            minimaxWins = 0;
+            draws = 0;
+        }
+        startNewbaselineminimaxGame();
+    }
+
     private void showRules() {
         rules = new Text();
         //System.out.println("Rules clicked");
@@ -171,6 +193,7 @@ public class MillGameUI {
     private void buildUI() {
 
         // Initialize the status label
+        root = new Pane();
         statusLabel = new Label("Game started. " + game.getCurrentPlayer().getName() + "'s turn.");
         statusLabel.setLayoutX(20);
         statusLabel.setLayoutY(SCENE_HEIGHT - 50);
@@ -486,27 +509,75 @@ public class MillGameUI {
      * @param winner The player who won the game.
      */
     public void displayGameOverMessage(Player winner) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(AlertType.CONFIRMATION);
-            alert.setTitle("Game Over");
-            alert.setHeaderText(null);
-            alert.setContentText("Game Over! " + winner.getName() + " wins!");
-
-            ButtonType restartButton = new ButtonType("Restart");
-            ButtonType exitButton = new ButtonType("Exit");
-
-            // Set the custom buttons
-            alert.getButtonTypes().setAll(restartButton, exitButton);
-
-            Optional<ButtonType> result = alert.showAndWait();
-            if (result.isPresent()) {
-                if (result.get() == restartButton) {
-                    restartGame();
-                } else if (result.get() == exitButton) {
-                    Platform.exit();
-                }
+        if (gameType.equals("run100Games")) {
+            gamesPlayed++;
+            if (winner == null) {
+                draws++;
+            } else if (winner == game.getPlayer1()) {
+                baselineWins++;
+            } else if (winner == game.getPlayer2()) {
+                minimaxWins++;
             }
-        });
+            if (gamesPlayed < numGames) {
+                // Display the game-over message briefly
+            Platform.runLater(() -> {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Game Over");
+                alert.setHeaderText(null);
+                alert.setContentText("Game Over! " + (winner != null ? winner.getName() + " wins!" : "It's a draw!"));
+                alert.show();
+
+                // Close the alert after a short delay and restart the game
+                PauseTransition pause = new PauseTransition(Duration.seconds(2));
+                pause.setOnFinished(event -> {
+                    alert.close();
+                    restartGame();
+                });
+                pause.play();
+            });
+            } else {
+                // All games played, show results and exit
+                Platform.runLater(() -> {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Simulation Complete");
+                alert.setHeaderText(null);
+                alert.setContentText(
+                    "Simulation Complete!\n\n" +
+                    "Baseline Agent wins: " + baselineWins + "\n" +
+                    "Minimax Agent wins: " + minimaxWins + "\n" +
+                    "Draws: " + draws
+                );
+                alert.show();
+
+                // Close the application after displaying the results
+                PauseTransition pause = new PauseTransition(Duration.seconds(5));
+                pause.setOnFinished(event -> Platform.exit());
+                pause.play();
+            });
+            }
+        } else {
+            Platform.runLater(() -> {
+                Alert alert = new Alert(AlertType.CONFIRMATION);
+                alert.setTitle("Game Over");
+                alert.setHeaderText(null);
+                alert.setContentText("Game Over! " + winner.getName() + " wins!");
+
+                ButtonType restartButton = new ButtonType("Restart");
+                ButtonType exitButton = new ButtonType("Exit");
+
+                // Set the custom buttons
+                alert.getButtonTypes().setAll(restartButton, exitButton);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isPresent()) {
+                    if (result.get() == restartButton) {
+                        restartGame();
+                    } else if (result.get() == exitButton) {
+                        Platform.exit();
+                    }
+                }
+            });
+        }
     }
 
     /**
