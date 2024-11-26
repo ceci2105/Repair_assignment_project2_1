@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"agents.neural_network"},{"l":"All Packages","u":"allpackages-index.html"},{"l":"game.mills"},{"l":"gui"},{"l":"main"},{"l":"ui_controllers"}];updateSearchResults();
+packageSearchIndex = [{"l":"agents.neural_network"},{"l":"All Packages","u":"allpackages-index.html"},{"l":"game.mills"},{"l":"gui"},{"l":"main"},{"l":"Minimax"}];updateSearchResults();

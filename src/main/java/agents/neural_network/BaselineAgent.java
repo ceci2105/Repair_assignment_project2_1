@@ -14,6 +14,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * The baseline agent, that always makes a completely pseudorandom move.
+ */
 public class BaselineAgent implements Player {
     @Getter
     private String name;
@@ -28,7 +31,6 @@ public class BaselineAgent implements Player {
 
     /**
      * Constructor for the BaselineAgent class.
-     *
      * @param name  The name of the player.
      * @param color The color of the player's pieces.
      */
@@ -66,6 +68,9 @@ public class BaselineAgent implements Player {
         }
     }
 
+    /**
+     * Places a piece on the board.
+     */
     private void placePiece() {
         List<Integer> nodeIndices = new ArrayList<>();
         for (int i = 0; i < 24; i++) {
@@ -91,6 +96,9 @@ public class BaselineAgent implements Player {
         }
     }
 
+    /**
+     * Moves a piece on the board.
+     */
     private void movePiece() {
         boolean canFly = game.canFly(this);
         List<Integer> nodeIndices = new ArrayList<>();
@@ -138,8 +146,10 @@ public class BaselineAgent implements Player {
         }
         // If no valid moves are found
     }
-    
 
+    /**
+     * Removes a random opponents piece
+     */
     private void removeOpponentPiece() {
         for (int i = 0; i < 24; i++) {
             Node node = game.getBoard().getNode(i);

@@ -27,7 +27,7 @@ public class Node implements Serializable {
      * -- SETTER --
      * Sets the player occupying this node.
      *
-     * @param player the player to set as the occupant of the node.
+     * the player to set as the occupant of the node.
      */
     @Setter
     /**
@@ -40,7 +40,7 @@ public class Node implements Serializable {
      * -- SETTER --
      * Sets the visual representation (circle) of this node in the UI.
      *
-     * @param circle the Circle object to associate with this node.
+     *  the Circle object to associate with this node.
      */
     @Setter
     /**
