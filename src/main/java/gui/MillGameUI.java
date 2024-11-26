@@ -139,7 +139,7 @@ public class MillGameUI {
 
     private void run100Games() {
         if (gamesPlayed == 0) { // Initialize only once
-            numGames = 3;
+            numGames = 10;
             gamesPlayed = 0;
             baselineWins = 0;
             minimaxWins = 0;
@@ -552,7 +552,7 @@ public class MillGameUI {
                 alert.show();
 
                 // Close the application after displaying the results
-                PauseTransition pause = new PauseTransition(Duration.seconds(5));
+                PauseTransition pause = new PauseTransition(Duration.seconds(10));
                 pause.setOnFinished(event -> Platform.exit());
                 pause.play();
             });

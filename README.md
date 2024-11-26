@@ -5,7 +5,8 @@ This project implements the classic board game Nine Men's Morris (also known as 
 **Features:**
 
 * **Two-player mode:**  Play against a friend on the same computer.
-* **AI opponent (future):**  Challenge an AI agent with varying difficulty levels (coming soon!).
+* **AI opponent :**  Challenge an AI agent with varying difficulty levels.
+* **AI simulation :** Implementation currently runs 10 games (instead of displayed 100).
 
 **System Requirements**
 The implementation does not feature any performance intensive tasks, therefore it should run on any system, however, it should be noted that a [Java JDK](https://www.oracle.com/java/technologies/downloads/) needs to be installed.
