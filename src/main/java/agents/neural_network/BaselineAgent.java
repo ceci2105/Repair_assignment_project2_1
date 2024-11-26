@@ -4,6 +4,7 @@ import game.mills.Game;
 import game.mills.InvalidMove;
 import game.mills.Node;
 import game.mills.Player;
+import gui.MillGameUI;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
@@ -78,6 +79,7 @@ public class BaselineAgent implements Player {
                 try {
                     game.placePiece(i);
                     System.out.println("Bot placed piece at node " + i);
+                    MillGameUI.incrementBaselineMoves();
                     if (game.isMillFormed()) {
                         removeOpponentPiece();
                     }
@@ -125,6 +127,7 @@ public class BaselineAgent implements Player {
                 for (int toIndex : possibleToIndices) {
                     try {
                         game.makeMove(fromNode.getId(), toIndex);
+                        MillGameUI.incrementBaselineMoves();
                         System.out.println("Bot moved piece from node " + fromNode.getId() + " to node " + toIndex);
                         if (game.isMillFormed()) {
                             removeOpponentPiece();

@@ -45,6 +45,8 @@ public class MillGameUI {
     private static int baselineWins;
     private static int minimaxWins;
     private static int draws;
+    private static int baselinemoves;
+    private static int minimaxmoves;
 
     private Label statusLabel; // Label to display the current game status
     private Label phaseLabel; // Label to display the current game phase
@@ -142,6 +144,8 @@ public class MillGameUI {
             baselineWins = 0;
             minimaxWins = 0;
             draws = 0;
+            baselinemoves = 0;
+            minimaxmoves = 0;
         }
         startNewbaselineminimaxGame();
     }
@@ -545,7 +549,9 @@ public class MillGameUI {
                     "Simulation Complete!\n\n" +
                     "Baseline Agent wins: " + baselineWins + "\n" +
                     "Minimax Agent wins: " + minimaxWins + "\n" +
-                    "Draws: " + draws
+                    "Draws: " + draws + "\n" +
+                    "Baseline Agent average moves: " + (baselinemoves/numGames) + "\n" +
+                    "Minimax Agent average moves: " + (minimaxmoves/numGames)
                 );
                 alert.show();
 
@@ -599,5 +605,13 @@ public class MillGameUI {
 
     public void updateGamePhaseLabel(String message) {
         phaseLabel.setText(message);
+    }
+
+    public static void incrementBaselineMoves() {
+        baselinemoves++;
+    }
+    
+    public static void incrementMinimaxMoves() {
+        minimaxmoves++;
     }
 }

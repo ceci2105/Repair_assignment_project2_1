@@ -1,6 +1,7 @@
 package Minimax;
 
 import game.mills.*;
+import gui.MillGameUI;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
@@ -61,6 +62,7 @@ public class MinimaxAIPlayer implements Player {
         Random r = new Random();
         if (stonesToPlace == 9) {
             game.placePiece(r.nextInt(24));
+            MillGameUI.incrementMinimaxMoves();
             log.log(Level.INFO, "Placed Random piece!");
         } else {
             if (phase == 1) {
@@ -70,6 +72,7 @@ public class MinimaxAIPlayer implements Player {
                 if (bestPlacement != -1) {
                     try {
                         game.placePiece(bestPlacement);
+                        MillGameUI.incrementMinimaxMoves();
                         // Check for mill formation
                         if (game.isMillFormed()) {
                             handleMillFormation(board);
@@ -84,6 +87,7 @@ public class MinimaxAIPlayer implements Player {
                 if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
                     try {
                         game.makeMove(bestMove[0].getId(), bestMove[1].getId());
+                        MillGameUI.incrementMinimaxMoves();
                         log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
                         // Check for mill formation
                         if (game.isMillFormed()) {
