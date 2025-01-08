@@ -9,6 +9,7 @@ import lombok.extern.java.Log;
 
 import java.util.Random;
 import java.util.logging.Level;
+import javafx.application.Platform;
 
 /**
  * The MinimaxAIPlayer class represents an AI-controlled player that uses the Minimax algorithm
@@ -59,46 +60,55 @@ public class MinimaxAIPlayer implements Player {
      * @param phase The current phase of the game (placement, movement, or endgame).
      */
     public void makeMove(Board board, int phase) {
-        Random r = new Random();
-        if (stonesToPlace == 9) {
-            game.placePiece(r.nextInt(24));
-            MillGameUI.incrementMinimaxMoves();
-        } else {
-            if (phase == 1) {
-                // Placement phase
-                int bestPlacement = minimax.findBestPlacement(board, this);
-                if (bestPlacement != -1) {
-                    try {
-                        game.placePiece(bestPlacement);
-                        MillGameUI.incrementMinimaxMoves();
-                        // Check for mill formation
-                        if (game.isMillFormed()) {
-                            handleMillFormation(board);
-                        }
-                    } catch (InvalidMove e) {
-                        log.log(Level.WARNING, "Failed to place piece: {0}", e.getMessage());
-                    }
+        Platform.runLater(() -> {
+            if (stonesToPlace == 9) {
+                Random r = new Random();
+                int randomPlacement = r.nextInt(24);
+                if (board.getNode(randomPlacement).isOccupied()) {
+                    randomPlacement = r.nextInt(24);
+                    game.placePiece(randomPlacement);
+                    MillGameUI.incrementMinimaxMoves();
+                } else {
+                    game.placePiece(randomPlacement);
+                    MillGameUI.incrementMinimaxMoves();
                 }
             } else {
-                // Movement phase
-                Node[] bestMove = minimax.findBestMove(board, this, phase);
-                if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
-                    try {
-                        game.makeMove(bestMove[0].getId(), bestMove[1].getId());
-                        MillGameUI.incrementMinimaxMoves();
-                        //log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
-                        // Check for mill formation
-                        if (game.isMillFormed()) {
-                            handleMillFormation(board);
+                if (phase == 1) {
+                    // Placement phase
+                    int bestPlacement = minimax.findBestPlacement(board, this);
+                    if (bestPlacement != -1) {
+                        try {
+                            game.placePiece(bestPlacement);
+                            MillGameUI.incrementMinimaxMoves();
+                            // Check for mill formation
+                            if (game.isMillFormed()) {
+                                handleMillFormation(board);
+                            }
+                        } catch (InvalidMove e) {
+                            log.log(Level.WARNING, "Failed to place piece: {0}", e.getMessage());
                         }
-                    } catch (InvalidMove e) {
-                        log.log(Level.WARNING, "Failed to make move: {0}", e.getMessage());
                     }
                 } else {
-                    log.log(Level.WARNING, "No valid move found for AI.");
+                    // Movement phase
+                    Node[] bestMove = minimax.findBestMove(board, this, phase);
+                    if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
+                        try {
+                            game.makeMove(bestMove[0].getId(), bestMove[1].getId());
+                            MillGameUI.incrementMinimaxMoves();
+                            //log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
+                            // Check for mill formation
+                            if (game.isMillFormed()) {
+                                handleMillFormation(board);
+                            }
+                        } catch (InvalidMove e) {
+                            log.log(Level.WARNING, "Failed to make move: {0}", e.getMessage());
+                        }
+                    } else {
+                        log.log(Level.WARNING, "No valid move found for AI.");
+                    }
                 }
             }
-        }
+        });
     }
 
 

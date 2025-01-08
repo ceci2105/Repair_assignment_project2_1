@@ -4,12 +4,14 @@ import Minimax.MinimaxAIPlayer;
 import agents.neural_network.BaselineAgent;
 import gui.MillGameUI;
 import javafx.animation.PauseTransition;
+import javafx.concurrent.Task;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.util.Duration;
+import javafx.application.Platform;
 
 /**
  * The NewGame class manages the game logic for Mills.
@@ -120,28 +122,39 @@ public class Game {
             return; // Do not switch player or make AI move if game is over
         }
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
-        if (currentPlayer instanceof BaselineAgent) {
 
-        // Add a delay before the bot makes its move
-        PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay 
-        pause.setOnFinished(event -> {
-            ((BaselineAgent) currentPlayer).makeMove();
+        if (currentPlayer instanceof BaselineAgent || currentPlayer instanceof MinimaxAIPlayer) {
+            Task<Void> aiTask = new Task<Void>() {
+                @Override
+                protected Void call() {
+                    if (currentPlayer instanceof BaselineAgent) {
+                        ((BaselineAgent) currentPlayer).makeMove();
+                    } else if (currentPlayer instanceof MinimaxAIPlayer) {
+                        ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
+                    }
+                    return null;
+                }
+            };
 
-            // Update the UI after the bot has made its move
+            aiTask.setOnSucceeded(event -> {
+                Platform.runLater(() -> {
+                    notifyUI();
+                    if (ui != null) {
+                        ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+                    }
+                });
+            });
+
+            aiTask.setOnFailed(event -> {
+                Throwable error = aiTask.getException();
+                System.err.println("Error in AI computation: " + error.getMessage());
+                error.printStackTrace();
+            });
+
+            new Thread(aiTask).start();
+        } else {
             notifyUI();
-            ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
-        });
-        pause.play();
-        } else if (currentPlayer instanceof MinimaxAIPlayer) {
-        PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay
-        pause.setOnFinished(event -> {
-            ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
-            notifyUI();
-            ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
-        });
-        pause.play();
         }
-        notifyUI();
     }
 
     public Player getOpponent(Player player) {
