@@ -13,7 +13,8 @@ import javafx.util.Duration;
 
 /**
  * The NewGame class manages the game logic for Mills.
- * It controls the game phases, player turns, moves, and interactions with the game board.
+ * It controls the game phases, player turns, moves, and interactions with the
+ * game board.
  */
 public class Game {
     private static Logger logger = Logger.getLogger(Game.class.getName());
@@ -29,12 +30,11 @@ public class Game {
     public Player getPlayer1() {
         return humanPlayer1;
     }
-    
+
     public Player getPlayer2() {
         return humanPlayer2;
     }
-    
-    
+
     /**
      * -- GETTER --
      * Gets the current player whose turn it is.
@@ -92,10 +92,9 @@ public class Game {
         this.currentPlayer = p1;
         this.board = new Board();
         this.moveValidator = new MoveValidator(board);
-        this.phase = 1; //Start the game in the placing phase
+        this.phase = 1; // Start the game in the placing phase
 
         this.totalMoves = 0;
-
 
         if (p1 instanceof BaselineAgent) {
             ((BaselineAgent) p1).setGame(this);
@@ -112,6 +111,10 @@ public class Game {
 
     }
 
+    public Game(Board board) {
+        this.board = board;
+    }
+
     /**
      * Switches the player when the turn changes.
      */
@@ -122,24 +125,24 @@ public class Game {
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
         if (currentPlayer instanceof BaselineAgent) {
 
-        // Add a delay before the bot makes its move
-        PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay 
-        pause.setOnFinished(event -> {
-            ((BaselineAgent) currentPlayer).makeMove();
+            // Add a delay before the bot makes its move
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay
+            pause.setOnFinished(event -> {
+                ((BaselineAgent) currentPlayer).makeMove();
 
-            // Update the UI after the bot has made its move
-            notifyUI();
-            ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
-        });
-        pause.play();
+                // Update the UI after the bot has made its move
+                notifyUI();
+                ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+            });
+            pause.play();
         } else if (currentPlayer instanceof MinimaxAIPlayer) {
-        PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay
-        pause.setOnFinished(event -> {
-            ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
-            notifyUI();
-            ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
-        });
-        pause.play();
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1 second delay
+            pause.setOnFinished(event -> {
+                ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
+                notifyUI();
+                ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+            });
+            pause.play();
         }
         notifyUI();
     }
@@ -192,6 +195,7 @@ public class Game {
             throw new InvalidMove("Placement is invalid!");
         }
     }
+
     /**
      * Updates the current game phase
      */
@@ -308,16 +312,16 @@ public class Game {
         }
     }
 
-
     /**
-     * Checks if the current player is allowed to "fly" (move a piece to any open space on the board).
+     * Checks if the current player is allowed to "fly" (move a piece to any open
+     * space on the board).
      * A player can fly if they have exactly 3 stones on the board.
      *
      * @param currentPlayer the player whose ability to fly is being checked.
      * @return true if the player can fly, false otherwise.
      */
     public boolean canFly(Player currentPlayer) {
-        boolean canFly = moveValidator.canFly(currentPlayer);  // HumanPlayer can fly if they have exactly 3 stones
+        boolean canFly = moveValidator.canFly(currentPlayer); // HumanPlayer can fly if they have exactly 3 stones
         return canFly;
     }
 
@@ -376,9 +380,10 @@ public class Game {
         if (!isGameOver) {
             isGameOver = true;
             this.winner = winner;
-            logger.log(Level.INFO, winner != null ? "Game Over! {0} wins!" : "Game Over! It's a draw!", new Object[]{winner != null ? winner.getName() : ""});
+            logger.log(Level.INFO, winner != null ? "Game Over! {0} wins!" : "Game Over! It's a draw!",
+                    new Object[] { winner != null ? winner.getName() : "" });
             if (ui != null) {
-                ui.displayGameOverMessage(winner);  // Display the game-over message
+                ui.displayGameOverMessage(winner); // Display the game-over message
             }
         }
     }
@@ -386,7 +391,8 @@ public class Game {
     /**
      * Sets the UI reference for the game to interact with.
      *
-     * @param ui the MillGameUI object to be used for updating the game status and UI.
+     * @param ui the MillGameUI object to be used for updating the game status and
+     *           UI.
      */
     public void setUI(MillGameUI ui) {
         this.ui = ui;
@@ -402,7 +408,7 @@ public class Game {
         if (currentPlayer instanceof BaselineAgent) {
             logger.log(Level.INFO, "Starting game with Baseline Agent");
             // Add a delay before the bot makes its move
-            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay 
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay
             pause.setOnFinished(event -> {
                 ((BaselineAgent) currentPlayer).makeMove();
 
@@ -415,7 +421,7 @@ public class Game {
             pause.play();
         } else if (currentPlayer instanceof MinimaxAIPlayer) {
             logger.log(Level.INFO, "Starting game with Minimax AI Player");
-            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay 
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay
             pause.setOnFinished(event -> {
                 ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
                 notifyUI();
@@ -426,7 +432,5 @@ public class Game {
             pause.play();
         }
     }
-
-
 
 }
