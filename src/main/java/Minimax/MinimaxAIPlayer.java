@@ -75,7 +75,7 @@ public class MinimaxAIPlayer implements Player {
             } else {
                 if (phase == 1) {
                     // Placement phase
-                    int bestPlacement = minimax.findBestPlacement(board, this);
+                    int bestPlacement = minimax.findBestPlacement(board, this, phase);
                     if (bestPlacement != -1) {
                         try {
                             game.placePiece(bestPlacement);

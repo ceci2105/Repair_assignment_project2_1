@@ -6,9 +6,6 @@ import game.mills.Player;
 import game.mills.Game;
 import lombok.extern.java.Log;
 
-import java.util.List;
-import java.util.logging.Level;
-
 /**
  * The EvaluationFunction class provides scoring heuristics for different phases of the game
  * in order to evaluate the game state from the perspective of a given player.
@@ -40,8 +37,6 @@ public class EvaluationFunction {
                 return evaluatePlacementPhase(board, player, node);
             case 2:
                 return evaluateMovementPhase(board, player);
-            case 3:
-                return evaluateEndgamePhase(board, player);
             default:
                 return 0;
         }
@@ -99,31 +94,5 @@ public class EvaluationFunction {
             score += 50;
         }
         return score;
-    }
-
-    /**
-     * Evaluates the board state during the endgame phase.
-     * @param board The game board.
-     * @param player The player for whom the evaluation is performed.
-     * @return A score based on mills, piece count advantage, and winning conditions.
-     */
-    private int evaluateEndgamePhase(Board board, Player player) {
-        return 0;
-    }
-
-    /**
-     * Counts the number of pieces a player has on the board.
-     * @param board The game board.
-     * @param player The player whose pieces are to be counted.
-     * @return The count of pieces belonging to the player.
-     */
-    private int countPieces(Board board, Player player) {
-        int count = 0;
-        for (Node node : board.getNodes().values()) {
-            if (node.getOccupant() == player) {
-                count++;
-            }
-        }
-        return count;
     }
 }

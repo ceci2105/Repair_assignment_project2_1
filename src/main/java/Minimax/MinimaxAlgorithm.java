@@ -33,14 +33,14 @@ public class MinimaxAlgorithm {
         this.evaluationFunction = new EvaluationFunction(game);
     }
 
-    public int findBestPlacement(Board board, Player player) {
+    public int findBestPlacement(Board board, Player player, int phase) {
         int bestValue = Integer.MIN_VALUE;
         int bestPlacement = -1;
         Board copyBoard = board.deepCopy();
         for (Node node : copyBoard.getNodes().values()) {
             if (!node.isOccupied()) {
                 copyBoard.placePieceAgent(player, node.getId());
-                int placementValue = evaluationFunction.evaluate(copyBoard, player, 1, node); // Evaluate
+                int placementValue = minimax(board, depth - 1, false, player, phase);
                 if (placementValue > bestValue) {
                     bestValue = placementValue;
                     bestPlacement = node.getId();
