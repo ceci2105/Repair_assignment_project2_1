@@ -1,15 +1,18 @@
 package game.mills;
 
-import lombok.Getter;
-import lombok.extern.java.Log;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.extern.java.Log;
 
 /**
  * The Board class represents the game board.
@@ -121,6 +124,20 @@ public class Board {
             node.setOccupant(player);
         }
     }
+
+    /**
+ * Removes a piece from the board without decrementing stones or checking for mills.
+ * This method is intended for use by AI agents.
+ *
+ * @param nodeId The ID of the node where the piece will be removed.
+ */
+public void removePieceAgent(int nodeId) {
+    Node node = getNode(nodeId);
+    if (node != null && node.getOccupant() != null) {
+        node.setOccupant(null); // Remove the occupant from the node
+    }
+}
+
 
     /**
      * Moves a player's stone from one node to another.

@@ -4,9 +4,9 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.control.Label;
 
 /**
  * The {@code StartMenuUI} class is responsible for creating and displaying the
@@ -20,6 +20,7 @@ public class StartMenuUI {
     private static final String minimaxGame = "minimaxGame";
     private static final String baselineminimaxGame = "baselineminimaxGame";
     private static final String run100Games = "run100Games";
+    private static final String alphabetaGame = "alphabetaGame";
 
     /**
      * Constructor for the start menu user interface.
@@ -56,13 +57,16 @@ public class StartMenuUI {
         Button run100gamesButton = new Button("Run 100 games");
         run100gamesButton.setOnAction(e -> run100Games());
 
+        Button startalphabetaButton = new Button("Start New Game Baseline Agent against AlphaBeta Agent");
+        startalphabetaButton.setOnAction(e -> startalphabetaGame());
+
         Button rulesButton = new Button("How to play");
         rulesButton.setOnAction(e -> new RulesUI().display());
 
         Button exitButton = new Button("Exit");
         exitButton.setOnAction(e -> Platform.exit());
 
-        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, run100gamesButton, rulesButton, exitButton);
+        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, run100gamesButton, startalphabetaButton, rulesButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -92,6 +96,10 @@ public class StartMenuUI {
 
     private void run100Games() {
         new MillGameUI(primaryStage, run100Games);
+    }
+
+    private void startalphabetaGame() {
+        new MillGameUI(primaryStage, alphabetaGame); // This will switch to the game UI
     }
 
 

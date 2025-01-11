@@ -1,8 +1,18 @@
 package gui;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Optional;
+
+import AlphaBetaPruning.AlphaBetaAIPlayer;
 import Minimax.MinimaxAIPlayer;
-import game.mills.*;
 import agents.neural_network.BaselineAgent;
+import game.mills.Board;
+import game.mills.Game;
+import game.mills.HumanPlayer;
+import game.mills.InvalidMove;
+import game.mills.Node;
+import game.mills.Player;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -10,20 +20,16 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Text;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.Optional;
 
 /**
  * The MillGameUI class represents the graphical user interface (GUI) for the game.
@@ -39,6 +45,7 @@ public class MillGameUI {
     private static final String minimaxGame = "minimaxGame";
     private static final String baselineminimaxGame = "baselineminimaxGame";
     private static final String run100Games = "run100Games";
+    private static final String alphabetaGame = "alphabetaGame";
     private Node selectedNode = null; // Store the currently selected node
     private static int numGames;
     private static int gamesPlayed;
@@ -77,6 +84,8 @@ public class MillGameUI {
             startNewbaselineminimaxGame();
         } else if (gameType.equals(run100Games)) {
             run100Games();
+        }else if (gameType.equals(alphabetaGame)) {
+            startNewalphabetaGame();
         }
     }
 
@@ -148,6 +157,19 @@ public class MillGameUI {
             minimaxmoves = 0;
         }
         startNewbaselineminimaxGame();
+    }
+
+    public void startNewalphabetaGame() {
+        BaselineAgent baselineAgent = new BaselineAgent("Black", Color.BLACK);
+        
+        this.game = new Game(baselineAgent, null);
+        game.setUI(this);
+        board = game.getBoard();
+
+        int depth = 3;
+        AlphaBetaAIPlayer alphabetaAIPlayer = new AlphaBetaAIPlayer("White", Color.WHITE, game, depth);
+        game.setSecondPlayer(alphabetaAIPlayer);
+        buildUI();
     }
 
     private void showRules() {
