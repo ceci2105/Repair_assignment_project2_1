@@ -46,14 +46,17 @@ public class MillGameUI {
     private static final String baselineminimaxGame = "baselineminimaxGame";
     private static final String run100Games = "run100Games";
     private static final String alphabetaGame = "alphabetaGame";
+    private static final String baselinealphabetaGame = "baselinealphabetaGame";;
     private Node selectedNode = null; // Store the currently selected node
     private static int numGames;
     private static int gamesPlayed;
     private static int baselineWins;
     private static int minimaxWins;
+    private static int alphabetaWins;
     private static int draws;
     private static int baselinemoves;
     private static int minimaxmoves;
+    private static int alphabetamoves;
 
     private Label statusLabel; // Label to display the current game status
     private Label phaseLabel; // Label to display the current game phase
@@ -79,13 +82,15 @@ public class MillGameUI {
         } else if (gameType.equals(baselineGame)) {
             startNewbaselineGame();
         } else if (gameType.equals(minimaxGame)) {
-            startNewminimaxGame();
+            startNewminimaxGame();    
+        } else if (gameType.equals(alphabetaGame)) {
+            startNewalphabetaGame();      
         } else if (gameType.equals(baselineminimaxGame)) {
             startNewbaselineminimaxGame();
         } else if (gameType.equals(run100Games)) {
             run100Games();
-        }else if (gameType.equals(alphabetaGame)) {
-            startNewalphabetaGame();
+        }else if (gameType.equals(baselinealphabetaGame)) {
+            startNewbaselinealphabetaGame();
         }
     }
 
@@ -146,20 +151,20 @@ public class MillGameUI {
         buildUI();
     }
 
-    private void run100Games() {
-        if (gamesPlayed == 0) { // Initialize only once
-            numGames = 10;
-            gamesPlayed = 0;
-            baselineWins = 0;
-            minimaxWins = 0;
-            draws = 0;
-            baselinemoves = 0;
-            minimaxmoves = 0;
-        }
-        startNewbaselineminimaxGame();
+    public void startNewalphabetaGame() {
+        HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
+        
+        this.game = new Game(humanPlayer1, null);
+        game.setUI(this);
+        board = game.getBoard();
+
+        int depth = 3;
+        AlphaBetaAIPlayer alphabetaAIPlayer = new AlphaBetaAIPlayer("White", Color.WHITE, game, depth);
+        game.setSecondPlayer(alphabetaAIPlayer);
+        buildUI();
     }
 
-    public void startNewalphabetaGame() {
+    public void startNewbaselinealphabetaGame() {
         BaselineAgent baselineAgent = new BaselineAgent("Black", Color.BLACK);
         
         this.game = new Game(baselineAgent, null);
@@ -171,6 +176,24 @@ public class MillGameUI {
         game.setSecondPlayer(alphabetaAIPlayer);
         buildUI();
     }
+
+    private void run100Games() {
+        if (gamesPlayed == 0) { // Initialize only once
+            numGames = 10;
+            gamesPlayed = 0;
+            baselineWins = 0;
+            minimaxWins = 0;
+            alphabetaWins=0;
+            draws = 0;
+            baselinemoves = 0;
+            minimaxmoves = 0;
+            alphabetamoves=0;
+        }
+        startNewbaselineminimaxGame();
+        startNewbaselinealphabetaGame();
+    }
+
+  
 
     private void showRules() {
         rules = new Text();
@@ -567,9 +590,11 @@ public class MillGameUI {
                     "Simulation Complete!\n\n" +
                     "Baseline Agent wins: " + baselineWins + "\n" +
                     "Minimax Agent wins: " + minimaxWins + "\n" +
+                    "AlphaBeta Agent wins: " + alphabetaWins + "\n" +
                     "Draws: " + draws + "\n" +
                     "Baseline Agent average moves: " + (baselinemoves/numGames) + "\n" +
-                    "Minimax Agent average moves: " + (minimaxmoves/numGames)
+                    "Minimax Agent average moves: " + (minimaxmoves/numGames) + "\n" +
+                    "AlphaBeta Agent average moves: " + (alphabetamoves/numGames)
                 );
                 alert.show();
 
@@ -632,4 +657,9 @@ public class MillGameUI {
     public static void incrementMinimaxMoves() {
         minimaxmoves++;
     }
+
+    public static void incrementAlphaBetaMoves() {
+        alphabetamoves++;  
+    }
+
 }

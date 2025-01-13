@@ -21,6 +21,7 @@ public class StartMenuUI {
     private static final String baselineminimaxGame = "baselineminimaxGame";
     private static final String run100Games = "run100Games";
     private static final String alphabetaGame = "alphabetaGame";
+    private static final String baselinealphabetaGame = "baselinealphabetaGame";
 
     /**
      * Constructor for the start menu user interface.
@@ -57,8 +58,11 @@ public class StartMenuUI {
         Button run100gamesButton = new Button("Run 100 games");
         run100gamesButton.setOnAction(e -> run100Games());
 
-        Button startalphabetaButton = new Button("Start New Game Baseline Agent against AlphaBeta Agent");
-        startalphabetaButton.setOnAction(e -> startalphabetaGame());
+        Button startalphabetaButton = new Button("Start New Game against AlphaBeta Agent");
+        startminimaxButton.setOnAction(e -> startalphabetaGame());
+
+        Button startbaselinealphabetaButton = new Button("Start New Game Baseline Agent against AlphaBeta Agent");
+        startbaselinealphabetaButton.setOnAction(e -> startbaselinealphabetaGame());
 
         Button rulesButton = new Button("How to play");
         rulesButton.setOnAction(e -> new RulesUI().display());
@@ -66,7 +70,7 @@ public class StartMenuUI {
         Button exitButton = new Button("Exit");
         exitButton.setOnAction(e -> Platform.exit());
 
-        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, run100gamesButton, startalphabetaButton, rulesButton, exitButton);
+        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, run100gamesButton, startalphabetaButton, startbaselinealphabetaButton, rulesButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -101,6 +105,11 @@ public class StartMenuUI {
     private void startalphabetaGame() {
         new MillGameUI(primaryStage, alphabetaGame); // This will switch to the game UI
     }
+
+    private void startbaselinealphabetaGame() {
+        new MillGameUI(primaryStage, baselinealphabetaGame); // This will switch to the game UI
+    }
+
 
 
 }
