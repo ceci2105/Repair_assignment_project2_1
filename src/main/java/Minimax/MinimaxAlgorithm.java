@@ -1,15 +1,14 @@
 package Minimax;
 
-import game.mills.Board;
-import game.mills.Game;
-import game.mills.Player;
-import game.mills.Node;
-import lombok.extern.java.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
+
+import game.mills.Board;
+import game.mills.Game;
+import game.mills.Node;
+import game.mills.Player;
+import lombok.extern.java.Log;
 
 /**
  * The MinimaxAlgorithm class implements the Minimax algorithm to determine the best move for the AI player.
@@ -18,9 +17,9 @@ import java.util.logging.Level;
  */
 @Log
 public class MinimaxAlgorithm {
-    private final int depth;
-    private EvaluationFunction evaluationFunction;
-    private Game game;
+    public final int depth;
+    public EvaluationFunction evaluationFunction;
+    public Game game;
 
     /**
      * Constructor to initialize MinimaxAlgorithm with a Game instance and search depth.
@@ -32,6 +31,8 @@ public class MinimaxAlgorithm {
         this.depth = depth;
         this.evaluationFunction = new EvaluationFunction(game);
     }
+
+    
 
     public int findBestPlacement(Board board, Player player) {
         int bestValue = Integer.MIN_VALUE;

@@ -190,7 +190,8 @@ public class MillGameUI {
             alphabetamoves=0;
         }
         startNewbaselineminimaxGame();
-        startNewbaselinealphabetaGame();
+        //startNewbaselinealphabetaGame();
+        
     }
 
   
@@ -562,6 +563,7 @@ public class MillGameUI {
                 baselineWins++;
             } else if (winner == game.getPlayer2()) {
                 minimaxWins++;
+                alphabetaWins++;
             }
             if (gamesPlayed < numGames) {
                 // Display the game-over message briefly

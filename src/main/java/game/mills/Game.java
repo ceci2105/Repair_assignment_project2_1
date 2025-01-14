@@ -10,6 +10,8 @@ import lombok.Setter;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import AlphaBetaPruning.AlphaBetaAIPlayer;
 import javafx.util.Duration;
 import javafx.application.Platform;
 
@@ -110,6 +112,11 @@ public class Game {
         }
         if (p2 instanceof MinimaxAIPlayer) {
             ((MinimaxAIPlayer) p2).setGame(this);
+        }if (p1 instanceof AlphaBetaAIPlayer) {
+            ((AlphaBetaAIPlayer) p1).setGame(this);
+        }
+        if (p2 instanceof AlphaBetaAIPlayer) {
+            ((AlphaBetaAIPlayer) p2).setGame(this);
         }
 
     }
@@ -123,7 +130,7 @@ public class Game {
         }
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
 
-        if (currentPlayer instanceof BaselineAgent || currentPlayer instanceof MinimaxAIPlayer) {
+        if (currentPlayer instanceof BaselineAgent || currentPlayer instanceof MinimaxAIPlayer|| currentPlayer instanceof AlphaBetaAIPlayer) {
             Task<Void> aiTask = new Task<Void>() {
                 @Override
                 protected Void call() {
@@ -131,6 +138,8 @@ public class Game {
                         ((BaselineAgent) currentPlayer).makeMove();
                     } else if (currentPlayer instanceof MinimaxAIPlayer) {
                         ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
+                    }else if (currentPlayer instanceof AlphaBetaAIPlayer) {
+                        ((AlphaBetaAIPlayer) currentPlayer).makeMove(board, phase);
                     }
                     return null;
                 }
@@ -431,6 +440,17 @@ public class Game {
             PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay 
             pause.setOnFinished(event -> {
                 ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
+                notifyUI();
+                if (ui != null) {
+                    ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+                }
+            });
+            pause.play();
+        } else if (currentPlayer instanceof AlphaBetaAIPlayer) {
+            logger.log(Level.INFO, "Starting game with AlphaBeta AI Player");
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay 
+            pause.setOnFinished(event -> {
+                ((AlphaBetaAIPlayer) currentPlayer).makeMove(board, phase);
                 notifyUI();
                 if (ui != null) {
                     ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());

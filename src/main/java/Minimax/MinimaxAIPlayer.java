@@ -1,15 +1,19 @@
 package Minimax;
 
-import game.mills.*;
+import java.util.Random;
+import java.util.logging.Level;
+
+import game.mills.Board;
+import game.mills.Game;
+import game.mills.InvalidMove;
+import game.mills.Node;
+import game.mills.Player;
 import gui.MillGameUI;
+import javafx.application.Platform;
 import javafx.scene.paint.Color;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
-
-import java.util.Random;
-import java.util.logging.Level;
-import javafx.application.Platform;
 
 /**
  * The MinimaxAIPlayer class represents an AI-controlled player that uses the Minimax algorithm
@@ -31,7 +35,7 @@ public class MinimaxAIPlayer implements Player {
     @Getter
     private int stonesOnBoard;           // Stones the AI player currently has on the board
     @Setter
-    private Game game;                   // The current game instance
+    public Game game;                   // The current game instance
 
     /**
      * Constructor to initialize the MinimaxAIPlayer with a given name, depth, game, and color.

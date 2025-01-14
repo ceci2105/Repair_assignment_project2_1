@@ -1,13 +1,10 @@
 package Minimax;
 
 import game.mills.Board;
+import game.mills.Game;
 import game.mills.Node;
 import game.mills.Player;
-import game.mills.Game;
 import lombok.extern.java.Log;
-
-import java.util.List;
-import java.util.logging.Level;
 
 /**
  * The EvaluationFunction class provides scoring heuristics for different phases of the game
@@ -51,25 +48,30 @@ public class EvaluationFunction {
      * Evaluates the board state during the placement phase.
      * @param board The game board.
      * @param player The player for whom the evaluation is performed.
+     * @param node The node to evaluate.
      * @return A score based on piece placement quality, potential mills, and flexibility.
      */
     private int evaluatePlacementPhase(Board board, Player player, Node node) {
         int score = 0;
-        if (node.getOccupant() == player) {
+        
+        // Null check for node
+        if (node != null && node.getOccupant() == player) {
             score += 5;
 
+            // Check if the node forms a mill
             if (board.checkMill(node, player)) {
                 score += 100;
             }
 
+            // Check the number of player neighbors
             score += board.getPlayerNeighbours(node.getId(), player) * 10;
 
+            // Check if the node will form a mill with opponent's pieces
             if (board.willFormMill(node, game.getOpponent(player), board)) {
                 score = 200;
             }
-
-
         }
+
         return score;
     }
 
@@ -84,20 +86,22 @@ public class EvaluationFunction {
         Player opponent = game.getOpponent(player);
 
         for (Node node : board.getNodes().values()) {
-            if (node.getOccupant() == player) {
+            if (node != null && node.getOccupant() == player) {  // Null check for nodes
                 if (board.checkMill(node, player)) {
                     score += 20;
                 }
                 for (Node neighbor : board.getNeighbours(node)) {
-                    if (!neighbor.isOccupied()) {
+                    if (neighbor != null && !neighbor.isOccupied()) {  // Null check for neighbors
                         score += 5;
                     }
                 }
             }
         }
+        
         if (!board.hasValidMoves(opponent)) {
             score += 50;
         }
+
         return score;
     }
 
@@ -120,7 +124,7 @@ public class EvaluationFunction {
     private int countPieces(Board board, Player player) {
         int count = 0;
         for (Node node : board.getNodes().values()) {
-            if (node.getOccupant() == player) {
+            if (node != null && node.getOccupant() == player) {  // Null check for nodes
                 count++;
             }
         }

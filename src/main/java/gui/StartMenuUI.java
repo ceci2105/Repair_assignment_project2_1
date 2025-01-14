@@ -59,7 +59,7 @@ public class StartMenuUI {
         run100gamesButton.setOnAction(e -> run100Games());
 
         Button startalphabetaButton = new Button("Start New Game against AlphaBeta Agent");
-        startminimaxButton.setOnAction(e -> startalphabetaGame());
+        startalphabetaButton.setOnAction(e -> startalphabetaGame());
 
         Button startbaselinealphabetaButton = new Button("Start New Game Baseline Agent against AlphaBeta Agent");
         startbaselinealphabetaButton.setOnAction(e -> startbaselinealphabetaGame());
