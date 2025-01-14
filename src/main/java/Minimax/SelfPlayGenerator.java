@@ -27,10 +27,10 @@ public class SelfPlayGenerator {
         Game game = new Game(null, null);
         Board board = new Board();
         int depth = 4;
-        MinimaxAIPlayer player1 = new MinimaxAIPlayer("Red", null, game, depth);
-        MinimaxAIPlayer player2 = new MinimaxAIPlayer("Green", null, game, depth);
+        MinimaxAIPlayer player1 = new MinimaxAIPlayer("player1", Color.WHITE, game, depth);
+        MinimaxAIPlayer player2 = new MinimaxAIPlayer("player2", Color.BLACK, game, depth);
 
-        MinimaxAlgorithm bot1 = new MinimaxAlgorithm(game, 4); // depth 4 for faster
+        MinimaxAlgorithm bot1 = new MinimaxAlgorithm(game, 4);
 
         MinimaxAlgorithm bot2 = new MinimaxAlgorithm(game, 4);
 
@@ -80,9 +80,13 @@ public class SelfPlayGenerator {
         recorder.saveToFile();
     }
 
-    private boolean checkWinner(Board board, Player player) {
-        // Implement win condition check based on your game rules
-        // For example: return true if opponent has less than 3 pieces or no valid moves
-        return false; // Placeholder
-    }
+    /*
+     * private boolean checkWinner(Board board, Player player) {
+     * // return true if opponent has less than 3 pieces or no valid moves
+     * if (player.getStonesOnBoard() < 3) {
+     * 
+     * }
+     * return false;
+     * }
+     */
 }

@@ -32,6 +32,7 @@ public class MinimaxAIPlayer implements Player {
     private int stonesToPlace; // Stones the AI player still needs to place in the placement phase
     @Getter
     private int stonesOnBoard; // Stones the AI player currently has on the board
+    private Game game;
 
     @Setter
     // private Game game; // The current game instance
@@ -45,11 +46,11 @@ public class MinimaxAIPlayer implements Player {
      * @param game  The game instance for accessing board and opponent information.
      * @param color The color representing the AI player’s pieces on the board.
      */
-    public MinimaxAIPlayer(String name, Color color, int depth) {
+    public MinimaxAIPlayer(String name, Color color, Game game, int depth) {
         this.name = name;
         this.color = color;
         this.depth = depth;
-        // this.game = game;
+        this.game = game;
         this.stonesToPlace = 9;
         this.stonesOnBoard = 0;
         this.minimax = new MinimaxAlgorithm(game, depth); // Initialize the Minimax algorithm
