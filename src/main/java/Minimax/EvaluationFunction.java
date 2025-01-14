@@ -52,6 +52,7 @@ public class EvaluationFunction {
         int score = 0;
         if (node.getOccupant() == player) {
             score += 5;
+            score += board.getPlayerNeighbours(node.getId(), player) * 10;
 
             if (board.willFormMill(node, player, board)) {
                 score += 50;
@@ -61,13 +62,9 @@ public class EvaluationFunction {
                 score += 100;
             }
 
-            score += board.getPlayerNeighbours(node.getId(), player) * 10;
-
             if (board.willFormMill(node, game.getOpponent(player), board)) {
-                score += 200;
+                score += 150;
             }
-
-
         }
         return score;
     }

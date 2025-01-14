@@ -37,20 +37,21 @@ public class MinimaxAlgorithm {
         int bestValue = Integer.MIN_VALUE;
         int bestPlacement = -1;
         Board copyBoard = board.deepCopy();
-        for (Node node : board.getNodes().values()) {
+
+        for (Node node : copyBoard.getNodes().values()) {
             if (!node.isOccupied()) {
                 copyBoard.placePieceAgent(player, node.getId());
                 int placementValue = minimax(copyBoard, depth - 1, false, player, phase, node);
-                System.out.println("Placement value " + placementValue);
+
                 if (placementValue > bestValue) {
                     bestValue = placementValue;
                     bestPlacement = node.getId();
                 }
-
                 Node tempNode = copyBoard.getNode(node.getId());
                 tempNode.setOccupant(null);
             }
         }
+
         return bestPlacement;
     }
 
@@ -141,8 +142,7 @@ public class MinimaxAlgorithm {
     public Node bestRemoval(Board board, Player player) {
         Player opponent = game.getOpponent(player);
         List<Node> removableNodes = new ArrayList<>();
-    
-        // First, collect opponent's stones that are NOT in mills
+
         for (Node node : board.getNodes().values()) {
             if (node.isOccupied() && node.getOccupant() == opponent && !board.isPartOfMill(node)) {
                 removableNodes.add(node);
@@ -150,7 +150,6 @@ public class MinimaxAlgorithm {
         }
     
         if (removableNodes.isEmpty()) {
-            // All opponent's stones are in mills; can remove any opponent's stone
             for (Node node : board.getNodes().values()) {
                 if (node.isOccupied() && node.getOccupant() == opponent) {
                     removableNodes.add(node);
@@ -159,11 +158,9 @@ public class MinimaxAlgorithm {
         }
     
         if (removableNodes.isEmpty()) {
-            // No opponent's stones to remove
             return null;
         }
-    
-        // Randomly select a node to remove
+
         Random random = new Random();
         int index = random.nextInt(removableNodes.size());
         return removableNodes.get(index);
