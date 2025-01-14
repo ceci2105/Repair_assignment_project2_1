@@ -118,7 +118,7 @@ public class MillGameUI {
         game.setUI(this);
         board = game.getBoard();
 
-        int depth = 3;
+        int depth = 5;
         MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("White", Color.WHITE, game, depth);
         game.setSecondPlayer(minimaxAIPlayer);
         buildUI();

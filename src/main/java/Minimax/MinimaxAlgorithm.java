@@ -41,8 +41,8 @@ public class MinimaxAlgorithm {
         for (Node node : copyBoard.getNodes().values()) {
             if (!node.isOccupied()) {
                 copyBoard.placePieceAgent(player, node.getId());
-                int placementValue = minimax(copyBoard, depth - 1, false, player, phase, node);
-
+                int placementValue = minimax(copyBoard, depth , false, player, phase, node);
+                System.out.println("Node ID: " + node.getId() + ", Score: " + placementValue);
                 if (placementValue > bestValue) {
                     bestValue = placementValue;
                     bestPlacement = node.getId();

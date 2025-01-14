@@ -52,23 +52,21 @@ public class EvaluationFunction {
         int score = 0;
         if (node.getOccupant() == player) {
             score += 5;
-            score += board.getPlayerNeighbours(node.getId(), player) * 10;
-
-            if (board.willFormMill(node, player, board)) {
-                score += 50;
-            }
 
             if (board.checkMill(node, player)) {
                 score += 100;
             }
 
+            score += board.getPlayerNeighbours(node.getId(), player) * 10;
+
             if (board.willFormMill(node, game.getOpponent(player), board)) {
-                score += 150;
+                score = 200;
             }
+
+
         }
         return score;
     }
-
     /**
      * Evaluates the board state during the movement phase.
      * @param board The game board.
@@ -82,18 +80,34 @@ public class EvaluationFunction {
         for (Node node : board.getNodes().values()) {
             if (node.getOccupant() == player) {
                 if (board.checkMill(node, player)) {
-                    score += 20;
+                    score += 100;
+                }
+                score += board.getPlayerNeighbours(node.getId(), player) * 10;
+            }
+        }
+
+        for (Node node : board.getNodes().values()) {
+            if (node.getOccupant() == opponent) {
+                if (board.checkMill(node, opponent)) {
+                    score -= 30;
                 }
                 for (Node neighbor : board.getNeighbours(node)) {
                     if (!neighbor.isOccupied()) {
-                        score += 5;
+                        score -= 5;
                     }
                 }
             }
         }
-        if (!board.hasValidMoves(opponent)) {
-            score += 50;
+
+        // Protect AI's mills and important nodes
+        for (Node node : board.getNodes().values()) {
+            if (node.getOccupant() == player) {
+                if (board.checkMill(node, player)) {
+                    score += 20;  // Bonus for AI's mill
+                }
+            }
         }
         return score;
     }
+
 }
