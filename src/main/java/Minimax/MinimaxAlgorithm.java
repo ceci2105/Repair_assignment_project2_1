@@ -38,16 +38,16 @@ public class MinimaxAlgorithm {
         int bestPlacement = -1;
         Board copyBoard = board.deepCopy();
 
-        for (Node node : copyBoard.getNodes().values()) {
+        for (Node node : board.getNodes().values()) {
             if (!node.isOccupied()) {
-                copyBoard.placePieceAgent(player, node.getId());
-                int placementValue = minimax(copyBoard, depth , false, player, phase, node);
+                board.placePieceAgent(player, node.getId());
+                int placementValue = minimaxPlacement(board, depth , false, player, phase, node);
                 System.out.println("Node ID: " + node.getId() + ", Score: " + placementValue);
                 if (placementValue > bestValue) {
                     bestValue = placementValue;
                     bestPlacement = node.getId();
                 }
-                Node tempNode = copyBoard.getNode(node.getId());
+                Node tempNode = board.getNode(node.getId());
                 tempNode.setOccupant(null);
             }
         }
@@ -72,7 +72,7 @@ public class MinimaxAlgorithm {
                 for (Node toNode : board.getNeighbours(fromNode)) {
                     if (!toNode.isOccupied() && board.isValidMove(fromNode, toNode)) {
                         board.movePiece(player, fromNode.getId(), toNode.getId());
-                        int moveValue = minimax(board, depth - 1, false, player, phase, toNode);
+                        int moveValue = minimaxMove(board, depth - 1, false, player, phase, toNode);
                         board.movePiece(player, toNode.getId(), fromNode.getId());
 
                         if (moveValue > bestValue) {
@@ -97,7 +97,7 @@ public class MinimaxAlgorithm {
      * @param phase The current phase of the game.
      * @return An integer score representing the board evaluation at this depth.
      */
-    private int minimax(Board board, int depth, boolean isMaximizingPlayer, Player player, int phase, Node lastMove) {
+    private int minimaxMove(Board board, int depth, boolean isMaximizingPlayer, Player player, int phase, Node lastMove) {
         if (depth == 0 || game.isGameOver) {
             return evaluationFunction.evaluate(board, player, phase, lastMove);
         }
@@ -110,7 +110,7 @@ public class MinimaxAlgorithm {
                     for (Node toNode : board.getNeighbours(fromNode)) {
                         if (!toNode.isOccupied() && board.isValidMove(fromNode, toNode)) {
                             board.movePiece(player, fromNode.getId(), toNode.getId());
-                            int eval = minimax(board, depth - 1, false, player, phase, toNode);
+                            int eval = minimaxMove(board, depth - 1, false, player, phase, toNode);
                             board.movePiece(player, toNode.getId(), fromNode.getId());
                             maxEval = Math.max(maxEval, eval);
                         }
@@ -128,11 +128,45 @@ public class MinimaxAlgorithm {
                     for (Node toNode : board.getNeighbours(fromNode)) {
                         if (!toNode.isOccupied() && board.isValidMove(fromNode, toNode)) {
                             board.movePiece(opponent, fromNode.getId(), toNode.getId());
-                            int eval = minimax(board, depth - 1, true, player, phase, toNode);
+                            int eval = minimaxMove(board, depth - 1, true, player, phase, toNode);
                             board.movePiece(opponent, toNode.getId(), fromNode.getId());
                             minEval = Math.min(minEval, eval);
                         }
                     }
+                }
+            }
+            return minEval;
+        }
+    }
+
+    private int minimaxPlacement(Board board, int depth, boolean isMaximizingPlayer, Player player, int phase, Node lastPlacement){
+        if (depth == 0 || game.isGameOver) {
+            return evaluationFunction.evaluate(board, player, phase, lastPlacement);
+        }
+
+        if (isMaximizingPlayer) {
+            int maxEval = Integer.MIN_VALUE;
+
+            for (Node node : board.getNodes().values()) {
+                if (!node.isOccupied()) {
+                    board.placePieceAgent(player, node.getId());
+                    int eval = minimaxPlacement(board, depth - 1, false, player, phase, node);
+                    board.getNode(node.getId()).setOccupant(null);
+                    maxEval = Math.max(maxEval, eval);
+                }
+            }
+            return maxEval;
+
+        } else {
+            int minEval = Integer.MAX_VALUE;
+            Player opponent = game.getOpponent(player);
+
+            for (Node n : board.getNodes().values()) {
+                if (!n.isOccupied()) {
+                    board.placePieceAgent(opponent, n.getId());
+                    int eval = minimaxPlacement(board, depth - 1, true, player, phase, n);
+                    board.getNode(n.getId()).setOccupant(null);
+                    minEval = Math.min(minEval, eval);
                 }
             }
             return minEval;
