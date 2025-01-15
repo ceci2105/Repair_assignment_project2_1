@@ -1,5 +1,6 @@
 package agents.neural_network;
 
+import com.google.inject.Inject;
 import game.mills.Game;
 import game.mills.InvalidMove;
 import game.mills.Node;
@@ -17,10 +18,11 @@ import java.util.Random;
 /**
  * The baseline agent, that always makes a completely pseudorandom move.
  */
+
 public class BaselineAgent implements Player {
     @Getter
     private String name;
-    @Getter
+    @Getter @Setter
     private Color color;
     @Getter
     private int stonesToPlace;
@@ -34,6 +36,7 @@ public class BaselineAgent implements Player {
      * @param name  The name of the player.
      * @param color The color of the player's pieces.
      */
+    @Inject
     public BaselineAgent(String name, Color color) {
         this.name = name;
         this.color = color;

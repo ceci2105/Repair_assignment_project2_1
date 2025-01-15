@@ -1,9 +1,10 @@
-package Minimax;
+package minimax;
 
 import game.mills.Board;
 import game.mills.Game;
 import game.mills.Player;
 import game.mills.Node;
+import lombok.Setter;
 import lombok.extern.java.Log;
 
 import java.util.ArrayList;
@@ -20,16 +21,16 @@ import java.util.logging.Level;
 public class MinimaxAlgorithm {
     private final int depth;
     private EvaluationFunction evaluationFunction;
+    @Setter
     private Game game;
 
     /**
      * Constructor to initialize MinimaxAlgorithm with a Game instance and search depth.
-     * @param game The current game instance, used to access board and player information.
      * @param depth The maximum search depth for the Minimax algorithm.
      */
-    public MinimaxAlgorithm(Game game, int depth) {
-        this.game = game;
+    public MinimaxAlgorithm(int depth, EvaluationFunction evaluationFunction, Game game) {
         this.depth = depth;
+        this.game = game;
         this.evaluationFunction = new EvaluationFunction(game);
     }
 
@@ -41,11 +42,11 @@ public class MinimaxAlgorithm {
             if (!node.isOccupied()) {
                 copyBoard.placePieceAgent(player, node.getId());
                 int placementValue = evaluationFunction.evaluate(copyBoard, player, 1, node); // Evaluate
+                log.log(Level.INFO, "Val: {0}", placementValue);
                 if (placementValue > bestValue) {
                     bestValue = placementValue;
                     bestPlacement = node.getId();
                 }
-
                 Node tempNode = copyBoard.getNode(node.getId());
                 tempNode.setOccupant(null);
             }

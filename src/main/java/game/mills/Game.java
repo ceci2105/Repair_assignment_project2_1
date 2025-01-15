@@ -1,6 +1,6 @@
 package game.mills;
 
-import Minimax.MinimaxAIPlayer;
+import minimax.MinimaxAIPlayer;
 import agents.neural_network.BaselineAgent;
 import gui.MillGameUI;
 import javafx.animation.PauseTransition;
@@ -20,7 +20,9 @@ import javafx.application.Platform;
 public class Game {
     private static Logger logger = Logger.getLogger(Game.class.getName());
     public boolean isGameOver = false;
+    @Setter
     private Player humanPlayer1;
+    @Setter
     private Player humanPlayer2;
     private Player winner = null;
 
@@ -35,46 +37,16 @@ public class Game {
     public Player getPlayer2() {
         return humanPlayer2;
     }
-    
-    
-    /**
-     * -- GETTER --
-     * Gets the current player whose turn it is.
-     *
-     * @return the current player.
-     */
-    @Getter
+    @Getter @Setter
     private Player currentPlayer;
-    /**
-     * -- GETTER --
-     * Gets the game board.
-     *
-     * @return the board object representing the game board.
-     */
     @Getter
     private Board board;
     private MoveValidator moveValidator;
     @SuppressWarnings("unused")
     private int totalMoves;
-    /**
-     * -- GETTER --
-     * Gets the current game phase.
-     *
-     * @return the current phase of the game.
-     */
+
     @Getter
     private int phase;
-    /**
-     * -- GETTER --
-     * Checks if a mill has been formed by the current player.
-     * <p>
-     * <p>
-     * -- SETTER --
-     * Sets the mill formed status.
-     *
-     * @return true if a mill has been formed, false otherwise.
-     * @param millFormed true if a mill has been formed, false otherwise.
-     */
     @Setter
     @Getter
     private boolean millFormed = false;

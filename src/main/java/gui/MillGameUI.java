@@ -1,6 +1,7 @@
 package gui;
 
-import Minimax.MinimaxAIPlayer;
+import lombok.extern.java.Log;
+import minimax.MinimaxAIPlayer;
 import game.mills.*;
 import agents.neural_network.BaselineAgent;
 import javafx.animation.PauseTransition;
@@ -24,11 +25,13 @@ import javafx.util.Duration;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Optional;
+import java.util.logging.Level;
 
 /**
  * The MillGameUI class represents the graphical user interface (GUI) for the game.
  * It handles creating the game board, pieces, and user interactions, as well as updating the game status.
  */
+@Log
 public class MillGameUI {
     private static final int CIRCLE_RADIUS = 15; // Radius of the game piece circles
     private static final int BOARD_SIZE = 600;
@@ -119,21 +122,24 @@ public class MillGameUI {
         board = game.getBoard();
 
         int depth = 3;
-        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("White", Color.WHITE, game, depth);
+        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("White", Color.WHITE, depth, game);
+        minimaxAIPlayer.setGame(game);
         game.setSecondPlayer(minimaxAIPlayer);
         buildUI();
+        log.log(Level.INFO, "Initialised game successfully");
     }
 
     public void startNewbaselineminimaxGame() {
-        BaselineAgent baselineAgent = new BaselineAgent("Black", Color.BLACK);
-        
-        this.game = new Game(baselineAgent, null);
+        this.game = new Game(null, null);
+        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("P1", Color.BLACK, 4, game);
+        game.setHumanPlayer1(minimaxAIPlayer);
+        game.setCurrentPlayer(minimaxAIPlayer);
+        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
+        game.setSecondPlayer(minimaxAIPlayer1);
         game.setUI(this);
         board = game.getBoard();
 
         int depth = 3;
-        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("White", Color.WHITE, game, depth);
-        game.setSecondPlayer(minimaxAIPlayer);
         buildUI();
     }
 

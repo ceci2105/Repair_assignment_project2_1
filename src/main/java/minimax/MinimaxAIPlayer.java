@@ -1,4 +1,4 @@
-package Minimax;
+package minimax;
 
 import game.mills.*;
 import gui.MillGameUI;
@@ -18,8 +18,9 @@ import javafx.application.Platform;
  */
 @Log
 public class MinimaxAIPlayer implements Player {
-    private final int depth;                   // The search depth for the Minimax algorithm
-    private final MinimaxAlgorithm minimax;    // Instance of MinimaxAlgorithm for calculating the best moves
+    private final int depth;// The search depth for the Minimax algorithm
+    @Setter
+    private MinimaxAlgorithm minimax;    // Instance of MinimaxAlgorithm for calculating the best moves
     @Getter
     @Setter
     private String name;                 // Name of the AI player
@@ -38,17 +39,17 @@ public class MinimaxAIPlayer implements Player {
      *
      * @param name  The name of the AI player.
      * @param depth The search depth for the Minimax algorithm.
-     * @param game  The game instance for accessing board and opponent information.
      * @param color The color representing the AI player’s pieces on the board.
      */
-    public MinimaxAIPlayer(String name, Color color, Game game, int depth) {
+    public MinimaxAIPlayer(String name, Color color, int depth, Game game) {
         this.name = name;
         this.color = color;
-        this.depth = depth;
         this.game = game;
+        this.depth = depth;
         this.stonesToPlace = 9;
         this.stonesOnBoard = 0;
-        this.minimax = new MinimaxAlgorithm(game, depth); // Initialize the Minimax algorithm
+        EvaluationFunction evaluationFunction = new EvaluationFunction(game);
+        this.minimax = new MinimaxAlgorithm(depth, evaluationFunction, game);
     }
 
 

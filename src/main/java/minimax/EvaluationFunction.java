@@ -1,13 +1,11 @@
-package Minimax;
+package minimax;
 
 import game.mills.Board;
 import game.mills.Node;
 import game.mills.Player;
 import game.mills.Game;
+import lombok.Setter;
 import lombok.extern.java.Log;
-
-import java.util.List;
-import java.util.logging.Level;
 
 /**
  * The EvaluationFunction class provides scoring heuristics for different phases of the game
@@ -16,12 +14,11 @@ import java.util.logging.Level;
  */
 @Log
 public class EvaluationFunction {
-
+    @Setter
     private Game game;
 
     /**
      * Constructor to initialize the EvaluationFunction with a Game instance.
-     * @param game The current game instance, used to access information such as the opponent.
      */
     public EvaluationFunction(Game game) {
         this.game = game;

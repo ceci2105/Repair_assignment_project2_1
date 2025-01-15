@@ -81,7 +81,11 @@ public class Board {
      * @return A list of neighboring nodes.
      */
     public List<Node> getNeighbours(Node node) {
-        return Graphs.neighborListOf(graph, node.getId()).stream().map(nodes::get).collect(Collectors.toList());
+        List<Node> neighbours = new ArrayList<>();
+        for(Integer neighbourID : Graphs.neighborListOf(graph, node.getId())) {
+            neighbours.add(nodes.get(neighbourID));
+        }
+        return neighbours;
     }
 
     /**
@@ -146,14 +150,30 @@ public class Board {
      * @param player The player making the move.
      * @return True if the player forms a mill, false otherwise.
      */
-    public boolean checkMill(Node node, Player player) {
-        return Arrays.stream(mills).parallel().anyMatch(mill -> {
-            if (Arrays.stream(mill).anyMatch(id -> id == node.getId())) {
-                return Arrays.stream(mill).allMatch(id -> nodes.get(id).getOccupant() == player);
+  public boolean checkMill(Node node, Player player) {
+    for (int[] mill : mills) {
+        boolean isMill = false;
+        for (int id : mill) {
+            if (id == node.getId()) {
+                isMill = true;
+                break;
             }
-            return false;
-        });
+        }
+        if (isMill) {
+            boolean allMatch = true;
+            for (int id : mill) {
+                if (nodes.get(id).getOccupant() != player) {
+                    allMatch = false;
+                    break;
+                }
+            }
+            if (allMatch) {
+                return true;
+            }
+        }
     }
+    return false;
+}
 
     /**
      * Checks if all of an opponent's stones are part of mills.
@@ -163,7 +183,7 @@ public class Board {
      * @return True if all the opponent's stones are in mills, false otherwise.
      */
     public boolean allOpponentStonesInMill(Player opponent) {
-        return nodes.values().stream()
+        return nodes.values().stream().parallel()
                 .filter(node -> node.getOccupant() == opponent)
                 .allMatch(node -> checkMill(node, opponent));
     }
@@ -199,6 +219,7 @@ public class Board {
     public int getPlayerNeighbours(int nodeID, Player player) {
 
         return (int) Graphs.neighborListOf(graph, nodeID).stream()
+                .parallel()
                 .map(nodes::get)
                 .filter(neighbour -> neighbour.getOccupant() == player)
                 .count();
@@ -216,8 +237,8 @@ public class Board {
         if (occupant == null) {
             return false;
         }
-        return Arrays.stream(mills).anyMatch(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) &&
-                Arrays.stream(mill).allMatch(id -> nodes.get(id).getOccupant() == occupant));
+        return Arrays.stream(mills).parallel().anyMatch(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) &&
+                Arrays.stream(mill).parallel().allMatch(id -> nodes.get(id).getOccupant() == occupant));
     }
 
     /**
@@ -246,9 +267,10 @@ public class Board {
      * @return True if the placement will form a mill, false otherwise.
      */
     public boolean willFormMill(Node node, Player opponent, Board board) {
-        return Arrays.stream(board.getMills()).anyMatch(mill -> {
-            if (Arrays.stream(mill).anyMatch(id -> id == node.getId())) {
+        return Arrays.stream(board.getMills()).parallel().anyMatch(mill -> {
+            if (Arrays.stream(mill).parallel().anyMatch(id -> id == node.getId())) {
                 return Arrays.stream(mill)
+                        .parallel()
                         .filter(id -> id != node.getId())
                         .allMatch(id -> board.getNode(id).getOccupant() == opponent);
             }
