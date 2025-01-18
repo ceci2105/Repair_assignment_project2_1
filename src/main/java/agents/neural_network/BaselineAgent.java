@@ -1,6 +1,5 @@
 package agents.neural_network;
 
-import com.google.inject.Inject;
 import game.mills.Game;
 import game.mills.InvalidMove;
 import game.mills.Node;
@@ -36,7 +35,6 @@ public class BaselineAgent implements Player {
      * @param name  The name of the player.
      * @param color The color of the player's pieces.
      */
-    @Inject
     public BaselineAgent(String name, Color color) {
         this.name = name;
         this.color = color;

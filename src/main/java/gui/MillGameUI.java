@@ -131,10 +131,10 @@ public class MillGameUI {
 
     public void startNewbaselineminimaxGame() {
         this.game = new Game(null, null);
-        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("P1", Color.BLACK, 4, game);
+        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("P1", Color.BLACK, 6, game);
         game.setHumanPlayer1(minimaxAIPlayer);
         game.setCurrentPlayer(minimaxAIPlayer);
-        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
+        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P2", Color.WHITE, 6, game);
         game.setSecondPlayer(minimaxAIPlayer1);
         game.setUI(this);
         board = game.getBoard();

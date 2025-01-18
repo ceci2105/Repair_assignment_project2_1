@@ -7,6 +7,9 @@ import game.mills.Game;
 import lombok.Setter;
 import lombok.extern.java.Log;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * The EvaluationFunction class provides scoring heuristics for different phases of the game
  * in order to evaluate the game state from the perspective of a given player.
@@ -26,9 +29,10 @@ public class EvaluationFunction {
 
     /**
      * Evaluates the board state based on the current game phase.
-     * @param board The game board.
+     *
+     * @param board  The game board.
      * @param player The player for whom the evaluation is performed.
-     * @param phase The current game phase (1 - placement, 2 - movement, 3 - endgame).
+     * @param phase  The current game phase (1 - placement, 2 - movement, 3 - endgame).
      * @return An integer score representing the board state from the player's perspective.
      */
     public int evaluate(Board board, Player player, int phase, Node node) {
@@ -46,71 +50,130 @@ public class EvaluationFunction {
 
     /**
      * Evaluates the board state during the placement phase.
-     * @param board The game board.
+     *
+     * @param board  The game board.
      * @param player The player for whom the evaluation is performed.
      * @return A score based on piece placement quality, potential mills, and flexibility.
      */
     private int evaluatePlacementPhase(Board board, Player player, Node node) {
         int score = 0;
-        if (node.getOccupant() == player) {
-            score += 5;
+        // Here we check for potential mills for the method calling player.
+        long potentialMills = Arrays.stream(board.getMills()).parallel()
+                .filter(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) &&
+                        Arrays.stream(mill).allMatch(id -> board.getNode(id).getOccupant() == player || !board.getNode(id).isOccupied()))
+                .count();
+        score += (int) potentialMills * 20;
 
-            if (board.checkMill(node, player)) {
-                score += 100;
+        // Here we check the opponents potential mills
+        potentialMills = Arrays.stream(board.getMills()).parallel()
+                .filter(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) &&
+                        Arrays.stream(mill).allMatch(id -> board.getNode(id).getOccupant() != player || !board.getNode(id).isOccupied()))
+                .count();
+        score -= (int) (potentialMills * 20);
+
+        // Boolean condition to check, wether we block a mill or not.
+        boolean blockedMill = Arrays.stream(board.getMills()).parallel()
+                .anyMatch(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) &&
+                        Arrays.stream(mill)
+                                .filter(id -> id != node.getId())
+                                .mapToObj(board::getNode)
+                                .map(Node::getOccupant)
+                                .filter(Objects::nonNull)
+                                .distinct()
+                                .count() == 1);
+
+        if (blockedMill) {
+            if (node.getOccupant() == player) {
+                score += 40;
+            } else {
+                score -= 40;
             }
-
-            score += board.getPlayerNeighbours(node.getId(), player) * 10;
-
-            if (board.willFormMill(node, game.getOpponent(player), board)) {
-                score = 200;
-            }
-
-
         }
         return score;
     }
 
     /**
      * Evaluates the board state during the movement phase.
-     * @param board The game board.
+     *
+     * @param board  The game board.
      * @param player The player for whom the evaluation is performed.
      * @return A score based on mills, mobility, and restricting opponent's movement.
      */
     private int evaluateMovementPhase(Board board, Player player) {
         int score = 0;
-        Player opponent = game.getOpponent(player);
 
+        int numMills = 0;
+        for (int[] mill : board.getMills()) {
+                boolean isMill = true;
+                for (int nodeID : mill) {
+                    if (board.getNode(nodeID).getOccupant() != player) {
+                        isMill = false;
+                        break;
+                    }
+                }
+                if (isMill) {
+                    numMills++;
+                }
+            }
+
+
+        score += numMills * 50;
+
+        int mobility = 0;
         for (Node node : board.getNodes().values()) {
             if (node.getOccupant() == player) {
-                if (board.checkMill(node, player)) {
-                    score += 20;
-                }
-                for (Node neighbor : board.getNeighbours(node)) {
-                    if (!neighbor.isOccupied()) {
-                        score += 5;
+                for (Node neighbuor : board.getNeighbours(node)) {
+                    if (!neighbuor.isOccupied()) {
+                        mobility++;
                     }
                 }
             }
         }
-        if (!board.hasValidMoves(opponent)) {
-            score += 50;
+
+        score += mobility * 10;
+
+        Player opponent = game.getOpponent(player);
+        int opponentMobility = 0;
+        for (Node node : board.getNodes().values()) {
+            if (node.getOccupant() == opponent) {
+                for (Node neighbour : board.getNeighbours(node)) {
+                    if (!neighbour.isOccupied()) {
+                        opponentMobility++;
+                    }
+                }
+            }
         }
+        score -= opponentMobility * 10;
         return score;
     }
 
     /**
      * Evaluates the board state during the endgame phase.
-     * @param board The game board.
+     *
+     * @param board  The game board.
      * @param player The player for whom the evaluation is performed.
      * @return A score based on mills, piece count advantage, and winning conditions.
      */
     private int evaluateEndgamePhase(Board board, Player player) {
-        return 0;
+        int score = 0;
+        Player opponent = game.getOpponent(player);
+
+        int pieceCountDiff = countPieces(board, player) - countPieces(board, opponent);
+        score += pieceCountDiff * 30;
+
+        if (!board.hasValidMoves(opponent) || countPieces(board, opponent) <= 2) {
+            score += 500;
+        }
+        if (!board.hasValidMoves(player) || countPieces(board, player) <= 2) {
+            score -= 500;
+        }
+        return score;
     }
 
     /**
      * Counts the number of pieces a player has on the board.
-     * @param board The game board.
+     *
+     * @param board  The game board.
      * @param player The player whose pieces are to be counted.
      * @return The count of pieces belonging to the player.
      */
