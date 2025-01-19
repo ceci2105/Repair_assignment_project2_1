@@ -65,11 +65,19 @@ public class EvaluationFunction {
         score += (int) potentialMills * 20;
 
         // Here we check the opponents potential mills
-        potentialMills = Arrays.stream(board.getMills()).parallel()
-                .filter(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) &&
-                        Arrays.stream(mill).allMatch(id -> board.getNode(id).getOccupant() != player || !board.getNode(id).isOccupied()))
+        Player opponent = game.getOpponent(player);
+        long potentialMillsOpponent = Arrays.stream(board.getMills()).parallel()
+                .filter(mill -> {
+                    long opponentStones = Arrays.stream(mill)
+                            .filter(id -> board.getNode(id).getOccupant() == opponent)
+                            .count();
+                    long emptySpots = Arrays.stream(mill)
+                            .filter(id -> !board.getNode(id).isOccupied())
+                            .count();
+                    return opponentStones == 2 && emptySpots == 1;
+                })
                 .count();
-        score -= (int) (potentialMills * 20);
+        score -= (int) (potentialMillsOpponent * 100);
 
         // Boolean condition to check, wether we block a mill or not.
         boolean blockedMill = Arrays.stream(board.getMills()).parallel()
@@ -86,7 +94,7 @@ public class EvaluationFunction {
             if (node.getOccupant() == player) {
                 score += 40;
             } else {
-                score -= 40;
+                score -= 100;
             }
         }
         return score;
