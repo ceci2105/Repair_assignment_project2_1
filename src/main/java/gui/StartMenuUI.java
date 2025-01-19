@@ -10,7 +10,8 @@ import javafx.scene.control.Label;
 
 /**
  * The {@code StartMenuUI} class is responsible for creating and displaying the
- * start menu of the Nine Men's Morris game. It provides buttons to start a new game,
+ * start menu of the Nine Men's Morris game. It provides buttons to start a new
+ * game,
  * view the game rules, and exit the application.
  */
 public class StartMenuUI {
@@ -18,7 +19,7 @@ public class StartMenuUI {
     private static final String humanGame = "humanGame";
     private static final String baselineGame = "baselineGame";
     private static final String minimaxGame = "minimaxGame";
-    private static final String baselineminimaxGame = "baselineminimaxGame";
+    private static final String selfPlay = "SelfPlay";
     private static final String run100Games = "run100Games";
 
     /**
@@ -32,14 +33,16 @@ public class StartMenuUI {
     }
 
     /**
-     * Sets up the start menu layout including title, buttons, and their corresponding actions.
+     * Sets up the start menu layout including title, buttons, and their
+     * corresponding actions.
      */
     private void setupStartMenu() {
         VBox menuBox = new VBox(20);
         menuBox.setAlignment(Pos.CENTER);
 
         Label titleLabel = new Label("Nine Men's Morris Game");
-        titleLabel.setStyle("-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: black; -fx-font-family: 'Arial';");
+        titleLabel.setStyle(
+                "-fx-font-size: 42px; -fx-font-weight: bold; -fx-text-fill: black; -fx-font-family: 'Arial';");
 
         Button startButton = new Button("Start New Game");
         startButton.setOnAction(e -> startGame());
@@ -50,8 +53,8 @@ public class StartMenuUI {
         Button startminimaxButton = new Button("Start New Game against Minimax Agent");
         startminimaxButton.setOnAction(e -> startminimaxGame());
 
-        Button startbaselineminimaxButton = new Button("Start New Game Baseline Agent against Minimax Agent");
-        startbaselineminimaxButton.setOnAction(e -> startbaselineminimaxGame());
+        Button startbaselineminimaxButton = new Button("Start Minmax Agent against Minimax Agent");
+        startbaselineminimaxButton.setOnAction(e -> startSelpPlayGame());
 
         Button run100gamesButton = new Button("Run 100 games");
         run100gamesButton.setOnAction(e -> run100Games());
@@ -62,7 +65,8 @@ public class StartMenuUI {
         Button exitButton = new Button("Exit");
         exitButton.setOnAction(e -> Platform.exit());
 
-        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, run100gamesButton, rulesButton, exitButton);
+        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton,
+                startbaselineminimaxButton, run100gamesButton, rulesButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -86,13 +90,12 @@ public class StartMenuUI {
         new MillGameUI(primaryStage, minimaxGame); // This will switch to the game UI
     }
 
-    private void startbaselineminimaxGame() {
-        new MillGameUI(primaryStage, baselineminimaxGame); // This will switch to the game UI
+    private void startSelpPlayGame() {
+        new MillGameUI(primaryStage, selfPlay); // This will switch to the game UI
     }
 
     private void run100Games() {
         new MillGameUI(primaryStage, run100Games);
     }
-
 
 }
