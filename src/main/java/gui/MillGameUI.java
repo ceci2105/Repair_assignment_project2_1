@@ -32,6 +32,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Random;
 import java.util.logging.Level;
 
 /**
@@ -171,44 +172,59 @@ public class MillGameUI {
     }
 
     private void startDataCollection() {
-        // Create a simple progress window using existing components
         Stage progressStage = new Stage();
         progressStage.setTitle("Collecting Training Data");
 
-        // Use the same VBox setup you use elsewhere
         VBox progressBox = new VBox(20);
         progressBox.setAlignment(Pos.CENTER);
 
-        // Status labels
         Label statusLabel = new Label("Collecting game data...");
-        Label progressLabel = new Label("Games collected: 0 / 1000");
+        Label progressLabel = new Label("Games collected: 0 / 200");
 
-        // Add components to VBox
         progressBox.getChildren().add(statusLabel);
         progressBox.getChildren().add(progressLabel);
 
-        // Set up the scene
         Scene progressScene = new Scene(progressBox, 400, 200);
         progressStage.setScene(progressScene);
         progressStage.show();
 
         // Initialize data collector
         dataCollector = new GameDataCollector();
-        final int totalGames = 1000;
+        final int totalGames = 200;
         final int[] gamesCompleted = { 0 };
 
-        // Create a recurring update using PauseTransition
+        // Set up the recurring game simulation
         PauseTransition pause = new PauseTransition(Duration.millis(100));
         pause.setOnFinished(event -> {
             if (gamesCompleted[0] < totalGames) {
-                // Generate one game at a time
+                // Create and run a new game
                 try {
-                    dataCollector.generateGames(1, 4);
+                    // Initialize a new game with Minimax vs Baseline
+                    BaselineAgent baselinePlayer = new BaselineAgent("Baseline", Color.WHITE);
+
+                    game = new Game(baselinePlayer, null);
+
+                    // Create and set up players
+                    MinimaxAIPlayer minimaxPlayer = new MinimaxAIPlayer("Minimax", Color.BLACK, 4, game);
+
+                    // Randomly assign colors
+                    game.setSecondPlayer(minimaxPlayer);
+                    ;
+
+                    // Set up game monitoring to collect data
+                    game.setMoveCallback((board, currentPlayer) -> {
+                        dataCollector.recordGameState(board, currentPlayer, game.isGameOver, game.getWinner());
+                    });
+
+                    // Start the game
+                    game.startGame();
+
+                    // Update progress
                     gamesCompleted[0]++;
                     progressLabel.setText(String.format("Games collected: %d / %d",
                             gamesCompleted[0], totalGames));
 
-                    // Schedule next update
+                    // Schedule next game
                     pause.playFromStart();
                 } catch (Exception e) {
                     showErrorDialog("Error generating game: " + e.getMessage());
@@ -222,8 +238,6 @@ public class MillGameUI {
                     showCompletionDialog();
                 } catch (IOException e) {
                     showErrorDialog("Failed to save collected data: " + e.getMessage());
-                } finally {
-                    dataCollector.shutdown();
                 }
             }
         });

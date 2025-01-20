@@ -26,6 +26,7 @@ public class Game {
     @Setter
     private Player humanPlayer2;
     private Player winner = null;
+    private MoveCallback moveCallback;
 
     public boolean isGameOver() {
         return isGameOver;
@@ -41,6 +42,27 @@ public class Game {
 
     public Player getPlayer2() {
         return humanPlayer2;
+    }
+
+    /**
+     * Sets a callback to be notified after each move in the game.
+     * This is particularly useful for features like move logging,
+     * data collection, or external game state monitoring.
+     *
+     * @param callback The callback to be executed after each move
+     */
+    public void setMoveCallback(MoveCallback callback) {
+        this.moveCallback = callback;
+    }
+
+    /**
+     * Helper method to notify the callback of game state changes.
+     * This should be called after any move that changes the game state.
+     */
+    private void notifyMoveCallback() {
+        if (moveCallback != null) {
+            moveCallback.onMove(board, currentPlayer);
+        }
     }
 
     @Getter
@@ -163,6 +185,8 @@ public class Game {
             }
             totalMoves++;
             checkPhase();
+            notifyMoveCallback();
+
         } else {
             throw new InvalidMove("Placement is invalid!");
         }
@@ -209,6 +233,8 @@ public class Game {
                 switchPlayer();
             }
             checkGameOver();
+            notifyMoveCallback();
+
         } else {
             throw new InvalidMove("Move is invalid, or flying is not allowed!");
         }
@@ -249,6 +275,8 @@ public class Game {
             if (ui != null) {
                 ui.updateGameStatus("Turn: " + currentPlayer.getName());
             }
+            notifyMoveCallback();
+
         } else {
             throw new InvalidMove("Cannot remove this stone.");
         }
