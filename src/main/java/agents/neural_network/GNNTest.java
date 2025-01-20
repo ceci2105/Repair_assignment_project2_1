@@ -6,8 +6,13 @@ import game.mills.HumanPlayer;
 import game.mills.Player;
 import javafx.scene.paint.Color;
 import lombok.extern.java.Log;
+import org.deeplearning4j.nn.graph.vertex.impl.InputVertex;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
 
 
 @Log
@@ -22,17 +27,9 @@ public class GNNTest {
         board.placePiece(player2, 1);
         board.placePiece(player1, 2);
 
-        INDArray boardArray = GNN.boardToINDArray(board, game);
-        INDArray expectedArray = Nd4j.zeros(24);
-        expectedArray.putScalar(0,1);
-        expectedArray.putScalar(1,2);
-        expectedArray.putScalar(2,1);
-
-        boolean equal = boardArray.equals(expectedArray);
-        System.out.println(boardArray);
-        System.out.println(expectedArray);
+        List<INDArray> data = DataLoader.readData();
         GNN gnn = new GNN();
+        gnn.fit(new INDArray[]{data.get(0), data.get(1)});
 
     }
-
 }

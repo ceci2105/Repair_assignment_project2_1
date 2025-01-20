@@ -4,9 +4,7 @@ import lombok.extern.java.Log;
 import minimax.MinimaxAIPlayer;
 import neural.GameDataCollector;
 import game.mills.*;
-import io.vertx.core.impl.BlockedThreadChecker.Task;
 import agents.neural_network.BaselineAgent;
-import ai.djl.training.util.ProgressBar;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
@@ -145,10 +143,10 @@ public class MillGameUI {
 
     public void startSelfPlayGame() {
         this.game = new Game(null, null);
-        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("P1", Color.BLACK, 6, game);
+        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("P1", Color.BLACK, 4, game);
         game.setHumanPlayer1(minimaxAIPlayer);
         game.setCurrentPlayer(minimaxAIPlayer);
-        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P2", Color.WHITE, 6, game);
+        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P2", Color.WHITE, 4, game);
         game.setSecondPlayer(minimaxAIPlayer1);
         game.setUI(this);
         board = game.getBoard();

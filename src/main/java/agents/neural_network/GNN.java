@@ -25,7 +25,8 @@ import java.util.Map;
 import java.util.logging.Level;
 
 @Log
-public class GNN {
+public class
+GNN {
     private ComputationGraph gnn;
 
     public GNN() {
@@ -53,30 +54,13 @@ public class GNN {
     }
 
 
-    public static INDArray boardToINDArray(Board board, Game game) {
-        int numNodes = 24;
-        INDArray boardArray = Nd4j.zeros(1,numNodes);
 
-        Map<Integer, Node> nodes = board.getNodes();
-        for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
-            int nodeId = entry.getKey();
-            Node node = entry.getValue();
-            Player occupant = node.getOccupant();
-            if (occupant != null) {
-                if (occupant.equals(game.getPlayer1())) {
-                    boardArray.putScalar(nodeId, 1);
-                } else if (occupant.equals(game.getPlayer2())) {
-                    boardArray.putScalar(nodeId, 2);
-                } else {
-                    boardArray.putScalar(nodeId, 0);
-                }
-            }
-        }
-        return boardArray;
-    }
 
     public void fit(INDArray[] inputs) {
         DataSet dataSet = new DataSet(inputs[0], inputs[1]);
         gnn.fit(dataSet);
+    }
+    public INDArray[] output(INDArray[] input) {
+        return gnn.output(input);
     }
 }

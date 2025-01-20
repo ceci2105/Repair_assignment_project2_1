@@ -1,13 +1,13 @@
 package neural;
 
 import game.mills.*;
-import io.netty.util.internal.shaded.org.jctools.queues.MessagePassingQueue.Consumer;
 import minimax.MinimaxAIPlayer;
 import agents.neural_network.BaselineAgent;
 import java.util.*;
 import java.io.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import lombok.extern.java.Log;
 
