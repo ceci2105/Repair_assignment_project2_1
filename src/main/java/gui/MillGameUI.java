@@ -153,8 +153,6 @@ public class MillGameUI {
         game.setSecondPlayer(minimaxAIPlayer1);
         game.setUI(this);
         board = game.getBoard();
-
-        int depth = 3;
         buildUI();
     }
 

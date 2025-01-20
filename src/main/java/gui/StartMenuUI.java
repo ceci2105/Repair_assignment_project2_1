@@ -48,14 +48,14 @@ public class StartMenuUI {
         Button startButton = new Button("Start New Game");
         startButton.setOnAction(e -> startGame());
 
-        Button startbaseagentButton = new Button("Start New Game against Baseline Agent");
+        Button startbaseagentButton = new Button("Start New Game vs Baseline Agent");
         startbaseagentButton.setOnAction(e -> startbaselineGame());
 
-        Button startminimaxButton = new Button("Start New Game against Minimax Agent");
+        Button startminimaxButton = new Button("Start New Game vs Minimax Agent");
         startminimaxButton.setOnAction(e -> startminimaxGame());
 
-        Button startbaselineminimaxButton = new Button("Start Minmax Agent against Minimax Agent");
-        startbaselineminimaxButton.setOnAction(e -> startSelpPlayGame());
+        Button startbaselineminimaxButton = new Button("Start Minimax Agent vs Minimax Agent");
+        startbaselineminimaxButton.setOnAction(e -> startSelfPlayGame());
 
         Button run100gamesButton = new Button("Run 100 games");
         run100gamesButton.setOnAction(e -> run100Games());
@@ -94,7 +94,7 @@ public class StartMenuUI {
         new MillGameUI(primaryStage, minimaxGame); // This will switch to the game UI
     }
 
-    private void startSelpPlayGame() {
+    private void startSelfPlayGame() {
         new MillGameUI(primaryStage, selfPlay); // This will switch to the game UI
     }
 
