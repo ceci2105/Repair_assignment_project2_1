@@ -7,40 +7,35 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import javafx.application.Platform;
+import neuralnetwork.BoardCNN;
+import neuralnetwork.HybridEvaluator;
 
-/**
- * The MinimaxAIPlayer class represents an AI-controlled player that uses the Minimax algorithm
- * to make strategic moves in the game. It extends the Player interface to interact with the game,
- * and calculates moves based on the current board state, game phase, and opponent's position.
- */
 @Log
 public class MinimaxAIPlayer implements Player {
-    private final int depth;// The search depth for the Minimax algorithm
+    private final int depth;
     @Setter
-    private MinimaxAlgorithm minimax;    // Instance of MinimaxAlgorithm for calculating the best moves
+    private MinimaxAlgorithm minimax;
     @Getter
     @Setter
-    private String name;                 // Name of the AI player
+    private String name;
     @Getter
     @Setter
-    private Color color;                 // Color representing the AI player’s pieces on the board
+    private Color color;
     @Getter
-    private int stonesToPlace;           // Stones the AI player still needs to place in the placement phase
+    private int stonesToPlace;
     @Getter
-    private int stonesOnBoard;           // Stones the AI player currently has on the board
+    private int stonesOnBoard;
     @Setter
-    private Game game;                   // The current game instance
+    private Game game;
+    private List<String> boardStateHistory;
+    private BoardCNN cnn;
+    private HybridEvaluator hybridEvaluator;
 
-    /**
-     * Constructor to initialize the MinimaxAIPlayer with a given name, depth, game, and color.
-     *
-     * @param name  The name of the AI player.
-     * @param depth The search depth for the Minimax algorithm.
-     * @param color The color representing the AI player’s pieces on the board.
-     */
     public MinimaxAIPlayer(String name, Color color, int depth, Game game) {
         this.name = name;
         this.color = color;
@@ -48,18 +43,13 @@ public class MinimaxAIPlayer implements Player {
         this.depth = depth;
         this.stonesToPlace = 9;
         this.stonesOnBoard = 0;
+        this.boardStateHistory = new ArrayList<>();
         EvaluationFunction evaluationFunction = new EvaluationFunction(game);
         this.minimax = new MinimaxAlgorithm(depth, evaluationFunction, game);
+        this.cnn = new BoardCNN();
+        this.hybridEvaluator = new HybridEvaluator(game);
     }
 
-
-    /**
-     * Executes the best move calculated by the Minimax algorithm for the given board and phase.
-     * The method finds the optimal move using Minimax and applies it to the board.
-     *
-     * @param board The game board on which the move is to be made.
-     * @param phase The current phase of the game (placement, movement, or endgame).
-     */
     public void makeMove(Board board, int phase) {
         Platform.runLater(() -> {
             if (stonesToPlace == 9) {
@@ -75,13 +65,11 @@ public class MinimaxAIPlayer implements Player {
                 }
             } else {
                 if (phase == 1) {
-                    // Placement phase
                     int bestPlacement = minimax.findBestPlacement(board, this);
                     if (bestPlacement != -1) {
                         try {
                             game.placePiece(bestPlacement);
                             MillGameUI.incrementMinimaxMoves();
-                            // Check for mill formation
                             if (game.isMillFormed()) {
                                 handleMillFormation(board);
                             }
@@ -90,14 +78,11 @@ public class MinimaxAIPlayer implements Player {
                         }
                     }
                 } else {
-                    // Movement phase
                     Node[] bestMove = minimax.findBestMove(board, this, phase);
                     if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
                         try {
                             game.makeMove(bestMove[0].getId(), bestMove[1].getId());
                             MillGameUI.incrementMinimaxMoves();
-                            //log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
-                            // Check for mill formation
                             if (game.isMillFormed()) {
                                 handleMillFormation(board);
                             }
@@ -106,12 +91,50 @@ public class MinimaxAIPlayer implements Player {
                         }
                     } else {
                         log.log(Level.WARNING, "No valid move found for AI.");
+                        if (bestMove[0] == null || bestMove[1] == null) {
+                            log.warning("No valid move found. Falling back to random.");
+                            for (Node fromNode : board.getNodes().values()) {
+                                if (fromNode.getOccupant() == this) {
+                                    for (Node toNode : board.getNeighbours(fromNode)) {
+                                        if (!toNode.isOccupied()) {
+                                            game.makeMove(fromNode.getId(), toNode.getId());
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         });
     }
 
+    public boolean isRepeatedMove(Board board) {
+        String currentState = getBoardStateString(board);
+        if (boardStateHistory.contains(currentState)) {
+            return true;
+        } else {
+            boardStateHistory.add(currentState);
+            return false;
+        }
+    }
+
+    private String getBoardStateString(Board board) {
+        StringBuilder boardState = new StringBuilder();
+        for (int i = 0; i < 24; i++) {
+            Node node = board.getNode(i);
+            Player occupant = node.getOccupant();
+            if (occupant == null) {
+                boardState.append("0");
+            } else if (occupant == this) {
+                boardState.append("1");
+            } else {
+                boardState.append("2");
+            }
+        }
+        return boardState.toString();
+    }
 
     /**
      * Decreases the number of stones the AI player has to place by one
@@ -153,6 +176,10 @@ public class MinimaxAIPlayer implements Player {
         } else {
             log.log(Level.WARNING, "No opponent pieces to remove.");
         }
+    }
+
+    public int evaluateBoard(Board board, Player player, int phase, Node node) {
+        return hybridEvaluator.evaluate(board, player, phase, node);
     }
 
 }

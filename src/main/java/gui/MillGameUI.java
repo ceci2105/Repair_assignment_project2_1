@@ -21,6 +21,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import neuralnetwork.BoardCNN;
+import neuralnetwork.GameDataCollector;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,6 +44,7 @@ public class MillGameUI {
     private static final String baselineGame = "baselineGame";
     private static final String minimaxGame = "minimaxGame";
     private static final String baselineminimaxGame = "baselineminimaxGame";
+    private static final String minimaxagainstminimaxGame = "minimaxagainstminimaxGame";
     private static final String run100Games = "run100Games";
     private Node selectedNode = null; // Store the currently selected node
     private static int numGames;
@@ -60,7 +64,7 @@ public class MillGameUI {
     private int rulesCounter = 1;
     private Text rules;
     private String gameType;
-    
+
 
     /**
      * Constructor to initialize the MillGameUI.
@@ -80,6 +84,10 @@ public class MillGameUI {
             startNewbaselineminimaxGame();
         } else if (gameType.equals(run100Games)) {
             run100Games();
+        }else if (gameType.equals(minimaxagainstminimaxGame)) {
+            startNewMinimaxagainstMinimax();
+        }else if (gameType.equals("hybridGame")) {
+            startNewHybridGame();
         }
     }
 
@@ -116,7 +124,7 @@ public class MillGameUI {
 
     public void startNewminimaxGame() {
         HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
-        
+
         this.game = new Game(humanPlayer1, null);
         game.setUI(this);
         board = game.getBoard();
@@ -143,6 +151,20 @@ public class MillGameUI {
         buildUI();
     }
 
+    public void startNewMinimaxagainstMinimax() {
+        this.game = new Game(null, null);
+        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P1", Color.BLACK, 3, game);
+        MinimaxAIPlayer minimaxAIPlayer2 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
+        game.setHumanPlayer1(minimaxAIPlayer1);
+        game.setSecondPlayer(minimaxAIPlayer2);
+        game.setCurrentPlayer(minimaxAIPlayer1);
+        game.setUI(this);
+        board = game.getBoard();
+        buildUI();
+        log.log(Level.INFO, "Initialized Minimax vs. Minimax game successfully");
+
+    }
+
     private void run100Games() {
         if (gamesPlayed == 0) { // Initialize only once
             numGames = 10;
@@ -154,6 +176,17 @@ public class MillGameUI {
             minimaxmoves = 0;
         }
         startNewbaselineminimaxGame();
+    }
+
+    public void startNewHybridGame() {
+        HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
+        MinimaxAIPlayer hybridAIPlayer = new MinimaxAIPlayer("White", Color.WHITE, 3, game);
+
+        this.game = new Game(humanPlayer1, hybridAIPlayer);
+        game.setUI(this);
+        board = game.getBoard();
+
+        buildUI();
     }
 
     private void showRules() {

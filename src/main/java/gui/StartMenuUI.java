@@ -20,10 +20,12 @@ public class StartMenuUI {
     private static final String minimaxGame = "minimaxGame";
     private static final String baselineminimaxGame = "baselineminimaxGame";
     private static final String run100Games = "run100Games";
+    private static final String  minimaxagainstminimaxGame = "minimaxagainstminimaxGame";
+    private static final String hybridGame = "hybridGame";
 
     /**
      * Constructor for the start menu user interface.
-     * 
+     *
      * @param primaryStage The primary stage on which to set the scene.
      */
     public StartMenuUI(Stage primaryStage) {
@@ -53,8 +55,15 @@ public class StartMenuUI {
         Button startbaselineminimaxButton = new Button("Start New Game Baseline Agent against Minimax Agent");
         startbaselineminimaxButton.setOnAction(e -> startbaselineminimaxGame());
 
+
+        Button startHybridGameButton = new Button("Start New Game with Hybrid Agent");
+        startHybridGameButton.setOnAction(e -> startNewHybridGame());
+
         Button run100gamesButton = new Button("Run 100 games");
         run100gamesButton.setOnAction(e -> run100Games());
+
+        Button startminimaxagainstminimaxGameButton = new Button("Start New Game Minimax Agent against Minimax");
+        startminimaxagainstminimaxGameButton.setOnAction(e -> startNewMinimaxagainstMinimax());
 
         Button rulesButton = new Button("How to play");
         rulesButton.setOnAction(e -> new RulesUI().display());
@@ -62,7 +71,7 @@ public class StartMenuUI {
         Button exitButton = new Button("Exit");
         exitButton.setOnAction(e -> Platform.exit());
 
-        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, run100gamesButton, rulesButton, exitButton);
+        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, startHybridGameButton, run100gamesButton, startminimaxagainstminimaxGameButton, rulesButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -94,5 +103,11 @@ public class StartMenuUI {
         new MillGameUI(primaryStage, run100Games);
     }
 
+    private void startNewMinimaxagainstMinimax() {
+        new MillGameUI(primaryStage, minimaxagainstminimaxGame);
+    }
 
+    private void startNewHybridGame() {
+        new MillGameUI(primaryStage, hybridGame);
+    }
 }

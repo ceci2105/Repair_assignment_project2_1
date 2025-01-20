@@ -258,44 +258,4 @@ public class Board {
         }
         return copy;
     }
-
-    /**
-     * Tests if a given stone placement will form a mill.
-     * @param node The node of the given stone.
-     * @param opponent The opponent of the given player.
-     * @param board The game Board.
-     * @return True if the placement will form a mill, false otherwise.
-     */
-    public boolean willFormMill(Node node, Player opponent, Board board) {
-        return Arrays.stream(board.getMills()).parallel().anyMatch(mill -> {
-            if (Arrays.stream(mill).parallel().anyMatch(id -> id == node.getId())) {
-                return Arrays.stream(mill)
-                        .parallel()
-                        .filter(id -> id != node.getId())
-                        .allMatch(id -> board.getNode(id).getOccupant() == opponent);
-            }
-            return false;
-        });
-    }
-
-    /**
-     * Finds the Nodes at which the Opponent might form a mill (2 neighboured stoned)
-     * @param board The Game board.
-     * @param opponent The opponent of the Player.
-     * @return A list containing all nodes based on which a mill could be formed.
-     */
-    public List<Node> findPossibleMills(Board board, Player opponent) {
-        List<Node> possibleMills = new ArrayList<>();
-        for (Node node : nodes.values()) {
-            if (node.getOccupant() == opponent && getPlayerNeighbours(node.getId(), opponent) == 2) {
-                possibleMills.add(node);
-            }
-        }
-        return possibleMills;
-    }
-
-
-
-
-
 }

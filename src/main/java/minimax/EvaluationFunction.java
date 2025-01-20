@@ -6,6 +6,7 @@ import game.mills.Player;
 import game.mills.Game;
 import lombok.Setter;
 import lombok.extern.java.Log;
+import minimax.MinimaxAIPlayer;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -19,12 +20,14 @@ import java.util.Objects;
 public class EvaluationFunction {
     @Setter
     private Game game;
+    private MinimaxAIPlayer minimaxAi;
 
     /**
      * Constructor to initialize the EvaluationFunction with a Game instance.
      */
     public EvaluationFunction(Game game) {
         this.game = game;
+
     }
 
     /**
@@ -36,6 +39,7 @@ public class EvaluationFunction {
      * @return An integer score representing the board state from the player's perspective.
      */
     public int evaluate(Board board, Player player, int phase, Node node) {
+
         switch (phase) {
             case 1:
                 return evaluatePlacementPhase(board, player, node);
@@ -109,6 +113,10 @@ public class EvaluationFunction {
      */
     private int evaluateMovementPhase(Board board, Player player) {
         int score = 0;
+
+        if (player instanceof MinimaxAIPlayer && ((MinimaxAIPlayer) player).isRepeatedMove(board)) {
+            score -= 700;
+        }
 
         int numMills = 0;
         for (int[] mill : board.getMills()) {
