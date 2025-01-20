@@ -21,6 +21,7 @@ public class StartMenuUI {
     private static final String minimaxGame = "minimaxGame";
     private static final String selfPlay = "SelfPlay";
     private static final String run100Games = "run100Games";
+    private static final String COLLECT_DATA = "collectData";
 
     /**
      * Constructor for the start menu user interface.
@@ -59,6 +60,9 @@ public class StartMenuUI {
         Button run100gamesButton = new Button("Run 100 games");
         run100gamesButton.setOnAction(e -> run100Games());
 
+        Button collectDataButton = new Button("Collect Training Data");
+        collectDataButton.setOnAction(e -> startDataCollection());
+
         Button rulesButton = new Button("How to play");
         rulesButton.setOnAction(e -> new RulesUI().display());
 
@@ -66,7 +70,7 @@ public class StartMenuUI {
         exitButton.setOnAction(e -> Platform.exit());
 
         menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton,
-                startbaselineminimaxButton, run100gamesButton, rulesButton, exitButton);
+                startbaselineminimaxButton, run100gamesButton, rulesButton, collectDataButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -96,6 +100,10 @@ public class StartMenuUI {
 
     private void run100Games() {
         new MillGameUI(primaryStage, run100Games);
+    }
+
+    private void startDataCollection() {
+        new MillGameUI(primaryStage, COLLECT_DATA);
     }
 
 }

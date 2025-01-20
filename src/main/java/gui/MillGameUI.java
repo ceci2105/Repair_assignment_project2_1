@@ -2,16 +2,22 @@ package gui;
 
 import lombok.extern.java.Log;
 import minimax.MinimaxAIPlayer;
+import neural.GameDataCollector;
 import game.mills.*;
+import io.vertx.core.impl.BlockedThreadChecker.Task;
 import agents.neural_network.BaselineAgent;
+import ai.djl.training.util.ProgressBar;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -24,6 +30,7 @@ import javafx.util.Duration;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Level;
 
@@ -44,6 +51,7 @@ public class MillGameUI {
     private static final String minimaxGame = "minimaxGame";
     private static final String selfPlay = "SelfPlay";
     private static final String run100Games = "run100Games";
+    private static final String COLLECT_DATA = "collectData";
     private Node selectedNode = null; // Store the currently selected node
     private static int numGames;
     private static int gamesPlayed;
@@ -52,6 +60,7 @@ public class MillGameUI {
     private static int draws;
     private static int baselinemoves;
     private static int minimaxmoves;
+    private GameDataCollector dataCollector;
 
     private Label statusLabel; // Label to display the current game status
     private Label phaseLabel; // Label to display the current game phase
@@ -81,7 +90,10 @@ public class MillGameUI {
             startSelfPlayGame();
         } else if (gameType.equals(run100Games)) {
             run100Games();
+        } else if (gameType.equals(COLLECT_DATA)) {
+            startDataCollection();
         }
+
     }
 
     /**
@@ -156,6 +168,90 @@ public class MillGameUI {
             minimaxmoves = 0;
         }
         startSelfPlayGame();
+    }
+
+    private void startDataCollection() {
+        // Create a simple progress window using existing components
+        Stage progressStage = new Stage();
+        progressStage.setTitle("Collecting Training Data");
+
+        // Use the same VBox setup you use elsewhere
+        VBox progressBox = new VBox(20);
+        progressBox.setAlignment(Pos.CENTER);
+
+        // Status labels
+        Label statusLabel = new Label("Collecting game data...");
+        Label progressLabel = new Label("Games collected: 0 / 1000");
+
+        // Add components to VBox
+        progressBox.getChildren().add(statusLabel);
+        progressBox.getChildren().add(progressLabel);
+
+        // Set up the scene
+        Scene progressScene = new Scene(progressBox, 400, 200);
+        progressStage.setScene(progressScene);
+        progressStage.show();
+
+        // Initialize data collector
+        dataCollector = new GameDataCollector();
+        final int totalGames = 1000;
+        final int[] gamesCompleted = { 0 };
+
+        // Create a recurring update using PauseTransition
+        PauseTransition pause = new PauseTransition(Duration.millis(100));
+        pause.setOnFinished(event -> {
+            if (gamesCompleted[0] < totalGames) {
+                // Generate one game at a time
+                try {
+                    dataCollector.generateGames(1, 4);
+                    gamesCompleted[0]++;
+                    progressLabel.setText(String.format("Games collected: %d / %d",
+                            gamesCompleted[0], totalGames));
+
+                    // Schedule next update
+                    pause.playFromStart();
+                } catch (Exception e) {
+                    showErrorDialog("Error generating game: " + e.getMessage());
+                    progressStage.close();
+                }
+            } else {
+                // Collection complete
+                try {
+                    dataCollector.saveGameData("training_data.ser");
+                    progressStage.close();
+                    showCompletionDialog();
+                } catch (IOException e) {
+                    showErrorDialog("Failed to save collected data: " + e.getMessage());
+                } finally {
+                    dataCollector.shutdown();
+                }
+            }
+        });
+
+        // Start the collection process
+        pause.play();
+    }
+
+    private void showCompletionDialog() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Data Collection Complete");
+        alert.setHeaderText(null);
+        alert.setContentText("Training data has been collected and saved successfully!");
+        alert.showAndWait();
+
+        // Return to start menu
+        new StartMenuUI(primaryStage);
+    }
+
+    private void showErrorDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+
+        // Return to start menu
+        new StartMenuUI(primaryStage);
     }
 
     private void showRules() {
