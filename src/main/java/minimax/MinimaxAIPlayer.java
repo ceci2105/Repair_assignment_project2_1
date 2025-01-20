@@ -18,21 +18,21 @@ import javafx.application.Platform;
  */
 @Log
 public class MinimaxAIPlayer implements Player {
-    private final int depth;// The search depth for the Minimax algorithm
+    private final int depth;            // The search depth for the Minimax algorithm
     @Setter
-    private MinimaxAlgorithm minimax;    // Instance of MinimaxAlgorithm for calculating the best moves
+    private MinimaxAlgorithm minimax;   // Instance of MinimaxAlgorithm for calculating the best moves
     @Getter
     @Setter
-    private String name;                 // Name of the AI player
+    private String name;                // Name of the AI player
     @Getter
     @Setter
-    private Color color;                 // Color representing the AI player’s pieces on the board
+    private Color color;                // Color representing the AI player’s pieces on the board
     @Getter
-    private int stonesToPlace;           // Stones the AI player still needs to place in the placement phase
+    private int stonesToPlace;          // Stones the AI player still needs to place in the placement phase
     @Getter
-    private int stonesOnBoard;           // Stones the AI player currently has on the board
+    private int stonesOnBoard;          // Stones the AI player currently has on the board
     @Setter
-    private Game game;                   // The current game instance
+    private Game game;                  // The current game instance
 
     /**
      * Constructor to initialize the MinimaxAIPlayer with a given name, depth, game, and color.
@@ -52,17 +52,17 @@ public class MinimaxAIPlayer implements Player {
         this.minimax = new MinimaxAlgorithm(depth, evaluationFunction, game);
     }
 
-
     /**
      * Executes the best move calculated by the Minimax algorithm for the given board and phase.
      * The method finds the optimal move using Minimax and applies it to the board.
      *
      * @param board The game board on which the move is to be made.
-     * @param phase The current phase of the game (placement, movement, or endgame).
+     * @param phase The current phase of the game (1 = placement, 2 = movement, 3 = endgame).
      */
     public void makeMove(Board board, int phase) {
         Platform.runLater(() -> {
             if (stonesToPlace == 9) {
+                // First move logic: place a random stone
                 Random r = new Random();
                 int randomPlacement = r.nextInt(24);
                 if (board.getNode(randomPlacement).isOccupied()) {
@@ -90,13 +90,12 @@ public class MinimaxAIPlayer implements Player {
                         }
                     }
                 } else {
-                    // Movement phase
+                    // Movement/Endgame phase
                     Node[] bestMove = minimax.findBestMove(board, this, phase);
                     if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
                         try {
                             game.makeMove(bestMove[0].getId(), bestMove[1].getId());
                             MillGameUI.incrementMinimaxMoves();
-                            //log.log(Level.INFO, "AI moved from {0} to {1}", new Object[]{bestMove[0].getId(), bestMove[1].getId()});
                             // Check for mill formation
                             if (game.isMillFormed()) {
                                 handleMillFormation(board);
@@ -111,7 +110,6 @@ public class MinimaxAIPlayer implements Player {
             }
         });
     }
-
 
     /**
      * Decreases the number of stones the AI player has to place by one
@@ -146,7 +144,6 @@ public class MinimaxAIPlayer implements Player {
         if (bestRemovalNode != null) {
             try {
                 game.removePiece(bestRemovalNode.getId());
-                //log.log(Level.INFO, "AI removed opponent's piece at node {0}", new Object[]{bestRemovalNode.getId()});
             } catch (InvalidMove e) {
                 log.log(Level.WARNING, "Failed to remove piece: {0}", e.getMessage());
             }
@@ -154,5 +151,4 @@ public class MinimaxAIPlayer implements Player {
             log.log(Level.WARNING, "No opponent pieces to remove.");
         }
     }
-
 }
