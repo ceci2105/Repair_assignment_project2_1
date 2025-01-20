@@ -105,6 +105,20 @@ public class MinimaxAIPlayer implements Player {
                         }
                     } else {
                         log.log(Level.WARNING, "No valid move found for AI.");
+                        if (bestMove[0] == null || bestMove[1] == null) {
+                            log.warning("No valid move found. Falling back to random.");
+                            for (Node fromNode : board.getNodes().values()) {
+                                if (fromNode.getOccupant() == this) {
+                                    for (Node toNode : board.getNeighbours(fromNode)) {
+                                        if (!toNode.isOccupied()) {
+                                            game.makeMove(fromNode.getId(), toNode.getId());
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        
                     }
                 }
             }
