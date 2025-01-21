@@ -31,7 +31,6 @@ public class CNNTrainer {
     public void trainCNN(int numGames, int minimaxDepth) {
         System.out.println("Starting training data generation...");
 
-        // Generate training data
         collector.generateGames(numGames, minimaxDepth);
 
         System.out.println("Data generation complete. Starting CNN training...");
