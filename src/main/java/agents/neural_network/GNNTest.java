@@ -23,13 +23,11 @@ public class GNNTest {
         Player player2 = new HumanPlayer("P2", Color.BLACK);
         Game game = new Game(player1, player2);
 
-        board.placePiece(player1, 0);
-        board.placePiece(player2, 1);
-        board.placePiece(player1, 2);
 
         List<INDArray> data = DataLoader.readData();
         GNN gnn = new GNN();
+        INDArray[] array = new INDArray[]{game.boardToINDArray(board)};
         gnn.fit(new INDArray[]{data.get(0), data.get(1)});
-
+        gnn.output(array);
     }
 }

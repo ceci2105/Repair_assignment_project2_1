@@ -44,7 +44,7 @@ GNN {
                         .build(), "dense1")
                 .addLayer("output", new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
                         .activation(Activation.IDENTITY)
-                        .nIn(32).nOut(1)
+                        .nIn(32).nOut(24)
                         .build(), "dense2")
                 .setOutputs("output")
                 .build();

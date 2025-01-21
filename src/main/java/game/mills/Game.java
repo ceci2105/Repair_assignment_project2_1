@@ -190,16 +190,21 @@ public class Game {
     }
 
     private void recordBoardState() {
-        int val;
-        if (winner.equals(humanPlayer1)){
-            val=1;
-        }else if(winner.equals(humanPlayer2)) {
-            val=2;
-        } else {
-            val = 0;
+        INDArray winnerState = Nd4j.zeros(1,24);
+        int i = 0;
+        for (Node node : board.getNodes().values()) {
+            if (!node.isOccupied()) {
+                break;
+            }
+            if (winner.equals(null)) {
+                winnerState.putScalar(i, 0);
+            } else if(winner.equals(humanPlayer1) && node.getOccupant().equals(humanPlayer1)) {
+                winnerState.putScalar(i, 1);
+            } else if (winner.equals(humanPlayer2) && node.getOccupant().equals(humanPlayer2)) {
+                winnerState.putScalar(i, 2);
+            }
+            i++;
         }
-        INDArray winnerState = Nd4j.zeros(1,1);
-        winnerState.putScalar(0, val);
         boardStates.put(winnerState, boardToINDArray(board));
         logger.log(Level.INFO, "Board state was recorded");
     }
@@ -534,8 +539,8 @@ public class Game {
         boardStateCount.put(boardStateHash, boardStateCount.getOrDefault(boardStateHash, 0) + 1);
 
         // Log the board state
-        logger.log(Level.INFO, "Board State: {0}, Count: {1}",
-                   new Object[] { boardStateHash, boardStateCount.get(boardStateHash) });
+//        logger.log(Level.INFO, "Board State: {0}, Count: {1}",
+//                   new Object[] { boardStateHash, boardStateCount.get(boardStateHash) });
 
         // Check if this state has been repeated more than 2 times
         if (boardStateCount.get(boardStateHash) > 2) {
