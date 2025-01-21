@@ -108,7 +108,7 @@ public class CNNTrainer {
         CNNTrainer trainer = new CNNTrainer(game);
 
         // Step 1: Train the CNN
-        trainer.trainCNN(1000, 3); // Train with 1000 games, depth 3
+        trainer.trainCNN(50, 3); // Train with 1000 games, depth 3
 
         // Step 2: Save the trained CNN model and training data
         trainer.saveModel("cnnModel.zip");

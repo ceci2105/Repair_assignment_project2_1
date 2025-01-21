@@ -29,7 +29,7 @@ public class CNNModel {
                 .updater(new Adam(0.001))
                 .list()
                 .layer(new ConvolutionLayer.Builder(3, 3)
-                        .nIn(3) // Input channels
+                        .nIn(4) // Input channels
                         .stride(1, 1)
                         .nOut(64) // Output channels
                         .activation(Activation.RELU)
@@ -38,7 +38,7 @@ public class CNNModel {
                         .kernelSize(2, 2)
                         .stride(2, 2)
                         .build())
-                .layer(new ConvolutionLayer.Builder(3, 3)
+                .layer(new ConvolutionLayer.Builder(2, 2) // Use a 2x2 kernel instead of 3x3
                         .nOut(32) // Output channels
                         .stride(1, 1)
                         .activation(Activation.RELU)
@@ -48,12 +48,12 @@ public class CNNModel {
                         .stride(2, 2)
                         .build())
                 .layer(new DenseLayer.Builder()
-                        .nIn(1 * 1 * 32) // Flattened input from previous layer
-                        .nOut(64)        // Number of neurons
+                        .nIn(1 * 1 * 32) // Flattened size
+                        .nOut(64)
                         .activation(Activation.RELU)
                         .build())
                 .layer(new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
-                        .nIn(64) // Number of inputs from the DenseLayer
+                        .nIn(64)
                         .nOut(1) // Single output for regression
                         .activation(Activation.IDENTITY)
                         .build())
