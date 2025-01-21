@@ -1,5 +1,6 @@
 package game.mills;
 
+import agents.neural_network.GNN;
 import minimax.MinimaxAIPlayer;
 import agents.neural_network.BaselineAgent;
 import gui.MillGameUI;
@@ -9,10 +10,22 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.HashMap;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.util.Duration;
 import javafx.application.Platform;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * The NewGame class manages the game logic for Mills.
@@ -32,6 +45,8 @@ public class Game {
     private String lastBoardState = null; // Last observed board state
     private int consecutiveRepetitionCount = 0; // Count of consecutive repetitions
 
+    @Getter
+    private final Map<INDArray, INDArray> boardStates;
 
     public boolean isGameOver() {
         return isGameOver;
@@ -98,11 +113,13 @@ public class Game {
         this.humanPlayer1 = p1;
         this.humanPlayer2 = p2;
         this.currentPlayer = p1;
+        this.boardStates = new HashMap<>();
         this.board = new Board();
         this.moveValidator = new MoveValidator(board);
         this.phase = 1; // Start the game in the placing phase
+
         this.totalMoves = 0;
-        this.boardStateCount = new HashMap<>(); 
+        this.boardStateCount = new HashMap<>();
 
         if (p1 instanceof BaselineAgent) {
             ((BaselineAgent) p1).setGame(this);
@@ -172,6 +189,56 @@ public class Game {
         }
     }
 
+    private void recordBoardState() {
+        int val;
+        if (winner.equals(humanPlayer1)){
+            val=1;
+        }else if(winner.equals(humanPlayer2)) {
+            val=2;
+        } else {
+            val = 0;
+        }
+        INDArray winnerState = Nd4j.zeros(1,1);
+        winnerState.putScalar(0, val);
+        boardStates.put(winnerState, boardToINDArray(board));
+        logger.log(Level.INFO, "Board state was recorded");
+    }
+
+    public INDArray boardToINDArray(Board board) {
+        int numNodes = 24;
+        INDArray boardArray = Nd4j.zeros(1,numNodes);
+
+        Map<Integer, Node> nodes = board.getNodes();
+        for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
+            int nodeId = entry.getKey();
+            Node node = entry.getValue();
+            Player occupant = node.getOccupant();
+            if (occupant != null) {
+                if (occupant.equals(this.humanPlayer1)) {
+                    boardArray.putScalar(nodeId, 1);
+                } else if (occupant.equals(this.humanPlayer2)) {
+                    boardArray.putScalar(nodeId, 2);
+                } else {
+                    boardArray.putScalar(nodeId, 0);
+                }
+            }
+        }
+        System.out.println(boardArray);
+        return boardArray;
+    }
+
+    private void saveBoardStates() {
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String filename = now.format(formatter) + ".dat";
+        String directory = "Data";
+        String filePath = Paths.get(directory, filename).toString();
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))){
+            oos.writeObject(boardStates);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     /**
      * Places a piece on the board at the specified node ID.
      * Validates the move and checks if a mill has been formed.
@@ -406,6 +473,8 @@ public class Game {
             logger.log(Level.INFO, winner != null ? "Game Over! {0} wins!" : "Game Over! It's a draw!",
                     new Object[] { winner != null ? winner.getName() : "" });
             if (ui != null) {
+                recordBoardState();
+                saveBoardStates();
                 ui.displayGameOverMessage(winner); // Display the game-over message
             }
         }
@@ -460,22 +529,22 @@ public class Game {
     private void trackBoardState() {
         // Generate a unique representation of the current board state
         String boardStateHash = board.toString();
-    
+
         // Update the board state count in the hashmap
         boardStateCount.put(boardStateHash, boardStateCount.getOrDefault(boardStateHash, 0) + 1);
-    
+
         // Log the board state
-        logger.log(Level.INFO, "Board State: {0}, Count: {1}", 
+        logger.log(Level.INFO, "Board State: {0}, Count: {1}",
                    new Object[] { boardStateHash, boardStateCount.get(boardStateHash) });
-    
+
         // Check if this state has been repeated more than 2 times
         if (boardStateCount.get(boardStateHash) > 2) {
             logger.log(Level.INFO, "Detected repetition loop. Game is a draw.");
             gameOver(null); // Call gameOver with null to indicate a draw
         }
     }
-    
-    
-    
+
+
+
 
 }

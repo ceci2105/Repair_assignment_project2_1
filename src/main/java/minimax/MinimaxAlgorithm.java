@@ -63,7 +63,7 @@ public class MinimaxAlgorithm {
                 tempNode.setOccupant(null);
             }
         }
-        log.log(Level.INFO, "Best placement {0}", bestPlacement);
+        // log.log(Level.INFO, "Best placement {0}", bestPlacement);
         return bestPlacement;
     }
 
@@ -99,7 +99,7 @@ public class MinimaxAlgorithm {
                 }
             }
         }
-        log.log(Level.INFO, "Best Value: {0}", bestValue);
+        // log.log(Level.INFO, "Best Value: {0}", bestValue);
         return bestMove;
     }
 
