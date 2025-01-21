@@ -80,22 +80,22 @@ public class StartMenuUI {
     }
 
     /**
-     * Initializes the game UI to start a new game of Nine Men's Morris.
+     * Initializes the game UI to start the corresponding game mode.
      */
     private void startGame() {
-        new MillGameUI(primaryStage, humanGame); // This will switch to the game UI
+        new MillGameUI(primaryStage, humanGame); 
     }
 
     private void startbaselineGame() {
-        new MillGameUI(primaryStage, baselineGame); // This will switch to the game UI
+        new MillGameUI(primaryStage, baselineGame);
     }
 
     private void startminimaxGame() {
-        new MillGameUI(primaryStage, minimaxGame); // This will switch to the game UI
+        new MillGameUI(primaryStage, minimaxGame); 
     }
 
     private void startSelfPlayGame() {
-        new MillGameUI(primaryStage, selfPlay); // This will switch to the game UI
+        new MillGameUI(primaryStage, selfPlay); 
     }
 
     private void run100Games() {
