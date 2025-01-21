@@ -169,12 +169,6 @@ public class GameDataCollector {
         return labels;
     }
 
-    public void saveGameData(String filename) throws IOException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-            oos.writeObject(gameRecords);
-        }
-    }
-
     public void shutdown() {
         executorService.shutdown();
         try {
@@ -186,9 +180,16 @@ public class GameDataCollector {
         }
     }
 
-    // Add the missing generateTrainingData method
-    public void generateTrainingData(int numGames) {
-        generateGames(numGames, 3); // Example depth, adjust as needed
+    public List<GameRecord> getGameRecords() {
+        return gameRecords;
+    }
+
+    // Setter for game records
+    public void setGameRecords(List<GameRecord> gameRecords) {
+        synchronized (this.gameRecords) {
+            this.gameRecords.clear();
+            this.gameRecords.addAll(gameRecords);
+        }
     }
 }
 
