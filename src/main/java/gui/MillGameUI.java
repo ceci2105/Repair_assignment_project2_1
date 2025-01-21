@@ -21,7 +21,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import neuralnetwork.BoardCNN;
+import neuralnetwork.BoardStateConverter;
 import neuralnetwork.GameDataCollector;
 import org.nd4j.linalg.api.ndarray.INDArray;
 

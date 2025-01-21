@@ -10,12 +10,12 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 
 @Log
 public class HybridEvaluator {
-    private BoardCNN cnn;
+    private CNNModel cnn;  // You'll need to create this class for your CNN implementation
     private EvaluationFunction minimaxEval;
     private GameDataCollector dataCollector;
 
     public HybridEvaluator(Game game) {
-        this.cnn = new BoardCNN();
+        this.cnn = new CNNModel();  // Initialize your CNN model
         this.minimaxEval = new EvaluationFunction(game);
         this.dataCollector = new GameDataCollector();
     }
@@ -23,8 +23,8 @@ public class HybridEvaluator {
     public int evaluate(Board board, Player player, int phase, Node node) {
         if (phase == 1) {
             // Use CNN for placement phase
-            float[] boardInput = dataCollector.boardToNNInput(board);
-            float cnnScore = cnn.evaluatePosition(boardInput);
+            float[][][] boardTensor = BoardStateConverter.convertToTensor(board, player);
+            float cnnScore = cnn.evaluatePosition(boardTensor);
             return (int)(cnnScore * 1000); // Scale to similar range as minimax eval
         } else {
             // Use minimax evaluation for movement phases
@@ -32,13 +32,13 @@ public class HybridEvaluator {
         }
     }
 
-    // Method to collect training data
-    public void collectTrainingData(int numGames) {
+    // Method to collect training data and train the CNN
+    public void trainCNN(int numGames) {
         dataCollector.generateTrainingData(numGames);
-        // Train CNN with collected data
         INDArray features = dataCollector.getTrainingFeatures();
         INDArray labels = dataCollector.getTrainingLabels();
 
+        // Train the CNN model
         cnn.train(features, labels);
     }
 }

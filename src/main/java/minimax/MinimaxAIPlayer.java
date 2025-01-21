@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
 import javafx.application.Platform;
-import neuralnetwork.BoardCNN;
+import neuralnetwork.BoardStateConverter;
+import neuralnetwork.BoardStateConverter;
 import neuralnetwork.HybridEvaluator;
 
 @Log
@@ -33,7 +34,7 @@ public class MinimaxAIPlayer implements Player {
     @Setter
     private Game game;
     private List<String> boardStateHistory;
-    private BoardCNN cnn;
+    private BoardStateConverter cnn;
     private HybridEvaluator hybridEvaluator;
 
     public MinimaxAIPlayer(String name, Color color, int depth, Game game) {
@@ -46,7 +47,7 @@ public class MinimaxAIPlayer implements Player {
         this.boardStateHistory = new ArrayList<>();
         EvaluationFunction evaluationFunction = new EvaluationFunction(game);
         this.minimax = new MinimaxAlgorithm(depth, evaluationFunction, game);
-        this.cnn = new BoardCNN();
+        this.cnn = new BoardStateConverter();
         this.hybridEvaluator = new HybridEvaluator(game);
     }
 
