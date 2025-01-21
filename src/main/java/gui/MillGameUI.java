@@ -2,22 +2,16 @@ package gui;
 
 import lombok.extern.java.Log;
 import minimax.MinimaxAIPlayer;
-import neural.GameDataCollector;
 import game.mills.*;
-import io.vertx.core.impl.BlockedThreadChecker.Task;
 import agents.neural_network.BaselineAgent;
-import ai.djl.training.util.ProgressBar;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -27,19 +21,18 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import neuralnetwork.BoardStateConverter;
+import neuralnetwork.GameDataCollector;
+import org.nd4j.linalg.api.ndarray.INDArray;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Optional;
-import java.util.Random;
 import java.util.logging.Level;
 
 /**
- * The MillGameUI class represents the graphical user interface (GUI) for the
- * game.
- * It handles creating the game board, pieces, and user interactions, as well as
- * updating the game status.
+ * The MillGameUI class represents the graphical user interface (GUI) for the game.
+ * It handles creating the game board, pieces, and user interactions, as well as updating the game status.
  */
 @Log
 public class MillGameUI {
@@ -50,9 +43,9 @@ public class MillGameUI {
     private static final String humanGame = "humanGame";
     private static final String baselineGame = "baselineGame";
     private static final String minimaxGame = "minimaxGame";
-    private static final String selfPlay = "SelfPlay";
+    private static final String baselineminimaxGame = "baselineminimaxGame";
+    private static final String minimaxagainstminimaxGame = "minimaxagainstminimaxGame";
     private static final String run100Games = "run100Games";
-    private static final String COLLECT_DATA = "collectData";
     private Node selectedNode = null; // Store the currently selected node
     private static int numGames;
     private static int gamesPlayed;
@@ -61,7 +54,6 @@ public class MillGameUI {
     private static int draws;
     private static int baselinemoves;
     private static int minimaxmoves;
-    private GameDataCollector dataCollector;
 
     private Label statusLabel; // Label to display the current game status
     private Label phaseLabel; // Label to display the current game phase
@@ -72,6 +64,7 @@ public class MillGameUI {
     private int rulesCounter = 1;
     private Text rules;
     private String gameType;
+
 
     /**
      * Constructor to initialize the MillGameUI.
@@ -87,19 +80,19 @@ public class MillGameUI {
             startNewbaselineGame();
         } else if (gameType.equals(minimaxGame)) {
             startNewminimaxGame();
-        } else if (gameType.equals(selfPlay)) {
-            startSelfPlayGame();
+        } else if (gameType.equals(baselineminimaxGame)) {
+            startNewbaselineminimaxGame();
         } else if (gameType.equals(run100Games)) {
             run100Games();
-        } else if (gameType.equals(COLLECT_DATA)) {
-            startDataCollection();
+        }else if (gameType.equals(minimaxagainstminimaxGame)) {
+            startNewMinimaxagainstMinimax();
+        }else if (gameType.equals("hybridGame")) {
+            startNewHybridGame();
         }
-
     }
 
     /**
-     * Starts a new game by initializing players, the game logic, and rebuilding the
-     * UI.
+     * Starts a new game by initializing players, the game logic, and rebuilding the UI.
      */
     public void startNewGame() {
         selectedNode = null;
@@ -144,16 +137,32 @@ public class MillGameUI {
         log.log(Level.INFO, "Initialised game successfully");
     }
 
-    public void startSelfPlayGame() {
+    public void startNewbaselineminimaxGame() {
         this.game = new Game(null, null);
-        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("P1", Color.BLACK, 3, game);
+        MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("P1", Color.BLACK, 6, game);
         game.setHumanPlayer1(minimaxAIPlayer);
         game.setCurrentPlayer(minimaxAIPlayer);
-        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
+        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P2", Color.WHITE, 6, game);
         game.setSecondPlayer(minimaxAIPlayer1);
         game.setUI(this);
         board = game.getBoard();
+
+        int depth = 3;
         buildUI();
+    }
+
+    public void startNewMinimaxagainstMinimax() {
+        this.game = new Game(null, null);
+        MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P1", Color.BLACK, 3, game);
+        MinimaxAIPlayer minimaxAIPlayer2 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
+        game.setHumanPlayer1(minimaxAIPlayer1);
+        game.setSecondPlayer(minimaxAIPlayer2);
+        game.setCurrentPlayer(minimaxAIPlayer1);
+        game.setUI(this);
+        board = game.getBoard();
+        buildUI();
+        log.log(Level.INFO, "Initialized Minimax vs. Minimax game successfully");
+
     }
 
     private void run100Games() {
@@ -166,104 +175,18 @@ public class MillGameUI {
             baselinemoves = 0;
             minimaxmoves = 0;
         }
-        startSelfPlayGame();
+        startNewbaselineminimaxGame();
     }
 
-    private void startDataCollection() {
-        Stage progressStage = new Stage();
-        progressStage.setTitle("Collecting Training Data");
+    public void startNewHybridGame() {
+        HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
+        MinimaxAIPlayer hybridAIPlayer = new MinimaxAIPlayer("White", Color.WHITE, 3, game);
 
-        VBox progressBox = new VBox(20);
-        progressBox.setAlignment(Pos.CENTER);
+        this.game = new Game(humanPlayer1, hybridAIPlayer);
+        game.setUI(this);
+        board = game.getBoard();
 
-        Label statusLabel = new Label("Collecting game data...");
-        Label progressLabel = new Label("Games collected: 0 / 200");
-
-        progressBox.getChildren().add(statusLabel);
-        progressBox.getChildren().add(progressLabel);
-
-        Scene progressScene = new Scene(progressBox, 400, 200);
-        progressStage.setScene(progressScene);
-        progressStage.show();
-
-        // Initialize data collector
-        dataCollector = new GameDataCollector();
-        final int totalGames = 200;
-        final int[] gamesCompleted = { 0 };
-
-        // Set up the recurring game simulation
-        PauseTransition pause = new PauseTransition(Duration.millis(100));
-        pause.setOnFinished(event -> {
-            if (gamesCompleted[0] < totalGames) {
-                // Create and run a new game
-                try {
-                    // Initialize a new game with Minimax vs Baseline
-                    BaselineAgent baselinePlayer = new BaselineAgent("Baseline", Color.WHITE);
-
-                    game = new Game(baselinePlayer, null);
-
-                    // Create and set up players
-                    MinimaxAIPlayer minimaxPlayer = new MinimaxAIPlayer("Minimax", Color.BLACK, 4, game);
-
-                    // Randomly assign colors
-                    game.setSecondPlayer(minimaxPlayer);
-                    ;
-
-                    // Set up game monitoring to collect data
-                    game.setMoveCallback((board, currentPlayer) -> {
-                        dataCollector.recordGameState(board, currentPlayer, game.isGameOver, game.getWinner());
-                    });
-
-                    // Start the game
-                    game.startGame();
-
-                    // Update progress
-                    gamesCompleted[0]++;
-                    progressLabel.setText(String.format("Games collected: %d / %d",
-                            gamesCompleted[0], totalGames));
-
-                    // Schedule next game
-                    pause.playFromStart();
-                } catch (Exception e) {
-                    showErrorDialog("Error generating game: " + e.getMessage());
-                    progressStage.close();
-                }
-            } else {
-                // Collection complete
-                try {
-                    dataCollector.saveGameData("training_data.ser");
-                    progressStage.close();
-                    showCompletionDialog();
-                } catch (IOException e) {
-                    showErrorDialog("Failed to save collected data: " + e.getMessage());
-                }
-            }
-        });
-
-        // Start the collection process
-        pause.play();
-    }
-
-    private void showCompletionDialog() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Data Collection Complete");
-        alert.setHeaderText(null);
-        alert.setContentText("Training data has been collected and saved successfully!");
-        alert.showAndWait();
-
-        // Return to start menu
-        new StartMenuUI(primaryStage);
-    }
-
-    private void showErrorDialog(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-
-        // Return to start menu
-        new StartMenuUI(primaryStage);
+        buildUI();
     }
 
     private void showRules() {
@@ -274,23 +197,23 @@ public class MillGameUI {
         rules.setX(685);
         rules.setY(70);
         rules.setText("Nine Men's Morris Rules:\n\n"
-                + "1. The board consists of a grid with twenty-four intersections or points. Each player has nine pieces and the goal is to form a mill: three stones aligned horizontally or vertically, allowing a player to remove an opponent's stone from the game board.\n\n"
-                + "2. Black starts first and players then take turns placing their stones onto empty points on the board. When all stones have been placed, players take turns moving a stone to an adjacent point.\n\n"
-                + "3. The game is won by the player who reduces their opponent to two pieces, or by blocking all possible moves of their opponent.\n\n"
-                + "4. If a player forms a mill, they may remove one of their opponent's stones from the board. This stone cannot be removed from a mill. If all opponent's stones are in mills, any stone can be removed.\n\n"
-                + "5. If a player is reduced to three pieces, they may jump to any empty point on the board.\n\n"
-                + "Enjoy the game!");
+            + "1. The board consists of a grid with twenty-four intersections or points. Each player has nine pieces and the goal is to form a mill: three stones aligned horizontally or vertically, allowing a player to remove an opponent's stone from the game board.\n\n"
+            + "2. Black starts first and players then take turns placing their stones onto empty points on the board. When all stones have been placed, players take turns moving a stone to an adjacent point.\n\n"
+            + "3. The game is won by the player who reduces their opponent to two pieces, or by blocking all possible moves of their opponent.\n\n"
+            + "4. If a player forms a mill, they may remove one of their opponent's stones from the board. This stone cannot be removed from a mill. If all opponent's stones are in mills, any stone can be removed.\n\n"
+            + "5. If a player is reduced to three pieces, they may jump to any empty point on the board.\n\n"
+            + "Enjoy the game!");
 
         root.getChildren().add(rules);
 
-        // Increase stage size to show rules
+        //Increase stage size to show rules
         primaryStage.setWidth(SCENE_WIDTH + 410);
     }
 
     private void removeRules() {
         root.getChildren().remove(rules);
 
-        // Decrease stage size to hide rules
+        //Decrease stage size to hide rules
         primaryStage.setWidth(SCENE_WIDTH);
     }
 
@@ -307,8 +230,7 @@ public class MillGameUI {
     }
 
     /**
-     * Builds the game UI components, including the board, pieces, and event
-     * handlers.
+     * Builds the game UI components, including the board, pieces, and event handlers.
      */
     private void buildUI() {
 
@@ -330,30 +252,30 @@ public class MillGameUI {
 
         // Coordinates for vertex positions
         double[][] positions = {
-                { 0.1, 0.1 }, // Node 0
-                { 0.5, 0.1 }, // Node 1
-                { 0.9, 0.1 }, // Node 2
-                { 0.2, 0.2 }, // Node 3
-                { 0.5, 0.2 }, // Node 4
-                { 0.8, 0.2 }, // Node 5
-                { 0.3, 0.3 }, // Node 6
-                { 0.5, 0.3 }, // Node 7
-                { 0.7, 0.3 }, // Node 8
-                { 0.1, 0.5 }, // Node 9
-                { 0.2, 0.5 }, // Node 10
-                { 0.3, 0.5 }, // Node 11
-                { 0.7, 0.5 }, // Node 12
-                { 0.8, 0.5 }, // Node 13
-                { 0.9, 0.5 }, // Node 14
-                { 0.3, 0.7 }, // Node 15
-                { 0.5, 0.7 }, // Node 16
-                { 0.7, 0.7 }, // Node 17
-                { 0.2, 0.8 }, // Node 18
-                { 0.5, 0.8 }, // Node 19
-                { 0.8, 0.8 }, // Node 20
-                { 0.1, 0.9 }, // Node 21
-                { 0.5, 0.9 }, // Node 22
-                { 0.9, 0.9 } // Node 23
+            {0.1, 0.1},  // Node 0
+            {0.5, 0.1},  // Node 1
+            {0.9, 0.1},  // Node 2
+            {0.2, 0.2},  // Node 3
+            {0.5, 0.2},  // Node 4
+            {0.8, 0.2},  // Node 5
+            {0.3, 0.3},  // Node 6
+            {0.5, 0.3},  // Node 7
+            {0.7, 0.3},  // Node 8
+            {0.1, 0.5},  // Node 9
+            {0.2, 0.5},  // Node 10
+            {0.3, 0.5},  // Node 11
+            {0.7, 0.5},  // Node 12
+            {0.8, 0.5},  // Node 13
+            {0.9, 0.5},  // Node 14
+            {0.3, 0.7},  // Node 15
+            {0.5, 0.7},  // Node 16
+            {0.7, 0.7},  // Node 17
+            {0.2, 0.8},  // Node 18
+            {0.5, 0.8},  // Node 19
+            {0.8, 0.8},  // Node 20
+            {0.1, 0.9},  // Node 21
+            {0.5, 0.9},  // Node 22
+            {0.9, 0.9}   // Node 23
         };
 
         // Calculate the offset to center the board
@@ -370,8 +292,9 @@ public class MillGameUI {
 
             // Creating a line between two connected nodes
             Line line = new Line(
-                    positions[start][0] * BOARD_SIZE + offsetX, positions[start][1] * BOARD_SIZE + offsetY,
-                    positions[end][0] * BOARD_SIZE + offsetX, positions[end][1] * BOARD_SIZE + offsetY);
+                positions[start][0] * BOARD_SIZE + offsetX, positions[start][1] * BOARD_SIZE + offsetY,
+                positions[end][0] * BOARD_SIZE + offsetX, positions[end][1] * BOARD_SIZE + offsetY
+            );
             line.setStroke(Color.BLACK);
             line.setStrokeWidth(2);
 
@@ -464,21 +387,21 @@ public class MillGameUI {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+      
+        //Setting the image view 
+        ImageView imageView = new ImageView(image); 
+        
+        //Setting the position of the image 
+        imageView.setX(570 + offsetX); 
+        imageView.setY(0 + offsetY); 
+        
+        //setting the fit height and width of the image view 
+        imageView.setFitHeight(30); 
+        imageView.setFitWidth(30); 
 
-        // Setting the image view
-        ImageView imageView = new ImageView(image);
-
-        // Setting the position of the image
-        imageView.setX(570 + offsetX);
-        imageView.setY(0 + offsetY);
-
-        // setting the fit height and width of the image view
-        imageView.setFitHeight(30);
-        imageView.setFitWidth(30);
-
-        // Shows rules of the game when the question mark is clicked
+        //Shows rules of the game when the question mark is clicked
         imageView.setOnMouseClicked(event -> {
-            if (rulesCounter % 2 == 0) {
+            if (rulesCounter%2 == 0) {
                 removeRules();
             } else {
                 showRules();
@@ -487,7 +410,7 @@ public class MillGameUI {
         });
 
         imageView.setOnMouseEntered(event -> {
-            // System.out.println("Mouse over");
+            //System.out.println("Mouse over");
             Image imageHover = null;
             try {
                 imageHover = new Image(new FileInputStream("src/main/ressources/InGameTutorialIconHover.png"));
@@ -506,9 +429,9 @@ public class MillGameUI {
             }
             imageView.setImage(rulesIcon);
         });
-
-        // Setting the preserve ratio of the image view
-        imageView.setPreserveRatio(false);
+        
+        //Setting the preserve ratio of the image view 
+        imageView.setPreserveRatio(false);  
         backButtonImageView.setPreserveRatio(false);
 
         // Adding the image view to the root pane
@@ -525,12 +448,11 @@ public class MillGameUI {
 
     /**
      * Handles user clicks for selecting and moving pieces on the board.
-     * It manages the game logic based on the current game phase and player's
-     * actions.
+     * It manages the game logic based on the current game phase and player's actions.
      *
-     * @param node      The node that was clicked.
-     * @param circle    The graphical circle representing the node.
-     * @param nodeIndex The index of the clicked node.
+     * @param node       The node that was clicked.
+     * @param circle     The graphical circle representing the node.
+     * @param nodeIndex  The index of the clicked node.
      */
     private void handleClick(Node node, Circle circle, int nodeIndex) {
         Player currentPlayer = game.getCurrentPlayer();
@@ -545,8 +467,7 @@ public class MillGameUI {
                     statusLabel.setTextFill(Color.BLACK);
                     updateGameStatus("Turn: " + game.getCurrentPlayer().getName());
                 } catch (InvalidMove e) {
-                    // If the removal is invalid, show the error message and prevent the stone
-                    // removal
+                    // If the removal is invalid, show the error message and prevent the stone removal
                     statusLabel.setTextFill(Color.RED);
                     updateGameStatus(e.getMessage());
                 }
@@ -638,53 +559,49 @@ public class MillGameUI {
             }
             if (gamesPlayed < numGames) {
                 // Display the game-over message briefly
-                Platform.runLater(() -> {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Game Over");
-                    alert.setHeaderText(null);
-                    alert.setContentText(
-                            "Game Over! " + (winner != null ? winner.getName() + " wins!" : "It's a draw!"));
-                    alert.show();
+            Platform.runLater(() -> {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Game Over");
+                alert.setHeaderText(null);
+                alert.setContentText("Game Over! " + (winner != null ? winner.getName() + " wins!" : "It's a draw!"));
+                alert.show();
 
-                    // Close the alert after a short delay and restart the game
-                    PauseTransition pause = new PauseTransition(Duration.seconds(2));
-                    pause.setOnFinished(event -> {
-                        alert.close();
-                        restartGame();
-                    });
-                    pause.play();
+                // Close the alert after a short delay and restart the game
+                PauseTransition pause = new PauseTransition(Duration.seconds(2));
+                pause.setOnFinished(event -> {
+                    alert.close();
+                    restartGame();
                 });
+                pause.play();
+            });
             } else {
                 // All games played, show results and exit
                 Platform.runLater(() -> {
-                    Alert alert = new Alert(AlertType.INFORMATION);
-                    alert.setTitle("Simulation Complete");
-                    alert.setHeaderText(null);
-                    alert.setContentText(
-                            "Simulation Complete!\n\n" +
-                                    "Baseline Agent wins: " + baselineWins + "\n" +
-                                    "Minimax Agent wins: " + minimaxWins + "\n" +
-                                    "Draws: " + draws + "\n" +
-                                    "Baseline Agent average moves: " + (baselinemoves / numGames) + "\n" +
-                                    "Minimax Agent average moves: " + (minimaxmoves / numGames));
-                    alert.show();
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Simulation Complete");
+                alert.setHeaderText(null);
+                alert.setContentText(
+                    "Simulation Complete!\n\n" +
+                    "Baseline Agent wins: " + baselineWins + "\n" +
+                    "Minimax Agent wins: " + minimaxWins + "\n" +
+                    "Draws: " + draws + "\n" +
+                    "Baseline Agent average moves: " + (baselinemoves/numGames) + "\n" +
+                    "Minimax Agent average moves: " + (minimaxmoves/numGames)
+                );
+                alert.show();
 
-                    // Close the application after displaying the results
-                    PauseTransition pause = new PauseTransition(Duration.seconds(10));
-                    pause.setOnFinished(event -> Platform.exit());
-                    pause.play();
-                });
+                // Close the application after displaying the results
+                PauseTransition pause = new PauseTransition(Duration.seconds(10));
+                pause.setOnFinished(event -> Platform.exit());
+                pause.play();
+            });
             }
         } else {
             Platform.runLater(() -> {
                 Alert alert = new Alert(AlertType.CONFIRMATION);
                 alert.setTitle("Game Over");
                 alert.setHeaderText(null);
-                if (winner == null) {
-                    alert.setContentText("Game Over! It's a draw!");
-                } else {
-                    alert.setContentText("Game Over! " + winner.getName() + " wins!");
-                }
+                alert.setContentText("Game Over! " + winner.getName() + " wins!");
 
                 ButtonType restartButton = new ButtonType("Restart");
                 ButtonType exitButton = new ButtonType("Exit");
@@ -728,7 +645,7 @@ public class MillGameUI {
     public static void incrementBaselineMoves() {
         baselinemoves++;
     }
-
+    
     public static void incrementMinimaxMoves() {
         minimaxmoves++;
     }
