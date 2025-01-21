@@ -6,7 +6,7 @@ import game.mills.Player;
 import game.mills.Game;
 import lombok.Setter;
 import lombok.extern.java.Log;
-import minimax.MinimaxAIPlayer;
+
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -20,7 +20,6 @@ import java.util.Objects;
 public class EvaluationFunction {
     @Setter
     private Game game;
-    private MinimaxAIPlayer minimaxAi;
 
     /**
      * Constructor to initialize the EvaluationFunction with a Game instance.
