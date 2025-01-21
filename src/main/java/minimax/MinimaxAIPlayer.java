@@ -153,16 +153,42 @@ public class MinimaxAIPlayer implements Player {
     }
 
     // Helper method to handle mill formation and remove opponent's piece
+    // Helper method to handle mill formation and remove opponent's piece
+    // Helper method to handle mill formation and remove opponent's piece
     private void handleMillFormation(Board board) {
-        Node bestRemovalNode = minimax.bestRemoval(board, this);
-        if (bestRemovalNode != null) {
-            try {
-                game.removePiece(bestRemovalNode.getId());
-            } catch (InvalidMove e) {
-                log.log(Level.WARNING, "Failed to remove piece: {0}", e.getMessage());
+        Player opponent = game.getOpponent(this);
+        boolean removedPiece = false;
+
+        // Iterate through the opponent's stones to remove a piece not in a mill
+        for (Node node : board.getNodes().values()) {
+            if (node.isOccupied() && node.getOccupant() == opponent && !board.isPartOfMill(node)) {
+                try {
+                    game.removePiece(node.getId());
+                    log.info("Removed opponent's piece not in a mill.");
+                    removedPiece = true;
+                    break;
+                } catch (InvalidMove e) {
+                    log.log(Level.WARNING, "Failed to remove piece: {0}", e.getMessage());
+                }
             }
-        } else {
-            log.log(Level.WARNING, "No opponent pieces to remove.");
+        }
+
+        // If all opponent stones are in mills, remove any one of them
+        if (!removedPiece) {
+            for (Node node : board.getNodes().values()) {
+                if (node.isOccupied() && node.getOccupant() == opponent) {
+                    try {
+                        game.removePiece(node.getId());
+                        log.info("All opponent stones are in mills. Removed a piece from a mill.");
+                        break;
+                    } catch (InvalidMove e) {
+                        log.log(Level.WARNING, "Failed to remove piece from a mill: {0}", e.getMessage());
+                    }
+                }
+            }
         }
     }
+
+
+
 }

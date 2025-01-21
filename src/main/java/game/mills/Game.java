@@ -8,6 +8,7 @@ import javafx.concurrent.Task;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.util.Duration;
@@ -27,6 +28,10 @@ public class Game {
     private Player humanPlayer2;
     private Player winner = null;
     private MoveCallback moveCallback;
+    private HashMap<String, Integer> boardStateCount; // Track occurrences of board states
+    private String lastBoardState = null; // Last observed board state
+    private int consecutiveRepetitionCount = 0; // Count of consecutive repetitions
+
 
     public boolean isGameOver() {
         return isGameOver;
@@ -96,8 +101,8 @@ public class Game {
         this.board = new Board();
         this.moveValidator = new MoveValidator(board);
         this.phase = 1; // Start the game in the placing phase
-
         this.totalMoves = 0;
+        this.boardStateCount = new HashMap<>(); 
 
         if (p1 instanceof BaselineAgent) {
             ((BaselineAgent) p1).setGame(this);
@@ -177,6 +182,7 @@ public class Game {
     public void placePiece(int nodeID) {
         if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
             board.placePiece(currentPlayer, nodeID);
+            trackBoardState();
             notifyUI();
             if (board.checkMill(board.getNode(nodeID), currentPlayer)) {
                 millFormed = true;
@@ -226,6 +232,7 @@ public class Game {
     public void makeMove(int fromID, int toID) {
         if (moveValidator.isValidMove(currentPlayer, fromID, toID)) {
             board.movePiece(currentPlayer, fromID, toID);
+            trackBoardState();
             notifyUI();
             if (board.checkMill(board.getNode(toID), currentPlayer)) {
                 millFormed = true;
@@ -421,6 +428,7 @@ public class Game {
     // In Game.java
 
     public void startGame() {
+        boardStateCount.clear();
         if (currentPlayer instanceof BaselineAgent) {
             logger.log(Level.INFO, "Starting game with Baseline Agent");
             // Add a delay before the bot makes its move
@@ -448,5 +456,26 @@ public class Game {
             pause.play();
         }
     }
+
+    private void trackBoardState() {
+        // Generate a unique representation of the current board state
+        String boardStateHash = board.toString();
+    
+        // Update the board state count in the hashmap
+        boardStateCount.put(boardStateHash, boardStateCount.getOrDefault(boardStateHash, 0) + 1);
+    
+        // Log the board state
+        logger.log(Level.INFO, "Board State: {0}, Count: {1}", 
+                   new Object[] { boardStateHash, boardStateCount.get(boardStateHash) });
+    
+        // Check if this state has been repeated more than 2 times
+        if (boardStateCount.get(boardStateHash) > 2) {
+            logger.log(Level.INFO, "Detected repetition loop. Game is a draw.");
+            gameOver(null); // Call gameOver with null to indicate a draw
+        }
+    }
+    
+    
+    
 
 }

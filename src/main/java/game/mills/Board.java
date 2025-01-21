@@ -294,6 +294,20 @@ public class Board {
         return possibleMills;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Node node : nodes.values()) {
+            if (node.isOccupied()) {
+                sb.append(node.getOccupant().getName().charAt(0)); // Use 'B' for Black, 'W' for White, etc.
+            } else {
+                sb.append("0"); // Use '0' for empty spaces
+            }
+        }
+        return sb.toString();
+    }
+
+
 
 
 

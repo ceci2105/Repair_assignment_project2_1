@@ -680,7 +680,11 @@ public class MillGameUI {
                 Alert alert = new Alert(AlertType.CONFIRMATION);
                 alert.setTitle("Game Over");
                 alert.setHeaderText(null);
-                alert.setContentText("Game Over! " + winner.getName() + " wins!");
+                if (winner == null) {
+                    alert.setContentText("Game Over! It's a draw!");
+                } else {
+                    alert.setContentText("Game Over! " + winner.getName() + " wins!");
+                }
 
                 ButtonType restartButton = new ButtonType("Restart");
                 ButtonType exitButton = new ButtonType("Exit");
