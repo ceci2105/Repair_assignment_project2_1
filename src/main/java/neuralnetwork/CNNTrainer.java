@@ -1,118 +1,140 @@
 package neuralnetwork;
 
-import game.mills.Game;
 import game.mills.Board;
+import game.mills.Game;
 import game.mills.Node;
 import game.mills.Player;
 import minimax.EvaluationFunction;
 import org.deeplearning4j.util.ModelSerializer;
-import org.nd4j.linalg.api.ndarray.INDArray;
-
 import java.io.*;
-import java.util.List;
 
 public class CNNTrainer {
     private CNNModel cnn;
     private GameDataCollector collector;
     private Game game;
     private EvaluationFunction minimaxEval;
+    private static final int EARLY_GAME_MOVES = 6; // Number of moves considered "early game"
 
     public CNNTrainer(Game game) {
         this.game = game;
         this.cnn = new CNNModel();
         this.minimaxEval = new EvaluationFunction(game);
         this.collector = new GameDataCollector();
-
-        collector.setProgressCallback(gamesCompleted ->
-                System.out.println("Completed " + gamesCompleted + " games"));
     }
 
+    // Train the CNN using generated game data with batched processing
     public void trainCNN(int numGames, int minimaxDepth) {
-        System.out.println("Starting training data generation...");
-
-        collector.generateGames(numGames, minimaxDepth);
-
-        System.out.println("Data generation complete. Starting CNN training...");
+        System.out.println("Starting training with batched processing...");
 
         try {
-            INDArray features = collector.getTrainingFeatures();
-            INDArray labels = collector.getTrainingLabels();
+            // The collector now handles both data generation and training
+            collector.generateGames(numGames, minimaxDepth, cnn);
 
-            if (features.size(0) == 0 || labels.size(0) == 0) {
-                throw new IllegalStateException("No training data generated.");
-            }
+            System.out.println("Training complete!");
 
-            cnn.train(features, labels);
-
-            System.out.println("CNN training complete!");
         } catch (Exception e) {
+            System.err.println("Error during training: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            collector.shutdown();
         }
     }
 
-    public int evaluate(Board board, Player player, int phase, Node node) {
-        if (phase == 1) {
-            float[][][] boardTensor = BoardStateConverter.convertToTensor(board, player);
-            float cnnScore = cnn.evaluatePosition(boardTensor);
-            return (int) (cnnScore * 1000);
-        } else {
-            return minimaxEval.evaluate(board, player, phase, node);
+    // Hybrid evaluation function combining CNN and Minimax
+    public float evaluate(Board board, Player player, int moveCount, Node node) {
+        try {
+            if (moveCount < EARLY_GAME_MOVES) {
+                // Use CNN for early game evaluation
+                float[][][] boardTensor = BoardStateConverter.convertToTensor(board, player);
+                return cnn.evaluatePosition(boardTensor);
+            } else {
+                // Use traditional evaluation for mid/late game
+                return minimaxEval.evaluate(board, player, getCurrentPhase(moveCount), node) / 1000.0f;
+            }
+        } catch (Exception e) {
+            System.err.println("Evaluation error: " + e.getMessage());
+            // Fallback to minimax evaluation in case of error
+            return minimaxEval.evaluate(board, player, getCurrentPhase(moveCount), node) / 1000.0f;
         }
     }
 
+    // Determine game phase based on move count
+    private int getCurrentPhase(int moveCount) {
+        if (moveCount < 18) return 1; // Placement phase
+        if (moveCount < 50) return 2; // Moving phase
+        return 3; // Flying phase
+    }
+
+    // Save the trained model with error handling
     public void saveModel(String filepath) {
         try {
-            ModelSerializer.writeModel(cnn.getModel(), new File(filepath), true);
+            File file = new File(filepath);
+            file.getParentFile().mkdirs(); // Create directories if they don't exist
+            ModelSerializer.writeModel(cnn.getModel(), file, true);
             System.out.println("Model saved successfully at: " + filepath);
         } catch (IOException e) {
             System.err.println("Failed to save model: " + e.getMessage());
         }
     }
 
+    // Load a saved model with error handling
     public void loadModel(String filepath) {
         try {
-            cnn.setModel(ModelSerializer.restoreMultiLayerNetwork(new File(filepath)));
+            File file = new File(filepath);
+            if (!file.exists()) {
+                throw new FileNotFoundException("Model file not found: " + filepath);
+            }
+            cnn.setModel(ModelSerializer.restoreMultiLayerNetwork(file));
             System.out.println("Model loaded successfully from: " + filepath);
         } catch (IOException e) {
             System.err.println("Failed to load model: " + e.getMessage());
         }
     }
 
-    public void saveGameData(String filepath) {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filepath))) {
-            oos.writeObject(collector.getGameRecords());
-            System.out.println("Training data saved successfully at: " + filepath);
-        } catch (IOException e) {
-            System.err.println("Failed to save game data: " + e.getMessage());
-        }
-    }
-
-    public void loadGameData(String filepath) {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filepath))) {
-            List<GameRecord> gameRecords = (List<GameRecord>) ois.readObject();
-            collector.setGameRecords(gameRecords);
-            System.out.println("Training data loaded successfully from: " + filepath);
-        } catch (IOException | ClassNotFoundException e) {
-            System.err.println("Failed to load game data: " + e.getMessage());
-        }
-    }
-
+    // Main method demonstrating usage with error handling
     public static void main(String[] args) {
-        Game game = new Game(null, null);
-        CNNTrainer trainer = new CNNTrainer(game);
+        try {
+            // Set up the game and trainer
+            Game game = new Game(null, null);
+            CNNTrainer trainer = new CNNTrainer(game);
 
-        trainer.trainCNN(50, 3);
+            // Configure training parameters
+            int numGames = 100;  // Reduced number of games for testing
+            int minimaxDepth = 2;  // Reduced depth for faster processing
 
-        trainer.saveModel("cnnModel.zip");
-        trainer.saveGameData("trainingData.dat");
+            // Train the model
+            System.out.println("Starting training with " + numGames + " games...");
+            trainer.trainCNN(numGames, minimaxDepth);
 
-        trainer.loadModel("cnnModel.zip");
-        trainer.loadGameData("trainingData.dat");
+            // Save the trained model
+            trainer.saveModel("models/cnn_model_" + System.currentTimeMillis() + ".zip");
 
-        Board currentBoard = game.getBoard();
-        Player currentPlayer = game.getCurrentPlayer();
-        float evaluation = trainer.evaluate(currentBoard, currentPlayer, 1, null);
+            // Test the model
+            Board testBoard = game.getBoard();
+            Player testPlayer = game.getCurrentPlayer();
+            float evaluation = trainer.evaluate(testBoard, testPlayer, 3, null);
+            System.out.println("Test position evaluation: " + evaluation);
 
-        System.out.println("Position evaluation: " + evaluation);
+        } catch (Exception e) {
+            System.err.println("Error in main: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // Getters and setters
+    public CNNModel getCnn() {
+        return cnn;
+    }
+
+    public void setCnn(CNNModel cnn) {
+        this.cnn = cnn;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 }

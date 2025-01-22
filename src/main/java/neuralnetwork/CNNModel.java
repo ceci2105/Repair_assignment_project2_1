@@ -81,7 +81,7 @@ public class CNNModel {
     public void train(INDArray features, INDArray labels) {
         // Ensure features are in the correct shape [batch, channels, height, width]
         if (features.rank() != 4) {
-            features = features.reshape(features.size(0), 4, 7, 7);
+            features = features.reshape(features.size(1), 4, 7, 7);
         }
 
         DataSet dataSet = new DataSet(features, labels);
