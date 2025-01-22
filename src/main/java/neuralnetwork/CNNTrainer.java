@@ -94,12 +94,10 @@ public class CNNTrainer {
     // Main method demonstrating usage with error handling
     public static void main(String[] args) {
         try {
-            // Set up the game and trainer
             Game game = new Game(null, null);
             CNNTrainer trainer = new CNNTrainer(game);
 
-            // Configure training parameters
-            int numGames = 100;  // Reduced number of games for testing
+            int numGames = 1000;  // Reduced number of games for testing
             int minimaxDepth = 2;  // Reduced depth for faster processing
 
             // Train the model

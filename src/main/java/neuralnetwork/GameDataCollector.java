@@ -54,10 +54,11 @@ public class GameDataCollector {
     private void playAndRecordGame(int minimaxDepth) {
         Game game = new Game(null, null);
         MinimaxAIPlayer player1 = new MinimaxAIPlayer("P1", Color.WHITE, minimaxDepth, game);
-        MinimaxAIPlayer player2 = new MinimaxAIPlayer("P2", Color.BLACK, minimaxDepth - 1, game);
-
         game.setHumanPlayer1(player1);
+        game.setCurrentPlayer(player1);
+        MinimaxAIPlayer player2 = new MinimaxAIPlayer("P2", Color.BLACK, minimaxDepth - 1, game);
         game.setSecondPlayer(player2);
+
         try {
 
             int positionsRecorded = 0;
