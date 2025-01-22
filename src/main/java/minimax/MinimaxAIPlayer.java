@@ -10,13 +10,14 @@ import lombok.extern.java.Log;
 import java.util.Random;
 import java.util.logging.Level;
 import javafx.application.Platform;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * The MinimaxAIPlayer class represents an AI-controlled player that uses the Minimax algorithm
  * to make strategic moves in the game. It extends the Player interface to interact with the game,
  * and calculates moves based on the current board state, game phase, and opponent's position.
  */
-@Log
+@Slf4j
 public class MinimaxAIPlayer implements Player {
     private final int depth;            // The search depth for the Minimax algorithm
     @Setter
@@ -86,7 +87,7 @@ public class MinimaxAIPlayer implements Player {
                                 handleMillFormation(board);
                             }
                         } catch (InvalidMove e) {
-                            log.log(Level.WARNING, "Failed to place piece: {0}", e.getMessage());
+                            log.error("Failed to place piece", e);
                         }
                     }
                 } else {
@@ -101,12 +102,12 @@ public class MinimaxAIPlayer implements Player {
                                 handleMillFormation(board);
                             }
                         } catch (InvalidMove e) {
-                            log.log(Level.WARNING, "Failed to make move: {0}", e.getMessage());
+                            log.error("Failed to make move", e);
                         }
                     } else {
-                        log.log(Level.WARNING, "No valid move found for AI.");
+                        log.error("No valid move found for AI.");
                         if (bestMove[0] == null || bestMove[1] == null) {
-                            log.warning("No valid move found. Falling back to random.");
+                            log.error("No valid move found. Falling back to random.");
                             for (Node fromNode : board.getNodes().values()) {
                                 if (fromNode.getOccupant() == this) {
                                     for (Node toNode : board.getNeighbours(fromNode)) {
@@ -168,7 +169,7 @@ public class MinimaxAIPlayer implements Player {
                     removedPiece = true;
                     break;
                 } catch (InvalidMove e) {
-                    log.log(Level.WARNING, "Failed to remove piece: {0}", e.getMessage());
+                    log.error("Failed to remove piece: {0}", e);
                 }
             }
         }
@@ -182,7 +183,7 @@ public class MinimaxAIPlayer implements Player {
                         log.info("All opponent stones are in mills. Removed a piece from a mill.");
                         break;
                     } catch (InvalidMove e) {
-                        log.log(Level.WARNING, "Failed to remove piece from a mill: {0}", e.getMessage());
+                        log.error("Failed to remove piece from a mill: {0}", e);
                     }
                 }
             }
