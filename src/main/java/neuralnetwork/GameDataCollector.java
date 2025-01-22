@@ -1,30 +1,32 @@
 package neuralnetwork;
 
-import game.mills.*;
-import minimax.MinimaxAIPlayer;
+import game.mills.Game;
+import game.mills.Board;
+import game.mills.Player;
 import javafx.scene.paint.Color;
-import java.util.*;
+import minimax.MinimaxAIPlayer;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+
 import java.io.*;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
-import lombok.extern.java.Log;
-import game.mills.Board;
+import java.util.logging.Logger;
 
-@Log
 public class GameDataCollector {
-    private static final int EARLY_GAME_THRESHOLD = 6;
-    private static final float POSITION_SAMPLING_RATE = 0.7f;
-    private static final int NUM_WORKER_THREADS = Runtime.getRuntime().availableProcessors();
+    private static final Logger log = Logger.getLogger(GameDataCollector.class.getName());
+    private static final int NUM_WORKER_THREADS = 4;
+    private static final int EARLY_GAME_THRESHOLD = 10;
+    private static final float POSITION_SAMPLING_RATE = 0.1f;
 
     private final ExecutorService executorService;
     private final List<GameRecord> gameRecords;
     private final Random random;
+    private final Board board;
     private Consumer<Integer> progressCallback;
-    private AtomicInteger gamesCompleted = new AtomicInteger(0);
-    private Board board ;
+    private final AtomicInteger gamesCompleted = new AtomicInteger(0);
 
     public GameDataCollector() {
         this.executorService = Executors.newFixedThreadPool(NUM_WORKER_THREADS);
@@ -60,12 +62,10 @@ public class GameDataCollector {
     }
 
     private void playAndRecordGame(int minimaxDepth) {
-        // Create players and game
-        Game game = new Game(null, null); // Initialize game first
+        Game game = new Game(null, null);
         MinimaxAIPlayer minimaxPlayer = new MinimaxAIPlayer("Minimax", Color.WHITE, minimaxDepth, game);
         MinimaxAIPlayer opponent = new MinimaxAIPlayer("Opponent", Color.BLACK, minimaxDepth - 1, game);
 
-        // Randomly assign colors
         if (random.nextBoolean()) {
             game.setHumanPlayer1(minimaxPlayer);
             game.setSecondPlayer(opponent);
@@ -77,14 +77,12 @@ public class GameDataCollector {
         GameRecord gameRecord = new GameRecord();
         int moveCount = 0;
 
-        while (!(game.isGameOver)) {
-            // Record position if it meets criteria
+        while (!game.isGameOver()) {
             if (shouldRecordPosition(moveCount)) {
                 BoardPosition position = recordCurrentPosition(game);
                 gameRecord.addPosition(position);
             }
 
-            // Make move
             Player currentPlayer = game.getCurrentPlayer();
             if (currentPlayer instanceof MinimaxAIPlayer) {
                 ((MinimaxAIPlayer) currentPlayer).makeMove(board, game.getPhase());
@@ -93,12 +91,9 @@ public class GameDataCollector {
             moveCount++;
         }
 
-        // Record final outcome
         Player winner = game.getWinner();
         float gameOutcome = calculateGameOutcome(winner, minimaxPlayer);
         gameRecord.setOutcome(gameOutcome);
-
-        // Apply outcome to all positions
         gameRecord.finalizePositions();
 
         synchronized (gameRecords) {
@@ -108,10 +103,7 @@ public class GameDataCollector {
     }
 
     private boolean shouldRecordPosition(int moveCount) {
-        if (moveCount < EARLY_GAME_THRESHOLD) {
-            return false; // Skip early game positions
-        }
-        return random.nextFloat() < POSITION_SAMPLING_RATE;
+        return moveCount >= EARLY_GAME_THRESHOLD && random.nextFloat() < POSITION_SAMPLING_RATE;
     }
 
     private BoardPosition recordCurrentPosition(Game game) {
@@ -123,34 +115,49 @@ public class GameDataCollector {
 
     private float calculateGameOutcome(Player winner, Player minimaxPlayer) {
         if (winner == null) {
-            return 0.0f; // Draw
+            return 0.0f;
         }
         return winner == minimaxPlayer ? 1.0f : -1.0f;
     }
 
-    // Convert collected data to DL4J format
-    public INDArray getTrainingFeatures() {
-        int totalPositions = gameRecords.stream()
-                .mapToInt(record -> record.getPositions().size())
-                .sum();
+    public INDArray getTrainingFeatures() throws IOException {
+        File[] gameFiles = getGameRecordFiles();
+        List<INDArray> featureBatches = new ArrayList<>();
 
-        INDArray features = Nd4j.create(totalPositions, 4, 7, 7);
-        int currentIndex = 0;
+        for (File file : gameFiles) {
+            GameRecord record = loadGameRecordFromFile(file);
 
-        for (GameRecord record : gameRecords) {
+            INDArray batchFeatures = Nd4j.create(record.getPositions().size(), 4, 7, 7);
+            int index = 0;
+
             for (BoardPosition position : record.getPositions()) {
                 float[][][] tensorData = position.getBoardState();
                 for (int c = 0; c < 4; c++) {
                     for (int h = 0; h < 7; h++) {
                         for (int w = 0; w < 7; w++) {
-                            features.putScalar(new int[]{currentIndex, c, h, w}, tensorData[c][h][w]);
+                            batchFeatures.putScalar(new int[]{index, c, h, w}, tensorData[c][h][w]);
                         }
                     }
                 }
-                currentIndex++;
+                index++;
             }
+            featureBatches.add(batchFeatures);
         }
-        return features;
+
+        return Nd4j.vstack(featureBatches);
+    }
+
+    private File[] getGameRecordFiles() {
+        File directory = new File("path/to/game/records");
+        return directory.listFiles((dir, name) -> name.endsWith(".dat"));
+    }
+
+    private GameRecord loadGameRecordFromFile(File file) throws IOException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+            return (GameRecord) ois.readObject();
+        } catch (ClassNotFoundException e) {
+            throw new IOException("Failed to deserialize GameRecord", e);
+        }
     }
 
     public INDArray getTrainingLabels() {
@@ -184,7 +191,6 @@ public class GameDataCollector {
         return gameRecords;
     }
 
-    // Setter for game records
     public void setGameRecords(List<GameRecord> gameRecords) {
         synchronized (this.gameRecords) {
             this.gameRecords.clear();

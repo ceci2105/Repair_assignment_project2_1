@@ -27,39 +27,39 @@ public class CNNTrainer {
                 System.out.println("Completed " + gamesCompleted + " games"));
     }
 
-    // Train the CNN using generated game data
     public void trainCNN(int numGames, int minimaxDepth) {
         System.out.println("Starting training data generation...");
 
-        // Generate training data
         collector.generateGames(numGames, minimaxDepth);
 
         System.out.println("Data generation complete. Starting CNN training...");
 
-        // Retrieve features and labels for training
-        INDArray features = collector.getTrainingFeatures();
-        INDArray labels = collector.getTrainingLabels();
+        try {
+            INDArray features = collector.getTrainingFeatures();
+            INDArray labels = collector.getTrainingLabels();
 
-        // Train the CNN model
-        cnn.train(features, labels);
+            if (features.size(0) == 0 || labels.size(0) == 0) {
+                throw new IllegalStateException("No training data generated.");
+            }
 
-        System.out.println("CNN training complete!");
+            cnn.train(features, labels);
+
+            System.out.println("CNN training complete!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    // Evaluate a board position using the trained CNN or Minimax
     public int evaluate(Board board, Player player, int phase, Node node) {
         if (phase == 1) {
-            // Use CNN for early-game evaluation
             float[][][] boardTensor = BoardStateConverter.convertToTensor(board, player);
             float cnnScore = cnn.evaluatePosition(boardTensor);
-            return (int) (cnnScore * 1000); // Scale CNN output for comparison
+            return (int) (cnnScore * 1000);
         } else {
-            // Use Minimax for later phases
             return minimaxEval.evaluate(board, player, phase, node);
         }
     }
 
-    // Save the trained CNN model
     public void saveModel(String filepath) {
         try {
             ModelSerializer.writeModel(cnn.getModel(), new File(filepath), true);
@@ -69,7 +69,6 @@ public class CNNTrainer {
         }
     }
 
-    // Load a previously saved CNN model
     public void loadModel(String filepath) {
         try {
             cnn.setModel(ModelSerializer.restoreMultiLayerNetwork(new File(filepath)));
@@ -79,7 +78,6 @@ public class CNNTrainer {
         }
     }
 
-    // Save the training data (game records)
     public void saveGameData(String filepath) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filepath))) {
             oos.writeObject(collector.getGameRecords());
@@ -89,8 +87,6 @@ public class CNNTrainer {
         }
     }
 
-    // Load the training data (game records)
-    @SuppressWarnings("unchecked")
     public void loadGameData(String filepath) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filepath))) {
             List<GameRecord> gameRecords = (List<GameRecord>) ois.readObject();
@@ -101,24 +97,18 @@ public class CNNTrainer {
         }
     }
 
-    // Main method for demonstration
     public static void main(String[] args) {
-        // Example usage
-        Game game = new Game(null, null); // Create your game instance
+        Game game = new Game(null, null);
         CNNTrainer trainer = new CNNTrainer(game);
 
-        // Step 1: Train the CNN
-        trainer.trainCNN(50, 3); // Train with 1000 games, depth 3
+        trainer.trainCNN(50, 3);
 
-        // Step 2: Save the trained CNN model and training data
         trainer.saveModel("cnnModel.zip");
         trainer.saveGameData("trainingData.dat");
 
-        // Step 3: Load the model and data for evaluation
         trainer.loadModel("cnnModel.zip");
         trainer.loadGameData("trainingData.dat");
 
-        // Step 4: Test the trained CNN
         Board currentBoard = game.getBoard();
         Player currentPlayer = game.getCurrentPlayer();
         float evaluation = trainer.evaluate(currentBoard, currentPlayer, 1, null);
