@@ -17,10 +17,10 @@ import java.util.Arrays;
  * in order to evaluate the game state from the perspective of a given player.
  * It is used by the Minimax algorithm to determine the best moves based on board positions.
  */
+@Setter
 @Log
 public class EvaluationFunction {
 
-    @Setter
     private Game game;
 
     /**

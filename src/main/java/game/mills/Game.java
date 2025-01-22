@@ -1,99 +1,57 @@
 package game.mills;
 
-import agents.neural_network.GNN;
-import minimax.MinimaxAIPlayer;
 import agents.neural_network.BaselineAgent;
 import gui.MillGameUI;
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.util.Duration;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import minimax.MinimaxAIPlayer;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
 
-import java.util.HashMap;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.util.Duration;
-import javafx.application.Platform;
-import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.factory.Nd4j;
 
 /**
  * The NewGame class manages the game logic for Mills.
  * It controls the game phases, player turns, moves, and interactions with the
  * game board.
  */
+@Slf4j
 public class Game {
-    private static Logger logger = Logger.getLogger(Game.class.getName());
-    public boolean isGameOver = false;
-    @Setter
-    private Player humanPlayer1;
-    @Setter
-    private Player humanPlayer2;
-    private Player winner = null;
-    private MoveCallback moveCallback;
-    private HashMap<String, Integer> boardStateCount; // Track occurrences of board states
-    private String lastBoardState = null; // Last observed board state
-    private int consecutiveRepetitionCount = 0; // Count of consecutive repetitions
-
     @Getter
     private final Map<INDArray, INDArray> boardStates;
-
-    public boolean isGameOver() {
-        return isGameOver;
-    }
-
-    public Player getWinner() {
-        return winner;
-    }
-
-    public Player getPlayer1() {
-        return humanPlayer1;
-    }
-
-    public Player getPlayer2() {
-        return humanPlayer2;
-    }
-
-    /**
-     * Sets a callback to be notified after each move in the game.
-     * This is particularly useful for features like move logging,
-     * data collection, or external game state monitoring.
-     *
-     * @param callback The callback to be executed after each move
-     */
-    public void setMoveCallback(MoveCallback callback) {
-        this.moveCallback = callback;
-    }
-
-    /**
-     * Helper method to notify the callback of game state changes.
-     * This should be called after any move that changes the game state.
-     */
-    private void notifyMoveCallback() {
-        if (moveCallback != null) {
-            moveCallback.onMove(board, currentPlayer);
-        }
-    }
-
+    private final HashMap<String, Integer> boardStateCount; // Track occurrences of board states
+    private final String lastBoardState = null; // Last observed board state
+    private final int consecutiveRepetitionCount = 0; // Count of consecutive repetitions
+    @Getter
+    private final Board board;
+    private final MoveValidator moveValidator;
+    public boolean isGameOver = false;
+    @Setter
+    @Getter
+    private Player humanPlayer1;
+    @Setter
+    @Getter
+    private Player humanPlayer2;
+    @Getter
+    private Player winner = null;
+    @Setter
+    private MoveCallback moveCallback;
     @Getter
     @Setter
     private Player currentPlayer;
-    @Getter
-    private Board board;
-    private MoveValidator moveValidator;
-    @SuppressWarnings("unused")
     private int totalMoves;
-
     @Getter
     private int phase;
     @Setter
@@ -136,6 +94,17 @@ public class Game {
 
     }
 
+
+    /**
+     * Helper method to notify the callback of game state changes.
+     * This should be called after any move that changes the game state.
+     */
+    private void notifyMoveCallback() {
+        if (moveCallback != null) {
+            moveCallback.onMove(board, currentPlayer);
+        }
+    }
+
     /**
      * Switches the player when the turn changes.
      */
@@ -158,19 +127,16 @@ public class Game {
                 }
             };
 
-            aiTask.setOnSucceeded(event -> {
-                Platform.runLater(() -> {
-                    notifyUI();
-                    if (ui != null) {
-                        ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
-                    }
-                });
-            });
+            aiTask.setOnSucceeded(event -> Platform.runLater(() -> {
+                notifyUI();
+                if (ui != null) {
+                    ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+                }
+            }));
 
             aiTask.setOnFailed(event -> {
                 Throwable error = aiTask.getException();
-                System.err.println("Error in AI computation: " + error.getMessage());
-                error.printStackTrace();
+                log.error("Error in AI Computation!", error);
             });
 
             new Thread(aiTask).start();
@@ -190,7 +156,7 @@ public class Game {
     }
 
     private void recordBoardState() {
-        INDArray winnerState = Nd4j.zeros(1,24);
+        INDArray winnerState = Nd4j.zeros(1, 24);
         int i = 0;
         for (Node node : board.getNodes().values()) {
             if (!node.isOccupied()) {
@@ -198,7 +164,7 @@ public class Game {
             }
             if (winner.equals(null)) {
                 winnerState.putScalar(i, 0);
-            } else if(winner.equals(humanPlayer1) && node.getOccupant().equals(humanPlayer1)) {
+            } else if (winner.equals(humanPlayer1) && node.getOccupant().equals(humanPlayer1)) {
                 winnerState.putScalar(i, 1);
             } else if (winner.equals(humanPlayer2) && node.getOccupant().equals(humanPlayer2)) {
                 winnerState.putScalar(i, 2);
@@ -206,12 +172,12 @@ public class Game {
             i++;
         }
         boardStates.put(winnerState, boardToINDArray(board));
-        logger.log(Level.INFO, "Board state was recorded");
+        log.info("Board state was recorded!");
     }
 
     public INDArray boardToINDArray(Board board) {
         int numNodes = 24;
-        INDArray boardArray = Nd4j.zeros(1,numNodes);
+        INDArray boardArray = Nd4j.zeros(1, numNodes);
 
         Map<Integer, Node> nodes = board.getNodes();
         for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
@@ -238,12 +204,13 @@ public class Game {
         String filename = now.format(formatter) + ".dat";
         String directory = "Data";
         String filePath = Paths.get(directory, filename).toString();
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath))){
+        try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get(filePath)))) {
             oos.writeObject(boardStates);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Something went wrong saving the board state!", e);
         }
     }
+
     /**
      * Places a piece on the board at the specified node ID.
      * Validates the move and checks if a mill has been formed.
@@ -270,28 +237,6 @@ public class Game {
         }
     }
 
-    public void placePieceCopy(int nodeID, Board copy) {
-        if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
-            copy.placePiece(currentPlayer, nodeID);
-            notifyUI();
-            if (copy.checkMill(copy.getNode(nodeID), currentPlayer)) {
-                millFormed = true;
-            } else {
-                switchPlayer();
-            }
-            totalMoves++;
-            checkPhase();
-        } else {
-            throw new InvalidMove("Placement is invalid!");
-        }
-    }
-
-    /**
-     * Updates the current game phase
-     */
-    public void updatePhase() {
-        phase++;
-    }
 
     /**
      * Executes a move from one node to another.
@@ -416,8 +361,8 @@ public class Game {
      * @return true if the player can fly, false otherwise.
      */
     public boolean canFly(Player currentPlayer) {
-        boolean canFly = moveValidator.canFly(currentPlayer); // HumanPlayer can fly if they have exactly 3 stones
-        return canFly;
+        // HumanPlayer can fly if they have exactly 3 stones
+        return moveValidator.canFly(currentPlayer);
     }
 
     /**
@@ -475,8 +420,7 @@ public class Game {
         if (!isGameOver) {
             isGameOver = true;
             this.winner = winner;
-            logger.log(Level.INFO, winner != null ? "Game Over! {0} wins!" : "Game Over! It's a draw!",
-                    new Object[] { winner != null ? winner.getName() : "" });
+            log.info(winner != null ? "Game Over! {0} wins!" : "Game Over! It's a draw!", winner != null ? winner.getName() : "");
             if (ui != null) {
                 recordBoardState();
                 saveBoardStates();
@@ -504,7 +448,7 @@ public class Game {
     public void startGame() {
         boardStateCount.clear();
         if (currentPlayer instanceof BaselineAgent) {
-            logger.log(Level.INFO, "Starting game with Baseline Agent");
+            log.info("Starting game with Baseline Agent");
             // Add a delay before the bot makes its move
             PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay
             pause.setOnFinished(event -> {
@@ -518,7 +462,7 @@ public class Game {
             });
             pause.play();
         } else if (currentPlayer instanceof MinimaxAIPlayer) {
-            logger.log(Level.INFO, "Starting game with Minimax AI Player");
+            log.info("Starting game with Minimax Agent");
             PauseTransition pause = new PauseTransition(Duration.seconds(0.1)); // 0.1-second delay
             pause.setOnFinished(event -> {
                 ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
@@ -544,12 +488,10 @@ public class Game {
 
         // Check if this state has been repeated more than 2 times
         if (boardStateCount.get(boardStateHash) > 2) {
-            logger.log(Level.INFO, "Detected repetition loop. Game is a draw.");
+            log.info("Detected repetition loop, game is a draw");
             gameOver(null); // Call gameOver with null to indicate a draw
         }
     }
-
-
 
 
 }

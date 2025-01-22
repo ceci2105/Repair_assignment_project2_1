@@ -1,15 +1,11 @@
 package game.mills;
 
 import lombok.Getter;
-import lombok.extern.java.Log;
 import org.jgrapht.Graphs;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 
-import java.io.Serializable;
 import java.util.*;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
 
 /**
  * The Board class represents the game board.
@@ -18,14 +14,12 @@ import java.util.stream.Collectors;
  * - Checking neighboring nodes
  * - Validating moves
  */
-@Log
 public class Board {
     // Declaration of constants for edges and mills
     @Getter
     private static final int[][] edges = {{0, 1}, {1, 2}, {2, 14}, {14, 23}, {23, 22}, {22, 21}, {21, 9}, {9, 0}, {3, 4}, {4, 5}, {5, 13}, {13, 20}, {20, 19}, {19, 18}, {18, 10}, {10, 3}, {6, 7}, {7, 8}, {8, 12}, {12, 17}, {17, 16}, {16, 15}, {15, 11}, {11, 6}, {1, 4}, {4, 7}, {14, 13}, {13, 12}, {22, 19}, {19, 16}, {9, 10}, {10, 11}};
     @Getter
     private static final int[][] mills = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {15, 16, 17}, {18, 19, 20}, {21, 22, 23}, {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, {1, 4, 7}, {16, 19, 22}, {8, 12, 17}, {5, 13, 20}, {2, 14, 23}, {9, 10, 11}, {12, 13, 14}};
-    private static final long serialVersionUID = 1L;
     private final SimpleGraph<Integer, DefaultEdge> graph;
     @Getter
     private Map<Integer, Node> nodes;
@@ -82,7 +76,7 @@ public class Board {
      */
     public List<Node> getNeighbours(Node node) {
         List<Node> neighbours = new ArrayList<>();
-        for(Integer neighbourID : Graphs.neighborListOf(graph, node.getId())) {
+        for (Integer neighbourID : Graphs.neighborListOf(graph, node.getId())) {
             neighbours.add(nodes.get(neighbourID));
         }
         return neighbours;
@@ -150,30 +144,30 @@ public class Board {
      * @param player The player making the move.
      * @return True if the player forms a mill, false otherwise.
      */
-  public boolean checkMill(Node node, Player player) {
-    for (int[] mill : mills) {
-        boolean isMill = false;
-        for (int id : mill) {
-            if (id == node.getId()) {
-                isMill = true;
-                break;
-            }
-        }
-        if (isMill) {
-            boolean allMatch = true;
+    public boolean checkMill(Node node, Player player) {
+        for (int[] mill : mills) {
+            boolean isMill = false;
             for (int id : mill) {
-                if (nodes.get(id).getOccupant() != player) {
-                    allMatch = false;
+                if (id == node.getId()) {
+                    isMill = true;
                     break;
                 }
             }
-            if (allMatch) {
-                return true;
+            if (isMill) {
+                boolean allMatch = true;
+                for (int id : mill) {
+                    if (nodes.get(id).getOccupant() != player) {
+                        allMatch = false;
+                        break;
+                    }
+                }
+                if (allMatch) {
+                    return true;
+                }
             }
         }
+        return false;
     }
-    return false;
-}
 
     /**
      * Checks if all of an opponent's stones are part of mills.
@@ -183,9 +177,7 @@ public class Board {
      * @return True if all the opponent's stones are in mills, false otherwise.
      */
     public boolean allOpponentStonesInMill(Player opponent) {
-        return nodes.values().stream().parallel()
-                .filter(node -> node.getOccupant() == opponent)
-                .allMatch(node -> checkMill(node, opponent));
+        return nodes.values().stream().parallel().filter(node -> node.getOccupant() == opponent).allMatch(node -> checkMill(node, opponent));
     }
 
     /**
@@ -212,17 +204,14 @@ public class Board {
 
     /**
      * Gets all the neighbouring nodes from a given node of a given player.
+     *
      * @param nodeID The node to check.
      * @param player The Player.
      * @return The count of neighbouring nodes.
      */
     public int getPlayerNeighbours(int nodeID, Player player) {
 
-        return (int) Graphs.neighborListOf(graph, nodeID).stream()
-                .parallel()
-                .map(nodes::get)
-                .filter(neighbour -> neighbour.getOccupant() == player)
-                .count();
+        return (int) Graphs.neighborListOf(graph, nodeID).stream().parallel().map(nodes::get).filter(neighbour -> neighbour.getOccupant() == player).count();
 
     }
 
@@ -237,12 +226,12 @@ public class Board {
         if (occupant == null) {
             return false;
         }
-        return Arrays.stream(mills).parallel().anyMatch(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) &&
-                Arrays.stream(mill).parallel().allMatch(id -> nodes.get(id).getOccupant() == occupant));
+        return Arrays.stream(mills).parallel().anyMatch(mill -> Arrays.stream(mill).anyMatch(id -> id == node.getId()) && Arrays.stream(mill).parallel().allMatch(id -> nodes.get(id).getOccupant() == occupant));
     }
 
     /**
      * Copies a given board one to one.
+     *
      * @return The copied board.
      */
     public Board deepCopy() {
@@ -261,18 +250,16 @@ public class Board {
 
     /**
      * Tests if a given stone placement will form a mill.
-     * @param node The node of the given stone.
+     *
+     * @param node     The node of the given stone.
      * @param opponent The opponent of the given player.
-     * @param board The game Board.
+     * @param board    The game Board.
      * @return True if the placement will form a mill, false otherwise.
      */
     public boolean willFormMill(Node node, Player opponent, Board board) {
-        return Arrays.stream(board.getMills()).parallel().anyMatch(mill -> {
+        return Arrays.stream(getMills()).parallel().anyMatch(mill -> {
             if (Arrays.stream(mill).parallel().anyMatch(id -> id == node.getId())) {
-                return Arrays.stream(mill)
-                        .parallel()
-                        .filter(id -> id != node.getId())
-                        .allMatch(id -> board.getNode(id).getOccupant() == opponent);
+                return Arrays.stream(mill).parallel().filter(id -> id != node.getId()).allMatch(id -> board.getNode(id).getOccupant() == opponent);
             }
             return false;
         });
@@ -280,7 +267,8 @@ public class Board {
 
     /**
      * Finds the Nodes at which the Opponent might form a mill (2 neighboured stoned)
-     * @param board The Game board.
+     *
+     * @param board    The Game board.
      * @param opponent The opponent of the Player.
      * @return A list containing all nodes based on which a mill could be formed.
      */
@@ -294,6 +282,10 @@ public class Board {
         return possibleMills;
     }
 
+    /**
+     * Writes the board to a string with a given mapping.
+     * @return A string representation of the board state.
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -306,10 +298,6 @@ public class Board {
         }
         return sb.toString();
     }
-
-
-
-
 
 
 }
