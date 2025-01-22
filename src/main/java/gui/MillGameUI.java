@@ -53,6 +53,7 @@ public class MillGameUI {
     private static final String selfPlay = "SelfPlay";
     private static final String run100Games = "run100Games";
     private static final String COLLECT_DATA = "collectData";
+    private static final String train = "Train";
     private Node selectedNode = null; // Store the currently selected node
     private static int numGames;
     private static int gamesPlayed;
@@ -62,6 +63,7 @@ public class MillGameUI {
     private static int baselinemoves;
     private static int minimaxmoves;
     private GameDataCollector dataCollector;
+
 
     private Label statusLabel; // Label to display the current game status
     private Label phaseLabel; // Label to display the current game phase
@@ -93,6 +95,8 @@ public class MillGameUI {
             run100Games();
         } else if (gameType.equals(COLLECT_DATA)) {
             startDataCollection();
+        }else if(gameType.equals(train)){
+            startTrain();
         }
 
     }
@@ -146,15 +150,98 @@ public class MillGameUI {
 
     public void startSelfPlayGame() {
         this.game = new Game(null, null);
+
         MinimaxAIPlayer minimaxAIPlayer = new MinimaxAIPlayer("P1", Color.BLACK, 3, game);
         game.setHumanPlayer1(minimaxAIPlayer);
         game.setCurrentPlayer(minimaxAIPlayer);
+
         MinimaxAIPlayer minimaxAIPlayer1 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
         game.setSecondPlayer(minimaxAIPlayer1);
+
         game.setUI(this);
         board = game.getBoard();
         buildUI();
     }
+
+    public void runMultipleGames(int numGames) {
+        try {
+            // Initialize the data writer once
+            game.initDataWriter("training_data.csv");
+
+            for (int i = 0; i < numGames; i++) {
+                log.info("Starting game " + (i + 1) + " of " + numGames);
+
+                // Initialize a new game instance for each iteration
+                this.game = new Game(null, null);
+                MinimaxAIPlayer player1 = new MinimaxAIPlayer("P1", Color.BLACK, 3, game);
+                MinimaxAIPlayer player2 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
+
+                game.setHumanPlayer1(player1);
+                game.setCurrentPlayer(player1);
+                game.setSecondPlayer(player2);
+
+                // Set up data collection
+                game.setMoveCallback((board, currentPlayer) -> {
+                    try {
+                        game.saveDataIncrementally(board, currentPlayer, game.getPhase());
+                    } catch (IOException e) {
+                        log.log(Level.SEVERE, "Error saving move data: {0}", e.getMessage());
+                    }
+                });
+
+                // Start the game and wait for it to finish
+                game.startGame();
+
+                // Log game completion
+                log.info("Game " + (i + 1) + " finished.");
+            }
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error initializing data writer: {0}", e.getMessage());
+        } finally {
+            // Close the data writer after all games are finished
+            try {
+                game.closeDataWriter();
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Error closing data writer: {0}", e.getMessage());
+            }
+        }
+    }
+
+    public void startTrain() {
+        this.game = new Game(null, null);
+
+        // Initialize Minimax players
+        MinimaxAIPlayer player1 = new MinimaxAIPlayer("P1", Color.BLACK, 3, game);
+        game.setHumanPlayer1(player1);
+        game.setCurrentPlayer(player1);
+
+        MinimaxAIPlayer player2 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
+        game.setSecondPlayer(player2);
+
+        // Initialize data writer
+        try {
+            game.initDataWriter("training_data.csv");
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error initializing data writer: {0}", e.getMessage());
+            return;
+        }
+
+        // Set up move callback for data collection
+        game.setMoveCallback((board, currentPlayer) -> {
+            try {
+                game.saveDataIncrementally(board, currentPlayer, game.getPhase());
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Error saving move data: {0}", e.getMessage());
+            }
+        });
+
+        // Start the game
+        game.setUI(this);
+        board = game.getBoard();
+        buildUI();
+    }
+
+
 
     private void run100Games() {
         if (gamesPlayed == 0) { // Initialize only once

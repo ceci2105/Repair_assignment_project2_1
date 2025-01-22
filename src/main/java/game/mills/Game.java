@@ -1,6 +1,7 @@
 package game.mills;
 
 import agents.neural_network.GNN;
+import minimax.EvaluationFunction;
 import minimax.MinimaxAIPlayer;
 import agents.neural_network.BaselineAgent;
 import gui.MillGameUI;
@@ -9,10 +10,8 @@ import javafx.concurrent.Task;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.*;
 import java.util.HashMap;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -24,6 +23,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.util.Duration;
 import javafx.application.Platform;
+import org.apache.commons.compress.harmony.unpack200.bytecode.AnnotationsAttribute;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -44,6 +44,7 @@ public class Game {
     private HashMap<String, Integer> boardStateCount; // Track occurrences of board states
     private String lastBoardState = null; // Last observed board state
     private int consecutiveRepetitionCount = 0; // Count of consecutive repetitions
+    private EvaluationFunction evaluatonfunction;
 
     @Getter
     private final Map<INDArray, INDArray> boardStates;
@@ -117,6 +118,7 @@ public class Game {
         this.board = new Board();
         this.moveValidator = new MoveValidator(board);
         this.phase = 1; // Start the game in the placing phase
+        this.evaluatonfunction = new EvaluationFunction(this);
 
         this.totalMoves = 0;
         this.boardStateCount = new HashMap<>();
@@ -234,7 +236,7 @@ public class Game {
 
     private void saveBoardStates() {
         LocalDateTime now = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
         String filename = now.format(formatter) + ".dat";
         String directory = "Data";
         String filePath = Paths.get(directory, filename).toString();
@@ -549,7 +551,48 @@ public class Game {
         }
     }
 
+    private BufferedWriter dataWriter; // Writer for saving data incrementally
+    private boolean isWriterInitialized = false; // Flag to track writer status
 
+    // Initialize the writer (called once before starting the game)
+    public void initDataWriter(String fileName) throws IOException {
+        if (isWriterInitialized) {
+            throw new IllegalStateException("Data writer is already initialized.");
+        }
+        dataWriter = new BufferedWriter(new FileWriter(fileName, true)); // Append mode
+        isWriterInitialized = true;
+        //log.info("Data writer initialized.");
+    }
 
+    // Record and save the board state and evaluation
+    public void saveDataIncrementally(Board board, Player currentPlayer, int phase) throws IOException {
+        if (!isWriterInitialized || dataWriter == null) {
+            throw new IOException("Data writer is not initialized or already closed.");
+        }
+
+        // Convert the board state to an array
+        INDArray boardArray = boardToINDArray(board);
+
+        // Evaluate the board state
+        int evalScore = evaluatonfunction.evaluate(board, currentPlayer, phase, null);
+
+        // Format and save the data
+        String dataLine = boardArray.toString().replace("\n", "") + "," + evalScore + "\n";
+        dataWriter.write(dataLine);
+        dataWriter.flush(); // Ensure data is written immediately
+        //log.info("Data saved: " + dataLine);
+    }
+
+    // Close the writer (called at the end of the game)
+    public void closeDataWriter() throws IOException {
+        if (isWriterInitialized && dataWriter != null) {
+            dataWriter.close();
+            isWriterInitialized = false;
+            dataWriter = null;
+            //log.info("Data writer closed.");
+        } else {
+            //log.warning("Attempt to close an uninitialized or already closed writer.");
+        }
+    }
 
 }
