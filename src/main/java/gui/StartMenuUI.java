@@ -22,6 +22,7 @@ public class StartMenuUI {
     private static final String run100Games = "run100Games";
     private static final String  minimaxagainstminimaxGame = "minimaxagainstminimaxGame";
     private static final String hybridGame = "hybridGame";
+    private static final String trainCNN = "trainCNN";
 
     /**
      * Constructor for the start menu user interface.
@@ -65,13 +66,16 @@ public class StartMenuUI {
         Button startminimaxagainstminimaxGameButton = new Button("Start New Game Minimax Agent against Minimax");
         startminimaxagainstminimaxGameButton.setOnAction(e -> startNewMinimaxagainstMinimax());
 
+        Button startCNNTrainingButton = new Button("Start CNN Training");
+        startCNNTrainingButton.setOnAction(e -> startCNNTraining());
+
         Button rulesButton = new Button("How to play");
         rulesButton.setOnAction(e -> new RulesUI().display());
 
         Button exitButton = new Button("Exit");
         exitButton.setOnAction(e -> Platform.exit());
 
-        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, startHybridGameButton, run100gamesButton, startminimaxagainstminimaxGameButton, rulesButton, exitButton);
+        menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton, startbaselineminimaxButton, startHybridGameButton,startCNNTrainingButton, run100gamesButton, startminimaxagainstminimaxGameButton, rulesButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -109,5 +113,9 @@ public class StartMenuUI {
 
     private void startNewHybridGame() {
         new MillGameUI(primaryStage, hybridGame);
+    }
+
+    private void startCNNTraining() {
+        new MillGameUI(primaryStage, trainCNN);
     }
 }

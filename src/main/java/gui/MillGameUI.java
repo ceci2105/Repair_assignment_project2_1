@@ -22,6 +22,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import neuralnetwork.BoardStateConverter;
+import neuralnetwork.CNNTrainer;
 import neuralnetwork.GameDataCollector;
 import org.nd4j.linalg.api.ndarray.INDArray;
 
@@ -46,6 +47,8 @@ public class MillGameUI {
     private static final String baselineminimaxGame = "baselineminimaxGame";
     private static final String minimaxagainstminimaxGame = "minimaxagainstminimaxGame";
     private static final String run100Games = "run100Games";
+    private static final String hybridGame = "hybridGame";
+    private static final String trainCNN = "trainCNN";
     private Node selectedNode = null; // Store the currently selected node
     private static int numGames;
     private static int gamesPlayed;
@@ -54,6 +57,7 @@ public class MillGameUI {
     private static int draws;
     private static int baselinemoves;
     private static int minimaxmoves;
+
 
     private Label statusLabel; // Label to display the current game status
     private Label phaseLabel; // Label to display the current game phase
@@ -86,8 +90,10 @@ public class MillGameUI {
             run100Games();
         }else if (gameType.equals(minimaxagainstminimaxGame)) {
             startNewMinimaxagainstMinimax();
-        }else if (gameType.equals("hybridGame")) {
+        }else if (gameType.equals(hybridGame)) {
             startNewHybridGame();
+        }else if (gameType.equals(trainCNN)) {
+            startCNNtraining();
         }
     }
 
@@ -163,6 +169,33 @@ public class MillGameUI {
         buildUI();
         log.log(Level.INFO, "Initialized Minimax vs. Minimax game successfully");
 
+    }
+
+    public void startCNNtraining (){
+        try {
+            Game game = new Game(null, null);
+            CNNTrainer trainer = new CNNTrainer(game);
+
+            int numGames = 100;  // Reduced number of games for testing
+            int minimaxDepth = 3;  // Reduced depth for faster processing
+
+            // Train the model
+            System.out.println("Starting training with " + numGames + " games...");
+            trainer.trainCNN(numGames, minimaxDepth);
+
+            // Save the trained model
+            trainer.saveModel("models/cnn_model_" + System.currentTimeMillis() + ".zip");
+
+            // Test the model
+            Board testBoard = game.getBoard();
+            Player testPlayer = game.getCurrentPlayer();
+            float evaluation = trainer.evaluate(testBoard, testPlayer, 3, null);
+            System.out.println("Test position evaluation: " + evaluation);
+
+        } catch (Exception e) {
+            System.err.println("Error in main: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     private void run100Games() {

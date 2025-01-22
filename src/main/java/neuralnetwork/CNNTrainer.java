@@ -77,57 +77,6 @@ public class CNNTrainer {
         }
     }
 
-    // Load a saved model with error handling
-    public void loadModel(String filepath) {
-        try {
-            File file = new File(filepath);
-            if (!file.exists()) {
-                throw new FileNotFoundException("Model file not found: " + filepath);
-            }
-            cnn.setModel(ModelSerializer.restoreMultiLayerNetwork(file));
-            System.out.println("Model loaded successfully from: " + filepath);
-        } catch (IOException e) {
-            System.err.println("Failed to load model: " + e.getMessage());
-        }
-    }
-
-    // Main method demonstrating usage with error handling
-    public static void main(String[] args) {
-        try {
-            Game game = new Game(null, null);
-            CNNTrainer trainer = new CNNTrainer(game);
-
-            int numGames = 1000;  // Reduced number of games for testing
-            int minimaxDepth = 2;  // Reduced depth for faster processing
-
-            // Train the model
-            System.out.println("Starting training with " + numGames + " games...");
-            trainer.trainCNN(numGames, minimaxDepth);
-
-            // Save the trained model
-            trainer.saveModel("models/cnn_model_" + System.currentTimeMillis() + ".zip");
-
-            // Test the model
-            Board testBoard = game.getBoard();
-            Player testPlayer = game.getCurrentPlayer();
-            float evaluation = trainer.evaluate(testBoard, testPlayer, 3, null);
-            System.out.println("Test position evaluation: " + evaluation);
-
-        } catch (Exception e) {
-            System.err.println("Error in main: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    // Getters and setters
-    public CNNModel getCnn() {
-        return cnn;
-    }
-
-    public void setCnn(CNNModel cnn) {
-        this.cnn = cnn;
-    }
-
     public Game getGame() {
         return game;
     }

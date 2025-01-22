@@ -9,9 +9,9 @@ import java.util.*;
 import java.util.concurrent.*;
 
 public class GameDataCollector {
-    private static final int BATCH_SIZE = 32; // Process games in smaller batches
-    private static final int MAX_POSITIONS_PER_GAME = 10; // Limit positions stored per game
-    private static final int NUM_WORKER_THREADS = 2; // Reduce number of threads
+    private static final int BATCH_SIZE = 32;
+    private static final int MAX_POSITIONS_PER_GAME = 200;
+    private static final int NUM_WORKER_THREADS = 2;
 
     private final ExecutorService executorService;
     private final Queue<BoardPosition> positionBuffer;
@@ -64,7 +64,7 @@ public class GameDataCollector {
             int positionsRecorded = 0;
 
             while (!game.isGameOver && positionsRecorded < MAX_POSITIONS_PER_GAME) {
-                if (random.nextFloat() < 0.3f) { // Reduce sampling rate
+                if (random.nextFloat() < 0.3f) {
                     recordPosition(game);
                     positionsRecorded++;
                 }
@@ -92,7 +92,6 @@ public class GameDataCollector {
     }
 
     private float evaluatePosition(Game game) {
-        // Simplified evaluation function
         Board board = game.getBoard();
         Player currentPlayer = game.getCurrentPlayer();
         int playerPieces = countPieces(board, currentPlayer);
