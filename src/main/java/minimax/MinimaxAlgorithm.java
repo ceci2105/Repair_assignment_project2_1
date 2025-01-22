@@ -10,7 +10,6 @@ import lombok.extern.java.Log;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
 
 /**
  * The MinimaxAlgorithm class implements the Minimax algorithm to determine the best move for the AI player.
