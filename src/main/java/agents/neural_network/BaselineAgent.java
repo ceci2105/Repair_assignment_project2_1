@@ -17,10 +17,11 @@ import java.util.Random;
 /**
  * The baseline agent, that always makes a completely pseudorandom move.
  */
+
 public class BaselineAgent implements Player {
     @Getter
     private String name;
-    @Getter
+    @Getter @Setter
     private Color color;
     @Getter
     private int stonesToPlace;

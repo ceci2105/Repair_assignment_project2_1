@@ -9,18 +9,12 @@ import lombok.Setter;
  * It implements the Player interface and manages the player's name, color, and the number of stones
  * the player has to place and already placed on the board.
  */
+@Setter
+@Getter
 public class HumanPlayer implements Player {
-    @Getter
-    @Setter
     private String name;
-    @Getter
-    @Setter
     private Color color;
-    @Getter
-    @Setter
     private int stonesToPlace;
-    @Getter
-    @Setter
     private int stonesOnBoard;
 
     /**

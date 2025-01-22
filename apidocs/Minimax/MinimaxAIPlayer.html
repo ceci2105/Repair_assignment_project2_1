@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta name="dc.created" content="2024-11-26">
-<meta name="description" content="declaration: package: Minimax, class: MinimaxAIPlayer">
+<meta name="description" content="declaration: package: minimax, class: MinimaxAIPlayer">
 <meta name="generator" content="javadoc/ClassWriter">
 <link rel="stylesheet" type="text/css" href="../resource-files/jquery-ui.min.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../resource-files/stylesheet.css" title="Style">
@@ -81,11 +81,11 @@ loadScripts(document, 'script');</script>
 <main role="main">
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
-<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">Minimax</a></div>
+<div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">minimax</a></div>
 <h1 title="Class MinimaxAIPlayer" class="title">Class MinimaxAIPlayer</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/22/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance">Minimax.MinimaxAIPlayer</div>
+<div class="inheritance">minimax.MinimaxAIPlayer</div>
 </div>
 <section class="class-description" id="class-description">
 <div class="horizontal-scroll">
@@ -97,7 +97,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">MinimaxAIPlayer</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/22/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="../game/mills/Player.html" title="interface in game.mills">Player</a></span></div>
-<div class="block">The MinimaxAIPlayer class represents an AI-controlled player that uses the Minimax algorithm
+<div class="block">The MinimaxAIPlayer class represents an AI-controlled player that uses the minimax algorithm
  to make strategic moves in the game. It extends the Player interface to interact with the game,
  and calculates moves based on the current board state, game phase, and opponent's position.</div>
 </div>
@@ -153,7 +153,7 @@ implements <a href="../game/mills/Player.html" title="interface in game.mills">P
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#makeMove(game.mills.Board,int)" class="member-name-link">makeMove</a><wbr>(<a href="../game/mills/Board.html" title="class in game.mills">Board</a>&nbsp;board,
  int&nbsp;phase)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Executes the best move calculated by the Minimax algorithm for the given board and phase.</div>
+<div class="block">Executes the best move calculated by the minimax algorithm for the given board and phase.</div>
 </div>
 </div>
 </div>
@@ -189,7 +189,7 @@ implements <a href="../game/mills/Player.html" title="interface in game.mills">P
 <dd><code>name</code> - The name of the AI player.</dd>
 <dd><code>color</code> - The color representing the AI player’s pieces on the board.</dd>
 <dd><code>game</code> - The game instance for accessing board and opponent information.</dd>
-<dd><code>depth</code> - The search depth for the Minimax algorithm.</dd>
+<dd><code>depth</code> - The search depth for the minimax algorithm.</dd>
 </dl>
 </div>
 </section>
@@ -208,8 +208,8 @@ implements <a href="../game/mills/Player.html" title="interface in game.mills">P
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">makeMove</span><wbr><span class="parameters">(<a href="../game/mills/Board.html" title="class in game.mills">Board</a>&nbsp;board,
  int&nbsp;phase)</span></div>
-<div class="block">Executes the best move calculated by the Minimax algorithm for the given board and phase.
- The method finds the optimal move using Minimax and applies it to the board.</div>
+<div class="block">Executes the best move calculated by the minimax algorithm for the given board and phase.
+ The method finds the optimal move using minimax and applies it to the board.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>board</code> - The game board on which the move is to be made.</dd>
