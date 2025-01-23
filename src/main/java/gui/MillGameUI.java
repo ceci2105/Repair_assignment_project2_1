@@ -1,5 +1,6 @@
 package gui;
 
+import NeuralNetwork.DataCollector;
 import lombok.extern.java.Log;
 import minimax.MinimaxAIPlayer;
 import neural.GameDataCollector;
@@ -62,7 +63,8 @@ public class MillGameUI {
     private static int draws;
     private static int baselinemoves;
     private static int minimaxmoves;
-    private GameDataCollector dataCollector;
+    //private GameDataCollector dataCollector;
+    private DataCollector dataCollector;
 
 
     private Label statusLabel; // Label to display the current game status
@@ -93,10 +95,10 @@ public class MillGameUI {
             startSelfPlayGame();
         } else if (gameType.equals(run100Games)) {
             run100Games();
-        } else if (gameType.equals(COLLECT_DATA)) {
-            startDataCollection();
+//        } else if (gameType.equals(COLLECT_DATA)) {
+//            startDataCollection();
         }else if(gameType.equals(train)){
-            startTrain();
+            startCollectingData();
         }
 
     }
@@ -163,52 +165,10 @@ public class MillGameUI {
         buildUI();
     }
 
-    public void runMultipleGames(int numGames) {
-        try {
-            // Initialize the data writer once
-            game.initDataWriter("training_data.csv");
 
-            for (int i = 0; i < numGames; i++) {
-                log.info("Starting game " + (i + 1) + " of " + numGames);
-
-                // Initialize a new game instance for each iteration
-                this.game = new Game(null, null);
-                MinimaxAIPlayer player1 = new MinimaxAIPlayer("P1", Color.BLACK, 3, game);
-                MinimaxAIPlayer player2 = new MinimaxAIPlayer("P2", Color.WHITE, 3, game);
-
-                game.setHumanPlayer1(player1);
-                game.setCurrentPlayer(player1);
-                game.setSecondPlayer(player2);
-
-                // Set up data collection
-                game.setMoveCallback((board, currentPlayer) -> {
-                    try {
-                        game.saveDataIncrementally(board, currentPlayer, game.getPhase());
-                    } catch (IOException e) {
-                        log.log(Level.SEVERE, "Error saving move data: {0}", e.getMessage());
-                    }
-                });
-
-                // Start the game and wait for it to finish
-                game.startGame();
-
-                // Log game completion
-                log.info("Game " + (i + 1) + " finished.");
-            }
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Error initializing data writer: {0}", e.getMessage());
-        } finally {
-            // Close the data writer after all games are finished
-            try {
-                game.closeDataWriter();
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Error closing data writer: {0}", e.getMessage());
-            }
-        }
-    }
-
-    public void startTrain() {
+    public void startCollectingData() {
         this.game = new Game(null, null);
+        dataCollector = new DataCollector();
 
         // Initialize Minimax players
         MinimaxAIPlayer player1 = new MinimaxAIPlayer("P1", Color.BLACK, 3, game);
@@ -220,7 +180,7 @@ public class MillGameUI {
 
         // Initialize data writer
         try {
-            game.initDataWriter("training_data.csv");
+            dataCollector.initDataWriter("training_data.csv");
         } catch (IOException e) {
             log.log(Level.SEVERE, "Error initializing data writer: {0}", e.getMessage());
             return;
@@ -229,7 +189,7 @@ public class MillGameUI {
         // Set up move callback for data collection
         game.setMoveCallback((board, currentPlayer) -> {
             try {
-                game.saveDataIncrementally(board, currentPlayer, game.getPhase());
+                dataCollector.saveDataIncrementally(board, currentPlayer, game.getPhase());
             } catch (IOException e) {
                 log.log(Level.SEVERE, "Error saving move data: {0}", e.getMessage());
             }
@@ -253,83 +213,83 @@ public class MillGameUI {
             baselinemoves = 0;
             minimaxmoves = 0;
         }
-        startSelfPlayGame();
+        startCollectingData();
     }
 
-    private void startDataCollection() {
-        Stage progressStage = new Stage();
-        progressStage.setTitle("Collecting Training Data");
-
-        VBox progressBox = new VBox(20);
-        progressBox.setAlignment(Pos.CENTER);
-
-        Label statusLabel = new Label("Collecting game data...");
-        Label progressLabel = new Label("Games collected: 0 / 200");
-
-        progressBox.getChildren().add(statusLabel);
-        progressBox.getChildren().add(progressLabel);
-
-        Scene progressScene = new Scene(progressBox, 400, 200);
-        progressStage.setScene(progressScene);
-        progressStage.show();
-
-        // Initialize data collector
-        dataCollector = new GameDataCollector();
-        final int totalGames = 200;
-        final int[] gamesCompleted = { 0 };
-
-        // Set up the recurring game simulation
-        PauseTransition pause = new PauseTransition(Duration.millis(100));
-        pause.setOnFinished(event -> {
-            if (gamesCompleted[0] < totalGames) {
-                // Create and run a new game
-                try {
-                    // Initialize a new game with Minimax vs Baseline
-                    BaselineAgent baselinePlayer = new BaselineAgent("Baseline", Color.WHITE);
-
-                    game = new Game(baselinePlayer, null);
-
-                    // Create and set up players
-                    MinimaxAIPlayer minimaxPlayer = new MinimaxAIPlayer("Minimax", Color.BLACK, 4, game);
-
-                    // Randomly assign colors
-                    game.setSecondPlayer(minimaxPlayer);
-                    ;
-
-                    // Set up game monitoring to collect data
-                    game.setMoveCallback((board, currentPlayer) -> {
-                        dataCollector.recordGameState(board, currentPlayer, game.isGameOver, game.getWinner());
-                    });
-
-                    // Start the game
-                    game.startGame();
-
-                    // Update progress
-                    gamesCompleted[0]++;
-                    progressLabel.setText(String.format("Games collected: %d / %d",
-                            gamesCompleted[0], totalGames));
-
-                    // Schedule next game
-                    pause.playFromStart();
-                } catch (Exception e) {
-                    showErrorDialog("Error generating game: " + e.getMessage());
-                    progressStage.close();
-                }
-            } else {
-                // Collection complete
-                try {
-                    dataCollector.saveGameData("training_data.ser");
-                    progressStage.close();
-                    showCompletionDialog();
-                } catch (IOException e) {
-                    showErrorDialog("Failed to save collected data: " + e.getMessage());
-                }
-            }
-        });
-
-        // Start the collection process
-        pause.play();
-    }
+//    private void startDataCollection() {
+//        Stage progressStage = new Stage();
+//        progressStage.setTitle("Collecting Training Data");
+//
+//        VBox progressBox = new VBox(20);
+//        progressBox.setAlignment(Pos.CENTER);
+//
+//        Label statusLabel = new Label("Collecting game data...");
+//        Label progressLabel = new Label("Games collected: 0 / 200");
+//
+//        progressBox.getChildren().add(statusLabel);
+//        progressBox.getChildren().add(progressLabel);
+//
+//        Scene progressScene = new Scene(progressBox, 400, 200);
+//        progressStage.setScene(progressScene);
+//        progressStage.show();
+//
+//        // Initialize data collector
+//        dataCollector = new GameDataCollector();
+//        final int totalGames = 200;
+//        final int[] gamesCompleted = { 0 };
+//
+//        // Set up the recurring game simulation
+//        PauseTransition pause = new PauseTransition(Duration.millis(100));
+//        pause.setOnFinished(event -> {
+//            if (gamesCompleted[0] < totalGames) {
+//                // Create and run a new game
+//                try {
+//                    // Initialize a new game with Minimax vs Baseline
+//                    BaselineAgent baselinePlayer = new BaselineAgent("Baseline", Color.WHITE);
+//
+//                    game = new Game(baselinePlayer, null);
+//
+//                    // Create and set up players
+//                    MinimaxAIPlayer minimaxPlayer = new MinimaxAIPlayer("Minimax", Color.BLACK, 4, game);
+//
+//                    // Randomly assign colors
+//                    game.setSecondPlayer(minimaxPlayer);
+//                    ;
+//
+//                    // Set up game monitoring to collect data
+//                    game.setMoveCallback((board, currentPlayer) -> {
+//                        dataCollector.recordGameState(board, currentPlayer, game.isGameOver, game.getWinner());
+//                    });
+//
+//                    // Start the game
+//                    game.startGame();
+//
+//                    // Update progress
+//                    gamesCompleted[0]++;
+//                    progressLabel.setText(String.format("Games collected: %d / %d",
+//                            gamesCompleted[0], totalGames));
+//
+//                    // Schedule next game
+//                    pause.playFromStart();
+//                } catch (Exception e) {
+//                    showErrorDialog("Error generating game: " + e.getMessage());
+//                    progressStage.close();
+//                }
+//            } else {
+//                // Collection complete
+//                try {
+//                    dataCollector.saveGameData("training_data.ser");
+//                    progressStage.close();
+//                    showCompletionDialog();
+//                } catch (IOException e) {
+//                    showErrorDialog("Failed to save collected data: " + e.getMessage());
+//                }
+//            }
+//        });
+//
+//        // Start the collection process
+//        pause.play();
+//    }
 
     private void showCompletionDialog() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
