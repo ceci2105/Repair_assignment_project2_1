@@ -195,6 +195,14 @@ public class MillGameUI {
             }
         });
 
+        try {
+            dataCollector.closeDataWriter();
+            log.info("Data writer closed successfully.");
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Error closing data writer: {0}", e.getMessage());
+        }
+
+
         // Start the game
         game.setUI(this);
         board = game.getBoard();

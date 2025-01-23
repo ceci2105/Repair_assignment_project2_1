@@ -17,6 +17,7 @@ public class DataCollector {
     private boolean isWriterInitialized = false; // Flag to track writer status
     private final List<String> gameDataBuffer = new ArrayList<>(); // Buffer to store multiple games
     private static final int BATCH_SIZE = 100; // Number of games to save in one batch
+    private EvaluationFunction evaluationFunction = new EvaluationFunction(); // Evaluation function
 
     // Initialize the writer (called once before starting the game)
     public void initDataWriter(String fileName) throws IOException {
@@ -114,8 +115,7 @@ public class DataCollector {
         return boardArray;
     }
 
-
-    // Mock evaluation function (stub for integration)
+    // INTEGRATE THIS METHOD INTO YOUR EVALUATION FUNCTION
     private EvaluationFunction evaluatonfunction = new EvaluationFunction();
 
     private static class EvaluationFunction {

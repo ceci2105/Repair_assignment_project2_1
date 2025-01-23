@@ -31,13 +31,18 @@ public class DataLoader {
             double[] boardState = convertToDoubleArray(boardStateStr.split(","));
             double label = Double.parseDouble(parts[1]);
 
+            // Ensure boardState length is correct
+            if (boardState.length != 49) {
+                throw new IllegalStateException("Invalid board state length: " + boardState.length);
+            }
+
             // Initialize inputs and labels if they are null
             if (inputs == null) {
                 inputs = Nd4j.create(new double[][]{boardState});
                 labels = Nd4j.create(new double[]{label}).reshape(1, 1);
             } else {
                 // Append data
-                inputs = Nd4j.vstack(inputs, Nd4j.create(boardState));
+                inputs = Nd4j.vstack(inputs, Nd4j.create(boardState).reshape(1, boardState.length));
                 labels = Nd4j.vstack(labels, Nd4j.create(new double[]{label}).reshape(1, 1));
             }
 
@@ -52,6 +57,7 @@ public class DataLoader {
 
         return new INDArray[]{inputs, labels};
     }
+
 
     private static double[] convertToDoubleArray(String[] data) {
         return java.util.Arrays.stream(data).mapToDouble(Double::parseDouble).toArray();
