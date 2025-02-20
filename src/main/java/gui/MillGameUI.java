@@ -1,7 +1,18 @@
 package gui;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Optional;
+
+import MCTS.MCTSPlayer;
 import agents.neural_network.BaselineAgent;
-import game.mills.*;
+import game.mills.Board;
+import game.mills.Game;
+import game.mills.HumanPlayer;
+import game.mills.InvalidMove;
+import game.mills.Node;
+import game.mills.Player;
 import javafx.animation.PauseTransition;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -25,11 +36,6 @@ import lombok.extern.slf4j.Slf4j;
 import minimax.MinimaxAIPlayer;
 import neural.GameDataCollector;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Optional;
-
 /**
  * The MillGameUI class represents the graphical user interface (GUI) for the
  * game.
@@ -48,6 +54,7 @@ public class MillGameUI {
     private static final String selfPlay = "SelfPlay";
     private static final String run100Games = "run100Games";
     private static final String COLLECT_DATA = "collectData";
+    private static final String mctsGame = "mctsGame";
     private static int numGames;
     private static int gamesPlayed;
     private static int baselineWins;
@@ -93,6 +100,9 @@ public class MillGameUI {
                 break;
             case COLLECT_DATA:
                 startDataCollection();
+                break;
+            case mctsGame:
+                startNewmctsGame();
                 break;
         }
 
@@ -162,6 +172,18 @@ public class MillGameUI {
         game.setSecondPlayer(minimaxAIPlayer1);
         game.setUI(this);
         board = game.getBoard();
+        buildUI();
+    }
+
+    public void startNewmctsGame() {
+
+        HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
+        MCTSPlayer mctsPlayer = new MCTSPlayer("White", Color.WHITE);
+
+        this.game = new Game(humanPlayer1, mctsPlayer);
+        game.setUI(this);
+        board = game.getBoard();
+
         buildUI();
     }
 

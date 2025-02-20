@@ -4,9 +4,9 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.control.Label;
 
 /**
  * The {@code StartMenuUI} class is responsible for creating and displaying the
@@ -22,6 +22,7 @@ public class StartMenuUI {
     private static final String selfPlay = "SelfPlay";
     private static final String run100Games = "run100Games";
     private static final String COLLECT_DATA = "collectData";
+    private static final String mctsGame = "mctsGame";
 
     /**
      * Constructor for the start menu user interface.
@@ -57,6 +58,9 @@ public class StartMenuUI {
         Button startbaselineminimaxButton = new Button("Start Minimax Agent vs Minimax Agent");
         startbaselineminimaxButton.setOnAction(e -> startSelfPlayGame());
 
+        Button startmctsplayerButton = new Button("Start New Game vs MCTS Player");
+        startmctsplayerButton.setOnAction(e -> startmctsGame());
+
         Button run100gamesButton = new Button("Run 100 games");
         run100gamesButton.setOnAction(e -> run100Games());
 
@@ -70,7 +74,7 @@ public class StartMenuUI {
         exitButton.setOnAction(e -> Platform.exit());
 
         menuBox.getChildren().addAll(titleLabel, startButton, startbaseagentButton, startminimaxButton,
-                startbaselineminimaxButton, run100gamesButton, rulesButton, collectDataButton, exitButton);
+                startbaselineminimaxButton, startmctsplayerButton, run100gamesButton, rulesButton, collectDataButton, exitButton);
 
         // Creating the scene and setting it on the stage
         Scene startMenuScene = new Scene(menuBox, 700, 700);
@@ -96,6 +100,10 @@ public class StartMenuUI {
 
     private void startSelfPlayGame() {
         new MillGameUI(primaryStage, selfPlay); 
+    }
+
+    private void startmctsGame() {
+        new MillGameUI(primaryStage, mctsGame);
     }
 
     private void run100Games() {
