@@ -13,6 +13,8 @@ import minimax.MinimaxAIPlayer;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
+import MCTS.MCTSPlayer;
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
@@ -91,6 +93,12 @@ public class Game {
         if (p2 instanceof MinimaxAIPlayer) {
             ((MinimaxAIPlayer) p2).setGame(this);
         }
+        if (p1 instanceof MCTSPlayer) {
+            ((MCTSPlayer) p1).setGame(this);
+        }
+        if (p2 instanceof MCTSPlayer) {
+            ((MCTSPlayer) p2).setGame(this);
+        }
 
     }
 
@@ -114,7 +122,7 @@ public class Game {
         }
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
 
-        if (currentPlayer instanceof BaselineAgent || currentPlayer instanceof MinimaxAIPlayer) {
+        if (currentPlayer instanceof BaselineAgent || currentPlayer instanceof MinimaxAIPlayer || currentPlayer instanceof MCTSPlayer) {
             Task<Void> aiTask = new Task<Void>() {
                 @Override
                 protected Void call() {
@@ -122,6 +130,8 @@ public class Game {
                         ((BaselineAgent) currentPlayer).makeMove();
                     } else if (currentPlayer instanceof MinimaxAIPlayer) {
                         ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
+                    }else if (currentPlayer instanceof MCTSPlayer) {
+                        ((MCTSPlayer) currentPlayer).makeMove(board, getOpponent(currentPlayer));
                     }
                     return null;
                 }

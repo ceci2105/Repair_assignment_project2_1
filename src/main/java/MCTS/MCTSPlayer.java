@@ -1,6 +1,7 @@
 package MCTS;
 
 import game.mills.Board;
+import game.mills.Game;
 import game.mills.Node;
 import game.mills.Player;
 import javafx.scene.paint.Color;
@@ -9,11 +10,12 @@ import javafx.scene.paint.Color;
  * MCTSPlayer implements a Monte Carlo Tree Search AI for the Mills game.
  */
 public class MCTSPlayer implements Player {
+    private Game game;
     private final String name;
     private final Color color;
     private int stonesToPlace;
     private int stonesOnBoard;
-    private static final int SIMULATION_COUNT = 1000;
+    private static final int SIMULATION_COUNT = 100;
 
     public MCTSPlayer(String name, Color color) {
         this.name = name;
@@ -43,16 +45,23 @@ public class MCTSPlayer implements Player {
     @Override
     public void decrementStonesOnBoard() { stonesOnBoard--; }
 
+     public void setGame(Game game) {
+        this.game = game;
+    }
+
     public void makeMove(Board board, Player opponent) {
         Node bestMove = runMCTS(board, opponent);
         if (bestMove != null) {
             board.placePiece(this, bestMove.getId());
+            this.decrementStonesToPlace(); 
+            this.incrementStonesOnBoard(); 
         }
     }
 
     private Node runMCTS(Board board, Player opponent) {
         MCTSNode root = new MCTSNode(board.deepCopy(), this, opponent);
-        
+        System.out.println("Starting MCTS simulation...");
+
         for (int i = 0; i < SIMULATION_COUNT; i++) {
             MCTSNode selectedNode = root.select();
             selectedNode.expand();
@@ -63,4 +72,3 @@ public class MCTSPlayer implements Player {
         return root.getBestMove();
     }
 }
-

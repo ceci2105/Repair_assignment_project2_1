@@ -27,6 +27,16 @@ public class MoveValidator {
      */
     public boolean isValidPlacement(Player player, int nodeID) {
         Node node = board.getNode(nodeID);
+
+        if (node.isOccupied()) {
+            System.out.println("[DEBUG] Node " + nodeID + " is already occupied!");
+            return false;
+        }
+        
+        if (player.getStonesToPlace() <= 0) {
+            System.out.println("[DEBUG] Player " + player.getName() + " has no stones left to place!");
+            return false;
+        }
         return player.getStonesToPlace() > 0 && !node.isOccupied();
     }
 

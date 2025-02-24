@@ -299,5 +299,15 @@ public class Board {
         return sb.toString();
     }
 
+    
+    public void removePiece(Player player, int nodeId) {
+        Node node = getNode(nodeId);
+        if (node.isOccupied() && node.getOccupant() == player) {
+            node.setOccupant(null);
+            player.decrementStonesOnBoard(); 
+        }
+    }
+    
+
 
 }
