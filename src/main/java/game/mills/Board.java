@@ -45,6 +45,22 @@ public class Board {
             nodes.put(i, new Node(i));
         }
     }
+    /**
+     * Returns a list of nodes occupied by the given player.
+     *
+     * @param player The player whose occupied nodes we need.
+     * @return A list of occupied nodes.
+     */
+    public List<Node> getNodesOccupiedBy(Player player) {
+        List<Node> occupiedNodes = new ArrayList<>();
+        for (Node node : nodes.values()) { // Ensure nodes is Map<Integer, Node>
+            if (node.getOccupant() == player) {
+                occupiedNodes.add(node);
+            }
+        }
+        return occupiedNodes;
+    }
+
 
     /**
      * Creates edges between the nodes based on predefined constants.
@@ -236,18 +252,20 @@ public class Board {
      */
     public Board deepCopy() {
         Board copy = new Board();
-        copy.createEdges();
         copy.nodes = new HashMap<>();
         for (Map.Entry<Integer, Node> entry : this.nodes.entrySet()) {
             Node originalNode = entry.getValue();
             Node copiedNode = new Node(originalNode.getId());
             copiedNode.setOccupant(originalNode.getOccupant());
-            copiedNode.setCircle(originalNode.getCircle());
             copy.nodes.put(entry.getKey(), copiedNode);
         }
+
+        for (int[] edge : edges) {
+            copy.graph.addEdge(edge[0], edge[1]);
+        }
+
         return copy;
     }
-
     /**
      * Tests if a given stone placement will form a mill.
      *

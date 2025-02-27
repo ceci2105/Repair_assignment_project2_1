@@ -45,21 +45,31 @@ public class MCTSPlayer implements Player {
     @Override
     public void decrementStonesOnBoard() { stonesOnBoard--; }
 
-     public void setGame(Game game) {
+    public void setGame(Game game) {
         this.game = game;
     }
 
     public void makeMove(Board board, Player opponent) {
+        System.out.println(name + " (MCTS) is thinking...");
+        System.out.println(name + " stones left to place before move: " + stonesToPlace);
+
         Node bestMove = runMCTS(board, opponent);
+
         if (bestMove != null) {
+            System.out.println(name + " (MCTS) chose move at node " + bestMove.getId());
             board.placePiece(this, bestMove.getId());
-            this.decrementStonesToPlace(); 
-            this.incrementStonesOnBoard(); 
+            this.decrementStonesToPlace();
+            this.incrementStonesOnBoard();
+            System.out.println(name + " stones left to place after move: " + stonesToPlace);
+            game.switchPlayer(); // Ensures turn switches to Black
+        } else {
+            System.out.println(name + " (MCTS) found no valid moves!");
         }
     }
 
+
     private Node runMCTS(Board board, Player opponent) {
-        MCTSNode root = new MCTSNode(board.deepCopy(), this, opponent);
+        MCTSNode root = new MCTSNode(board.deepCopy(), this, opponent, null);
         System.out.println("Starting MCTS simulation...");
 
         for (int i = 0; i < SIMULATION_COUNT; i++) {
@@ -68,7 +78,7 @@ public class MCTSPlayer implements Player {
             Player winner = selectedNode.simulate();
             selectedNode.backpropagate(winner);
         }
-        
+
         return root.getBestMove();
     }
 }

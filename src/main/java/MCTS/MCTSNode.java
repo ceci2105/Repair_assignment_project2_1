@@ -1,11 +1,7 @@
 package MCTS;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
+import java.util.*;
 import game.mills.Board;
-import game.mills.InvalidMove;
 import game.mills.Node;
 import game.mills.Player;
 
@@ -16,157 +12,144 @@ class MCTSNode {
     private List<MCTSNode> children;
     private int visits;
     private int wins;
+    private Node move;
 
-    public MCTSNode(Board board, Player player, Player opponent) {
+    public MCTSNode(Board board, Player player, Player opponent, Node move) {
         this.board = board;
         this.player = player;
         this.opponent = opponent;
         this.children = new ArrayList<>();
         this.visits = 0;
         this.wins = 0;
+        this.move = move;
     }
 
+    // Select child node with highest UCT value
     public MCTSNode select() {
-        return children.stream().max(Comparator.comparingDouble(this::uctValue)).orElse(this);
+        return children.stream()
+                .max(Comparator.comparingDouble(this::uctValue))
+                .orElse(this);
     }
 
+    // Expand new moves without sequential ordering bias
     public void expand() {
-        if (player.getStonesToPlace() > 0) {
-            System.out.println("Expanding with stone placement...");
-            // Expand with placing stones
-            List<Node> possibleMoves = getAvailableMoves();
-            for (Node move : possibleMoves) {
-                Board newBoard = board.deepCopy();
-                newBoard.placePiece(player, move.getId());
-                player.decrementStonesToPlace();
-                player.incrementStonesOnBoard();
-                children.add(new MCTSNode(newBoard, player, opponent));
-                System.out.println("Placing at node: " + move.getId());
-            }
-        } else {
-            System.out.println("Expanding with stone movement...");
-            // Handle movement
-            List<Node> possibleMoves = getAvailableMoves();
-            for (Node move : possibleMoves) {
-                Board newBoard = board.deepCopy();
-                newBoard.movePiece(player, move.getId(), move.getId());
-                children.add(new MCTSNode(newBoard, player, opponent));
-            }
+        if (!children.isEmpty()) return;
+
+        List<Node> possibleMoves = getAvailableMoves();
+     //   Collections.shuffle(possibleMoves); // Prevents fixed move order bias
+
+        for (Node move : possibleMoves) {
+            Board newBoard = board.deepCopy();
+            MCTSPlayer newPlayer = new MCTSPlayer(player.getName(), player.getColor());
+            MCTSPlayer newOpponent = new MCTSPlayer(opponent.getName(), opponent.getColor());
+
+            newBoard.placePiece(newPlayer, move.getId());
+            newPlayer.decrementStonesToPlace();
+            newPlayer.incrementStonesOnBoard();
+
+            children.add(new MCTSNode(newBoard, newOpponent, newPlayer, move)); // Proper turn switch
         }
     }
-    
 
-
+    // Fix turn switching in simulations
     public Player simulate() {
         Board simulationBoard = board.deepCopy();
-        Player currentPlayer = player;
-        Player otherPlayer = opponent;
-    
+        Player currentPlayer = new MCTSPlayer(player.getName(), player.getColor()); // Use Player type
+        Player otherPlayer = new MCTSPlayer(opponent.getName(), opponent.getColor());
+        int turn = 0;
+
         while (true) {
-            // Debugging output: show the player's turn and available stones to place
-            System.out.println("Player's turn: " + currentPlayer.getName());
-            System.out.println("Stones to place: " + currentPlayer.getStonesToPlace());
-    
+            System.out.println("Simulating turn " + turn + " for: " + currentPlayer.getName());
+            System.out.println(currentPlayer.getName() + " stones left to place: " + currentPlayer.getStonesToPlace());
+
             if (currentPlayer.getStonesToPlace() > 0) {
-                // Debugging: Show that the player is placing a stone
-                System.out.println("Placing stone...");
-    
-                // Collect all available moves (empty nodes) for placing stones
-                List<Node> possibleMoves = new ArrayList<>();
-                for (Node node : simulationBoard.getNodes().values()) {
-                    if (!node.isOccupied()) {
-                        possibleMoves.add(node);
-                    }
-                }
-    
-                // If there are available moves (empty nodes to place the stone)
+                List<Node> possibleMoves = getAvailableMoves();
                 if (!possibleMoves.isEmpty()) {
-                    // Choose a random move
                     Node randomMove = possibleMoves.get((int) (Math.random() * possibleMoves.size()));
-                    System.out.println("Placing at node: " + randomMove.getId());
-    
-                    // Place the stone on the selected node
                     simulationBoard.placePiece(currentPlayer, randomMove.getId());
-    
-                    // Update the current player's stones
                     currentPlayer.decrementStonesToPlace();
                     currentPlayer.incrementStonesOnBoard();
-                }
-            } else {
-                // It's the movement phase
-                System.out.println("It's the movement phase.");
-    
-                // Get all available moves (empty nodes or valid movement positions)
-                List<Node> possibleMoves = new ArrayList<>();
-                for (Node node : simulationBoard.getNodes().values()) {
-                    if (!node.isOccupied()) {
-                        possibleMoves.add(node);
+                    System.out.println(currentPlayer.getName() + " placed at " + randomMove.getId());
+                    System.out.println(currentPlayer.getName() + " stones left to place: " + currentPlayer.getStonesToPlace());
+
+                    if (simulationBoard.checkMill(randomMove, currentPlayer)) {
+                        removeOpponentPiece(simulationBoard, otherPlayer);
                     }
                 }
-    
-                // If there are valid available moves, proceed
-                if (!possibleMoves.isEmpty()) {
-                    Node randomMove = possibleMoves.get((int) (Math.random() * possibleMoves.size()));
-    
-                    // If stones have already been placed, we perform a move
-                    System.out.println("Moving stone to node: " + randomMove.getId());
-                    simulationBoard.movePiece(currentPlayer, randomMove.getId(), randomMove.getId());
-    
-                    // Update the stones
-                    currentPlayer.decrementStonesOnBoard();
-                    currentPlayer.incrementStonesOnBoard();
-                }
             }
-    
-            // Check if the game has ended (either by no valid moves or a player running out of stones)
-            if (!simulationBoard.hasValidMoves(currentPlayer) || currentPlayer.getStonesOnBoard() <= 2) {
-                // Other player wins
-                System.out.println("Game over: " + otherPlayer.getName() + " wins!");
-                return otherPlayer;
-            }
-            if (!simulationBoard.hasValidMoves(otherPlayer) || otherPlayer.getStonesOnBoard() <= 2) {
-                // Current player wins
-                System.out.println("Game over: " + currentPlayer.getName() + " wins!");
-                return currentPlayer;
-            }
-    
-            // Switch players for the next turn
+
+            //Ensure turns switch correctly (something is off)
             Player temp = currentPlayer;
             currentPlayer = otherPlayer;
             otherPlayer = temp;
+
+            // Check if the game should end
+            if (!simulationBoard.hasValidMoves(currentPlayer) || currentPlayer.getStonesOnBoard() <= 2) {
+                System.out.println(otherPlayer.getName() + " wins!");
+                return otherPlayer;
+            }
+            if (!simulationBoard.hasValidMoves(otherPlayer) || otherPlayer.getStonesOnBoard() <= 2) {
+                System.out.println(currentPlayer.getName() + " wins!");
+                return currentPlayer;
+            }
+
+            turn++;
+
+            if (turn > 50) {
+                System.out.println("Simulation stuck! Breaking out.");
+                return currentPlayer;
+            }
         }
     }
-    
-    
 
+    // Removes a single opponent's stone if a mill was formed
+    private void removeOpponentPiece(Board board, Player opponent) {
+        List<Node> opponentNodes = board.getNodesOccupiedBy(opponent);
+
+        // Ensure there are opponent pieces to remove
+        if (opponentNodes.isEmpty()) {
+            System.out.println("No opponent pieces to remove.");
+            return;
+        }
+
+        // Only remove a piece if a real mill was just formed
+        if (!board.checkMill(opponentNodes.get(0), opponent)) {
+            System.out.println("No mill formed, not removing any pieces.");
+            return;
+        }
+
+        Node toRemove = opponentNodes.get((int) (Math.random() * opponentNodes.size()));
+        board.removePiece(opponent, toRemove.getId());
+        System.out.println("Removing " + opponent.getName() + "'s piece at " + toRemove.getId());
+    }
+
+
+    // Backpropagate correctly
     public void backpropagate(Player winner) {
         visits++;
-        if (winner == player) {
-            wins++;
-        }
-        if (!children.isEmpty()) {
-            children.forEach(child -> child.backpropagate(winner));
+        if (winner == player) wins++;
+        for (MCTSNode child : children) {
+            child.backpropagate(winner);
         }
     }
 
+    // Select best move based on visit-to-win ratio
     public Node getBestMove() {
-        return children.stream().max(Comparator.comparingInt(c -> c.wins)).map(c -> c.board.getNode(0)).orElse(null);
+        return children.stream()
+                .filter(c -> c.visits > 0)
+                .max(Comparator.comparingDouble(c -> (double) c.wins / (c.visits + 1e-6)))
+                .map(c -> c.move)
+                .orElse(null);
     }
 
     private double uctValue(MCTSNode node) {
-        if (node.visits == 0) {
-            return Double.MAX_VALUE;
-        }
-        return (double) node.wins / node.visits + Math.sqrt(2 * Math.log(visits) / node.visits);
+        if (node.visits == 0) return Double.MAX_VALUE;
+        return (double) node.wins / node.visits + Math.sqrt(2 * Math.log(visits + 1) / (node.visits + 1));
     }
 
     private List<Node> getAvailableMoves() {
-        List<Node> availableMoves = new ArrayList<>();
-        for (Node node : board.getNodes().values()) {
-            if (!node.isOccupied()) {
-                availableMoves.add(node);
-            }
-        }
-        return availableMoves;
+        List<Node> moves = new ArrayList<>(board.getNodes().values());
+        moves.removeIf(Node::isOccupied);
+        return moves;
     }
 }

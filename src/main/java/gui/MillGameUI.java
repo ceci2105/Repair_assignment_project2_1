@@ -178,15 +178,21 @@ public class MillGameUI {
     public void startNewmctsGame() {
 
         HumanPlayer humanPlayer1 = new HumanPlayer("Black", Color.BLACK);
-        MCTSPlayer mctsPlayer = new MCTSPlayer("White", Color.WHITE); 
-    
-        this.game = new Game(humanPlayer1, mctsPlayer); 
-
-        game.setCurrentPlayer(humanPlayer1); 
+        this.game = new Game(humanPlayer1, null);
         game.setUI(this);
         board = game.getBoard();
 
+        MCTSPlayer mctsPlayer = new MCTSPlayer("White", Color.WHITE);
+        mctsPlayer.setGame(game);
+
+        game.setSecondPlayer(mctsPlayer);
+        //game.setCurrentPlayer(humanPlayer1);
+
+
        buildUI();
+
+       ///////
+        log.atInfo().log("Initialised game successfully!");
     }
 
     private void run100Games() {
