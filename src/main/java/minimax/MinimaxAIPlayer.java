@@ -27,7 +27,7 @@ public class MinimaxAIPlayer implements Player {
     private String name;                // Name of the AI player
     @Getter
     @Setter
-    private Color color;                // Color representing the AI player’s pieces on the board
+    private Color color;                // Color representing the AI player's pieces on the board
     @Getter
     private int stonesToPlace;          // Stones the AI player still needs to place in the placement phase
     @Getter
@@ -40,7 +40,7 @@ public class MinimaxAIPlayer implements Player {
      *
      * @param name  The name of the AI player.
      * @param depth The search depth for the Minimax algorithm.
-     * @param color The color representing the AI player’s pieces on the board.
+     * @param color The color representing the AI player's pieces on the board.
      */
     public MinimaxAIPlayer(String name, Color color, int depth, Game game) {
         this.name = name;
@@ -61,69 +61,66 @@ public class MinimaxAIPlayer implements Player {
      * @param phase The current phase of the game (1 = placement, 2 = movement, 3 = endgame).
      */
     public void makeMove(Board board, int phase) {
-        Platform.runLater(() -> {
+        if (stonesToPlace > 0) {
+            // Placement phase
+            int placement;
             if (stonesToPlace == 9) {
                 // First move logic: place a random stone
                 Random r = new Random();
-                int randomPlacement = r.nextInt(24);
-                if (board.getNode(randomPlacement).isOccupied()) {
-                    randomPlacement = r.nextInt(24);
-                    game.placePiece(randomPlacement);
-                    MillGameUI.incrementMinimaxMoves();
-                } else {
-                    game.placePiece(randomPlacement);
-                    MillGameUI.incrementMinimaxMoves();
+                placement = r.nextInt(24);
+                while (board.getNode(placement).isOccupied()) {
+                    placement = r.nextInt(24);
                 }
             } else {
-                if (phase == 1) {
-                    // Placement phase
-                    int bestPlacement = minimax.findBestPlacement(board, this);
-                    if (bestPlacement != -1) {
-                        try {
-                            game.placePiece(bestPlacement);
-                            MillGameUI.incrementMinimaxMoves();
-                            // Check for mill formation
-                            if (game.isMillFormed()) {
-                                handleMillFormation(board);
-                            }
-                        } catch (InvalidMove e) {
-                            log.error("Failed to place piece", e);
-                        }
+                // Use minimax for subsequent placements
+                placement = minimax.findBestPlacement(board, this);
+            }
+            
+            if (placement != -1) {
+                try {
+                    game.placePiece(placement);
+                    MillGameUI.incrementMinimaxMoves();
+                    // Check for mill formation
+                    if (game.isMillFormed()) {
+                        handleMillFormation(board);
                     }
-                } else {
-                    // Movement/Endgame phase
-                    Node[] bestMove = minimax.findBestMove(board, this, phase);
-                    if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
-                        try {
-                            game.makeMove(bestMove[0].getId(), bestMove[1].getId());
-                            MillGameUI.incrementMinimaxMoves();
-                            // Check for mill formation
-                            if (game.isMillFormed()) {
-                                handleMillFormation(board);
-                            }
-                        } catch (InvalidMove e) {
-                            log.error("Failed to make move", e);
-                        }
-                    } else {
-                        log.error("No valid move found for AI.");
-                        if (bestMove[0] == null || bestMove[1] == null) {
-                            log.error("No valid move found. Falling back to random.");
-                            for (Node fromNode : board.getNodes().values()) {
-                                if (fromNode.getOccupant() == this) {
-                                    for (Node toNode : board.getNeighbours(fromNode)) {
-                                        if (!toNode.isOccupied()) {
-                                            game.makeMove(fromNode.getId(), toNode.getId());
-                                            return;
-                                        }
-                                    }
+                } catch (InvalidMove e) {
+                    log.error("Failed to place piece", e);
+                }
+            }
+        } else if (phase >= 2) {
+            // Movement/Endgame phase
+            Node[] bestMove = minimax.findBestMove(board, this, phase);
+            if (bestMove != null && bestMove[0] != null && bestMove[1] != null) {
+                try {
+                    game.makeMove(bestMove[0].getId(), bestMove[1].getId());
+                    MillGameUI.incrementMinimaxMoves();
+                    // Check for mill formation
+                    if (game.isMillFormed()) {
+                        handleMillFormation(board);
+                    }
+                } catch (InvalidMove e) {
+                    log.error("Failed to make move", e);
+                }
+            } else {
+                log.error("No valid move found for AI.");
+                // Try random valid move as fallback
+                for (Node fromNode : board.getNodes().values()) {
+                    if (fromNode.getOccupant() == this) {
+                        for (Node toNode : board.getNeighbours(fromNode)) {
+                            if (!toNode.isOccupied()) {
+                                try {
+                                    game.makeMove(fromNode.getId(), toNode.getId());
+                                    return;
+                                } catch (InvalidMove e) {
+                                    // Try next move
                                 }
                             }
                         }
-                        
                     }
                 }
             }
-        });
+        }
     }
 
     /**
@@ -153,8 +150,6 @@ public class MinimaxAIPlayer implements Player {
         stonesOnBoard--;
     }
 
-    // Helper method to handle mill formation and remove opponent's piece
-    // Helper method to handle mill formation and remove opponent's piece
     // Helper method to handle mill formation and remove opponent's piece
     private void handleMillFormation(Board board) {
         Player opponent = game.getOpponent(this);
@@ -189,7 +184,4 @@ public class MinimaxAIPlayer implements Player {
             }
         }
     }
-
-
-
 }

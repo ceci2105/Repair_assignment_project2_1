@@ -34,7 +34,6 @@ public class MoveValidator {
         }
         
         if (player.getStonesToPlace() <= 0) {
-            System.out.println("[DEBUG] Player " + player.getName() + " has no stones left to place!");
             return false;
         }
         return player.getStonesToPlace() > 0 && !node.isOccupied();

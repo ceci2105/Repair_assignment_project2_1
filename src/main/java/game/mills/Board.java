@@ -20,6 +20,7 @@ public class Board {
     private static final int[][] edges = {{0, 1}, {1, 2}, {2, 14}, {14, 23}, {23, 22}, {22, 21}, {21, 9}, {9, 0}, {3, 4}, {4, 5}, {5, 13}, {13, 20}, {20, 19}, {19, 18}, {18, 10}, {10, 3}, {6, 7}, {7, 8}, {8, 12}, {12, 17}, {17, 16}, {16, 15}, {15, 11}, {11, 6}, {1, 4}, {4, 7}, {14, 13}, {13, 12}, {22, 19}, {19, 16}, {9, 10}, {10, 11}};
     @Getter
     private static final int[][] mills = {{0, 1, 2}, {3, 4, 5}, {6, 7, 8}, {15, 16, 17}, {18, 19, 20}, {21, 22, 23}, {0, 9, 21}, {3, 10, 18}, {6, 11, 15}, {1, 4, 7}, {16, 19, 22}, {8, 12, 17}, {5, 13, 20}, {2, 14, 23}, {9, 10, 11}, {12, 13, 14}};
+    @Getter
     private final SimpleGraph<Integer, DefaultEdge> graph;
     @Getter
     private Map<Integer, Node> nodes;
@@ -260,9 +261,11 @@ public class Board {
             copy.nodes.put(entry.getKey(), copiedNode);
         }
 
+      
         for (int[] edge : edges) {
             copy.graph.addEdge(edge[0], edge[1]);
         }
+
 
         return copy;
     }
@@ -325,7 +328,14 @@ public class Board {
             player.decrementStonesOnBoard(); 
         }
     }
+
     
 
+ 
 
+
+    
+    
+
+    
 }

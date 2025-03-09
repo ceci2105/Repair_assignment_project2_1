@@ -14,6 +14,7 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
 import MCTS.MCTSPlayer;
+import MCTS.MCTSPlayer;
 
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -123,33 +124,23 @@ public class Game {
         currentPlayer = (currentPlayer == humanPlayer1) ? humanPlayer2 : humanPlayer1;
 
         if (currentPlayer instanceof BaselineAgent || currentPlayer instanceof MinimaxAIPlayer || currentPlayer instanceof MCTSPlayer) {
-            Task<Void> aiTask = new Task<Void>() {
-                @Override
-                protected Void call() {
+            Platform.runLater(() -> {
+                try {
                     if (currentPlayer instanceof BaselineAgent) {
                         ((BaselineAgent) currentPlayer).makeMove();
                     } else if (currentPlayer instanceof MinimaxAIPlayer) {
                         ((MinimaxAIPlayer) currentPlayer).makeMove(board, phase);
-                    }else if (currentPlayer instanceof MCTSPlayer) {
-                        ((MCTSPlayer) currentPlayer).makeMove(board, getOpponent(currentPlayer));
+                    } else if (currentPlayer instanceof MCTSPlayer) {
+                        ((MCTSPlayer) currentPlayer).makeMove(board, phase);
                     }
-                    return null;
+                    notifyUI();
+                    if (ui != null) {
+                        ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
+                    }
+                } catch (Exception e) {
+                    log.error("Error in AI move", e);
                 }
-            };
-
-            aiTask.setOnSucceeded(event -> Platform.runLater(() -> {
-                notifyUI();
-                if (ui != null) {
-                    ui.updateGameStatus("Turn: " + getCurrentPlayer().getName());
-                }
-            }));
-
-            aiTask.setOnFailed(event -> {
-                Throwable error = aiTask.getException();
-                log.error("Error in AI Computation!", error);
             });
-
-            new Thread(aiTask).start();
         } else {
             notifyUI();
         }
@@ -222,28 +213,37 @@ public class Game {
     }
 
     /**
-     * Places a piece on the board at the specified node ID.
-     * Validates the move and checks if a mill has been formed.
-     *
-     * @param nodeID the node ID where the piece is to be placed.
+     * Places a piece on the specified node.
+     * Validates the placement and checks if a mill is formed.
+     * 
+     * @param nodeID the ID of the node where the piece should be placed.
      * @throws InvalidMove if the move is not valid.
      */
     public void placePiece(int nodeID) {
+        // First check if player has stones left to place - do this check first
+        if (currentPlayer.getStonesToPlace() <= 0) {
+            throw new InvalidMove("Player " + currentPlayer.getName() + " has no stones left to place!");
+        }
+        
+        // Then check if the placement is valid
         if (moveValidator.isValidPlacement(currentPlayer, nodeID)) {
             board.placePiece(currentPlayer, nodeID);
             trackBoardState();
             notifyUI();
+            
+            // Check if a mill is formed
             if (board.checkMill(board.getNode(nodeID), currentPlayer)) {
                 millFormed = true;
             } else {
+                // Only switch player if no mill is formed
                 switchPlayer();
             }
+            
             totalMoves++;
-            checkPhase();
+            checkPhase(); // Check if we should move to the next phase
             notifyMoveCallback();
-
         } else {
-            throw new InvalidMove("Placement is invalid!");
+            throw new InvalidMove("Invalid placement position!");
         }
     }
 
@@ -379,7 +379,20 @@ public class Game {
      * Checks if the game should move to the next phase (from placing to moving).
      */
     private void checkPhase() {
-        if (humanPlayer1.getStonesToPlace() == 0 && humanPlayer2.getStonesToPlace() == 0) {
+        // Check if all players have placed all their stones
+        boolean allStonesPlaced = true;
+        
+        // Check if humanPlayer1 has stones left to place
+        if (humanPlayer1 != null && humanPlayer1.getStonesToPlace() > 0) {
+            allStonesPlaced = false;
+        }
+        
+        // Check if humanPlayer2 has stones left to place
+        if (humanPlayer2 != null && humanPlayer2.getStonesToPlace() > 0) {
+            allStonesPlaced = false;
+        }
+        
+        if (allStonesPlaced) {
             phase = 2;
             if (!movingPhaseMessageDisplayed) {
                 if (ui != null) {
@@ -502,6 +515,8 @@ public class Game {
             gameOver(null); // Call gameOver with null to indicate a draw
         }
     }
+
+    
 
 
 }

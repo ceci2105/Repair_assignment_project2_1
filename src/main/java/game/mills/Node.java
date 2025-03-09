@@ -14,6 +14,8 @@ public class Node {
     private int id;             // Unique ID for each position on the board
     private Player occupant;    // The player occupying the node (null if empty)
     private Circle circle;      // Reference to the circle representing the node in the UI
+    private int visitCount; 
+    private int winCount; 
 
     /**
      * Constructor to initialize a Node with a unique ID.
@@ -23,6 +25,8 @@ public class Node {
     public Node(int id) {
         this.id = id;
         this.occupant = null;
+        this.visitCount = 0;  
+        this.winCount = 0;
     }
 
 
@@ -34,6 +38,32 @@ public class Node {
     public boolean isOccupied() {
         return occupant != null;
     }
+
+    public Player getOccupant() {
+        return occupant;
+    }
+
+    public void setOccupant(Player occupant) {
+        this.occupant = occupant;
+    }
+
+    public void incrementVisitCount() {
+        this.visitCount++;      
+    }
+
+    public int getVisits() {
+        return this.visitCount; 
+    }
+
+    public void incrementWinCount() {
+        this.winCount++;        
+    }
+
+    public int getWins() {
+        return this.winCount; 
+    }
+
+
 
 
 }

@@ -73,7 +73,7 @@ public class MillGameUI {
     private Pane root = new Pane(); // Root pane to hold all UI elements
     private int rulesCounter = 1;
     private Text rules;
-
+    
     /**
      * Constructor to initialize the MillGameUI.
      *
@@ -113,6 +113,10 @@ public class MillGameUI {
     }
 
     public static void incrementMinimaxMoves() {
+        minimaxmoves++;
+    }
+
+    public static void incrementMCTSMoves() {
         minimaxmoves++;
     }
 
@@ -182,7 +186,7 @@ public class MillGameUI {
         game.setUI(this);
         board = game.getBoard();
 
-        MCTSPlayer mctsPlayer = new MCTSPlayer("White", Color.WHITE);
+        MCTSPlayer mctsPlayer = new MCTSPlayer("White", Color.WHITE, game);
         mctsPlayer.setGame(game);
 
         game.setSecondPlayer(mctsPlayer);
